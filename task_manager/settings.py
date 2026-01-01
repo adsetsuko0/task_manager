@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     #сторонние апликации
     "rest_framework",
     "drf_yasg",
-    "rest_framework_simplejwt"
+    "rest_framework_simplejwt",
 
     'users',
     'tasks',
@@ -107,11 +107,11 @@ WSGI_APPLICATION = 'task_manager.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "task_db",       # название базы
-        "USER": "postgres",      # имя пользователя
-        "PASSWORD": "postgres",  # пароль
-        "HOST": "localhost",     # адрес сервера
-        "PORT": "5432",          # порт
+        "NAME": "mydatabase",
+        "USER": "mydatabaseuser",
+        "PASSWORD": "mypassword",
+        "HOST": "127.0.0.1",
+        "PORT": "5432",
     }
 }
 
