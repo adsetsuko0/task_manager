@@ -13,9 +13,9 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 
-AUTH_USER_MODEL = "users.User"  #добавила кастомную модель пользователя
+AUTH_USER_MODEL = "users.User" 
 
-#настройка токенов
+
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    #сторонние апликации
     "rest_framework",
     "drf_yasg",
     "rest_framework_simplejwt",
@@ -58,7 +57,6 @@ INSTALLED_APPS = [
     'tasks',
 ]
 
-#настойка РЕСТ 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
