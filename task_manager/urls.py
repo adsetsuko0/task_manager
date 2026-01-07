@@ -1,18 +1,36 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include   
+
+from rest_framework import permissions
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.routers import DefaultRouter
+
 from tasks.views import TaskViewSet
 from users.views import UserProfileView
 
-router=DefaultRouter()
-router.register(r"tasks", TaskViewSet, basename='tasks')
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+schema_view=get_schema_view(openapi.Info(
+    title='Task Manager API',
+    default_version='v1',
+    description='API для управления своими планами и задачами',
+    contact=openapi.Contact(email='r41969827@gmail.com'),
+    ),
+    public=True,
+    permission_classes=[permissions.AllowAny],
+)
+
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/users/me', UserProfileView.as_view(), name='user_profile'),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/', include(router.urls)),
+
+    path('api/', include('users.urls')),
+    path('api/', include('tasks.urls')),
+    
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='swagger'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='redoc'),
 ]
 
