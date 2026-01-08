@@ -22,6 +22,15 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "Bearer": {                # имя схемы 
+            "type": "apiKey",      # тип — apiKey для токенов в заголовке
+            "name": "Authorization",  # название заголовка, который будет использован
+            "in": "header",        # заголовок передаётся через header
+        }
+    },
+}
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
