@@ -19,6 +19,9 @@ class TaskViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view',False):
+            return Task.objects.none()
+
         user=self.request.user
         if user.role=='admin':
             return Task.objects.all()
