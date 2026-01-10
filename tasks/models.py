@@ -1,5 +1,39 @@
 from django.db import models
+from django.conf import settings
 from users.models import User
+
+
+class Projects_Group(models.Model):
+    name=models.CharField(max_length=100)
+    owner=models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='projects_group'
+    )
+    created_at=models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+    
+
+class Project(models.Model):
+    name=models.CharField(max_length=100)
+    group=models.ForeignKey(
+        Projects_Group,
+        on_delete=models.CASCADE,
+        related_name='projects'
+    )
+    owner=models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='projects'
+    )
+    created_at=models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+    
+
 
 class Task(models.Model):
     STATUS_CHOICES = (
@@ -15,6 +49,15 @@ class Task(models.Model):
     assignee=models.ForeignKey(User, on_delete=models.SET_NULL, related_name='assigned_tasks',null=True, blank=True)
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
+    project=models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name='tasks',
+        null=True,
+        blank=True,
+    )
 
     def __str__(self):
         return f'{self.title}-{self.status}'
+    
+    

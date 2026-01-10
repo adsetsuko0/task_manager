@@ -1,3 +1,7 @@
 from django.contrib import admin
+from .models import Projects_Group, Project, Task
 
-# Register your models here.
+admin.site.register(Projects_Group)
+admin.site.register(Project)
+admin.site.register(Task)
+
