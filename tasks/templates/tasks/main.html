@@ -1,0 +1,179 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+
+    <!--CSS-->
+    <link rel="stylesheet" href="{% static 'tasks/css/styles.css' %}">
+</head>
+<body>
+<div class="app">
+
+<!--SIDEBAR-->
+<aside class="sidebar">
+
+    <div class="nav-item-active">Home</div>
+
+    <div class="spaces">
+        <div class="spaces-header">
+            <span>Spaces</span>
+            <button id="addGroupBtn">+</button>
+        </div>
+
+
+        {% for group in groups %}
+        <div class="space-group">
+            <strong>{{ group.name }}</strong>
+
+            {% for project in group.projects.projects %}
+            <div class="project-row">
+                <span>{{ project.name }}</span>
+
+                <button class="menu-btn"
+                        onclick="openProjectMenu(event, '{{ project.id }}', '{{ project.name }}')">
+                </button>
+
+            </div>
+            {% endfor %}
+
+        </div>
+        {% endfor %}
+
+    </div>
+
+    <div class="dashboard">Dashboard</div>
+
+
+</aside>
+
+<!--MAIN-->
+<main class="main">
+
+    <div class="topbar">
+        <input class="search" placeholder="Search">
+        <div class="avatar">{{ request.user.username|first|upper }}</div>
+    </div>
+
+    <div class="content">
+
+        <div class="view-switch">
+            <button>List</button>
+            <button>Board</button>
+            <button>Calendar</button>
+        </div>
+
+        <!--RECENT PROJECTS-->
+        <section class="section" id="recent">
+            <div class="spaces-header" onclick="toggleSection('recent')">
+                <span>▼</span> Recent projects
+            </div>
+
+            <div class="cards">
+                {% for p in recent_projects %}
+                <div class="card">
+
+                    <button class="crad-menu-btn"
+                            onclick="openProjectMenu(event, '{{ p.id }}', '{{ p.name }}')">
+                    </button>
+
+                </div>
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        <!--FAVOURITE PROJECTS-->
+        <section class="section" id="fav">
+
+            <div class="section-header" onclick="toggleSection('fav')">
+                <span>▼</span> Favourites
+            </div>
+
+            <div class="cards">
+
+                {% for p in favourite_projects %}
+                <div class="card">
+
+                    <button class="card-menu-btn"
+                            onclick="openProjectMenu(event, '{{ p.id }}', '{{ p.name}}')">
+                    </button>
+
+                    <div class="card-img">Image</div>
+                    <div class="card-title">{{ p.name }}</div>
+
+                </div>
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+    </div>
+</main>
+
+</div>
+    
+
+
+<!--DROPDOWN MENU-->
+<div class="dropdown" id="dropdown">
+    <button onclick="openRename()">Rename</button>
+    <button onclick="openDelete()">Delete</button>
+</div>
+
+<!--RENAME MODAL-->
+<div class="modal-backdrop" id='renameModal'>
+    <div class="modal">
+        <h3>Rename project</h3>
+
+        <form method="post" action="{% url 'project_rename' %}">
+
+            {% csrf_token %}
+
+            <input type="hidden" name="project_id" id="renameProjectId">
+            <input type="text" name="name" id="renameProjectName">
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModals()">Cancel</button>
+                <button class="btn vtn-primary">Save</button>
+            </div>
+
+        </form>
+
+
+    </div>
+</div>
+
+<!--DELETE MODAL-->
+<div class="modal-backdrop" id='deleteModal'>
+    <div class="modal"></div>
+        <h3>Delete project?</h3>
+
+        <form method="post" action="{% url 'project_delete' %}">
+
+            {% csrf_token %}
+
+            <input type="hidden" name="project_id" id="deleteProjectId">
+            <p>This action cannot be undone.</p>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModals()">Cancel</button>
+                <button class="btn vtn-primary">Delete</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!--JS-->
+<script src="{% static 'tasks/js/main.js' %}"></script>
+</div>
+
+</body>
+</html>
