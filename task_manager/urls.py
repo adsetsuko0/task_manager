@@ -27,11 +27,9 @@ schema_view=get_schema_view(openapi.Info(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
-    path('api/', include('users.urls')),
-    path('api/', include('tasks.urls')),
-    
+    path('', include('tasks.urls')),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='swagger'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='redoc'),
 ]
-
+#path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='swagger'),
+#path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='redoc'),

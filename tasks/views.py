@@ -5,6 +5,20 @@ from .models import Task, Projects_Group, Project
 from .serializers import TaskSerializer, ProjectSerialier, ProjectsGroupSerialier
 from .permissions import IsAdminOrOwner, IsAssigneeOrOwner, IsOwnerOrReadOnly
 
+def main_page(request):
+    projects=Project.objects.filter(owner=request.user)
+    groups=Projects_Group.objects.filter(owner=request.user).prefetch_related('projects')
+
+    context={
+        'projects':projects,
+        'recent_projects':projects[:4],
+        'favourite_projects':projects[:4]
+    }
+
+    return render(request, 'tasks/main.html', context)
+
+
+
 class ProjectsGroupViewSet(viewsets.ModelViewSet):
     serializer_class=ProjectsGroupSerialier
     permission_classes= [permissions.IsAuthenticated, IsOwnerOrReadOnly]
