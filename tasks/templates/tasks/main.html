@@ -7,7 +7,7 @@
     <title>Task Manager</title>
 
     <!--CSS-->
-    <link rel="stylesheet" href="{% static 'tasks/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'tasks/css/style.css' %}?v=2">
 </head>
 <body>
 <div class="app">
@@ -16,17 +16,14 @@
 <aside class="sidebar">
 
 
-    <div class="page-title">
-        {{ page.title}}
-    </div>
-
-
     <div class="nav-item-active">Home</div>
+    
 
-    <div class="spaces-header" onclick="toggleSpaces()">
-        <span id='spaces-arrow'>▼</span>
-        <span>Spaces</span>
-        <button type="button">+</button>
+    <div class="spaces-section">
+        <div class="spaces-header" onclick="toggleSpaces()">
+            <span id='spaces-arrow'>▼</span>Spaces
+            <button type="button">+</button>
+        </div>
     </div>
 
 
@@ -63,8 +60,15 @@
 <main class="main">
 
     <div class="topbar">
-        <input class="search" placeholder="Search">
+
+        <div class="topbar-left">
+            <div class="page-title">{{ page_title }}</div>
+            <input class="search" placeholder="Search">
+        </div>
+
+    <div class="topbar-right">
         <div class="avatar">{{ request.user.username|first|upper }}</div>
+    </div>
     </div>
 
     <div class="content">
