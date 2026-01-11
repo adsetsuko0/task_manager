@@ -1,10 +1,13 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework import viewsets, permissions
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Task, Projects_Group, Project
 from .serializers import TaskSerializer, ProjectSerialier, ProjectsGroupSerialier
 from .permissions import IsAdminOrOwner, IsAssigneeOrOwner, IsOwnerOrReadOnly
+from django.contrib.auth.decorators import login_required
 
+
+@login_required
 def main_page(request):
     projects=Project.objects.filter(owner=request.user)
     groups=Projects_Group.objects.filter(owner=request.user).prefetch_related('projects')
@@ -17,6 +20,27 @@ def main_page(request):
 
     return render(request, 'tasks/main.html', context)
 
+
+@login_required
+def project_rename(request):
+    if request.method=='POST':
+        project_id=request.POST.get('project_id')
+        new_name=request.POST.get('new_name')
+
+        project=get_object_or_404(Project, id=project_id, owner=request.user)
+        project.name=new_name
+        project.save()
+    return redirect('main')
+    
+
+@login_required
+def project_delete(request, project_id):
+    if request.method=='POST':
+        project_id=request.POST.get('project_id')
+        
+        project=get_object_or_404(Project, id=project_id, owner=request.user)
+        project.delete()
+    return redirect('main')
 
 
 class ProjectsGroupViewSet(viewsets.ModelViewSet):
