@@ -32,6 +32,7 @@ body {
     border-radius: 6px;
     cursor: pointer;
     font-size: 15px;
+    font-weight: normal;
 }    
 
 .nav-item.active {
@@ -45,7 +46,6 @@ body {
     justify-content: flex-start;
     cursor: pointer;
     gap: 100px;  /*расстояние от spaces до кнопки +*/
-    font-weight: normal;
     margin-top: 0;
     font-size: 15px;
 }
