@@ -44,10 +44,10 @@ body {
     display: flex;
     justify-content: flex-start;
     cursor: pointer;
-    gap: 130px;  /*расстояние от spaces до кнопки +*/
-    font-weight: bold;
-    margin-top: 10px;
-    font-size: 17px;
+    gap: 100px;  /*расстояние от spaces до кнопки +*/
+    font-weight: normal;
+    margin-top: 0;
+    font-size: 15px;
 }
 
 .spaces-left {
@@ -333,6 +333,11 @@ body {
     display: none;
 }
 
+
+#spaces-arrow {
+    font-size: 12px;
+    transition: transform 0.2s;
+}
 
 .nav-item, .dashboard, .spaces-group strong {
     font-weight: normal;
