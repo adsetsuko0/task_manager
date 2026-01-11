@@ -12,7 +12,7 @@ function toggleSection(Id) {
 }
 
 function toggleSpaces() {
-    const body = document.getElementById('spaces-Body');
+    const body = document.getElementById('spaces-body');
     const arrow = document.getElementById('spaces-arrow');
 
     body.classList.toggle('hidden');
@@ -22,6 +22,18 @@ function toggleSpaces() {
         arrow.textContent = '▼';
     } 
 }
+
+
+const sidebarItems = document.querySelectorAll('.nav-item, .spaces-group strong, .dashboard');
+sidebarItems.forEach(item => {
+    item.addEventListener('click', () => {
+        sidebarItems.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+    }); 
+});
+
+
+
 
 /*===DROPDOWN MENU===*/
 function openMenu(event, projectId, projectName) {
