@@ -96,6 +96,7 @@ body {
 /*topbar*/
 .topbar {
     background: #fff;
+    justify-content: space-between;
     padding: 12px 16px;
     border-bottom: 1px solid #ddd;
     gap: 16px;
@@ -104,11 +105,19 @@ body {
     align-items: center;
 }
 
+.topbar.left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
 .search {
-    flex: 1;
+    width: 300px;
+    max-width: 100%;
     padding: 8px 12px;
     border-radius: 20px;
     border: 1px solid #ccc;
+    margin-top: 20px;
 }
 
 .avatar {
@@ -153,7 +162,7 @@ body {
 .section-header {
     display: flex;
     gap: 8px;
-    font-size: 18px;
+    font-size: 30px;
     font-weight: bold;
     cursor: pointer;
     align-items: center;
@@ -306,12 +315,13 @@ body {
 }
 
 
-.page.title {
-    font-size: 24px;
+.page-title {
+    font-size: 26px;
     font-weight: 700;
-    margin-bottom: 12px;
+    white-space: nowrap;
+    margin-right: 20px;
 }
 
-.hidden {
+#spaces-body.hidden {
     display: none;
 }
