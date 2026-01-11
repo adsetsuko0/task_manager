@@ -13,6 +13,7 @@ def main_page(request):
     groups=Projects_Group.objects.filter(owner=request.user).prefetch_related('projects')
 
     context={
+        'page_title':'Home',
         'projects':projects,
         'recent_projects':projects[:4],
         'favourite_projects':projects[:4]

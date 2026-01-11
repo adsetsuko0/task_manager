@@ -31,6 +31,7 @@ body {
     padding: 8px 12px;
     border-radius: 6px;
     cursor: pointer;
+    font-size: 15px;
 }    
 
 .nav-item.active {
@@ -42,8 +43,10 @@ body {
 .spaces-header {
     display: flex;
     justify-content: space-between;
+    cursor: pointer;
     font-weight: bold;
     margin-top: 10px;
+    font-size: 15px;
 }
 
 .spaces-group {
@@ -64,6 +67,7 @@ body {
     padding: 6px 10px;
     border-radius: 6px;
     cursor: pointer;
+    font-size: 15px;
 }
 
 .project-row:hover {
@@ -299,4 +303,15 @@ body {
 .btn-primary {
     background: #4f46e5;
     color: white;
+}
+
+
+.page.title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.hidden {
+    display: none;
 }

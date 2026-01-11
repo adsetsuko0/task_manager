@@ -15,25 +15,33 @@
 <!--SIDEBAR-->
 <aside class="sidebar">
 
+
+    <div class="page-title">
+        {{ page.title}}
+    </div>
+
+
     <div class="nav-item-active">Home</div>
 
-    <div class="spaces">
-        <div class="spaces-header">
-            <span>Spaces</span>
-            <button id="addGroupBtn">+</button>
-        </div>
+    <div class="spaces-header" onclick="toggleSpaces()">
+        <span id='spaces-arrow'>▼</span>
+        <span>Spaces</span>
+        <button type="button">+</button>
+    </div>
 
 
+
+    <div id="spaces-body">
         {% for group in groups %}
         <div class="space-group">
             <strong>{{ group.name }}</strong>
 
-            {% for project in group.projects.projects %}
+            {% for project in group.projects.all %}
             <div class="project-row">
                 <span>{{ project.name }}</span>
 
                 <button class="menu-btn"
-                        onclick="openProjectMenu(event, '{{ project.id }}', '{{ project.name }}')">
+                        onclick="openProjectMenu(event, '{{ project.id }}', '{{ project.name }}')">•••
                 </button>
 
             </div>
@@ -43,6 +51,8 @@
         {% endfor %}
 
     </div>
+
+
 
     <div class="dashboard">Dashboard</div>
 
@@ -67,7 +77,7 @@
 
         <!--RECENT PROJECTS-->
         <section class="section" id="recent">
-            <div class="spaces-header" onclick="toggleSection('recent')">
+            <div class="section-header" onclick="toggleSection('recent')">
                 <span>▼</span> Recent projects
             </div>
 
@@ -75,7 +85,7 @@
                 {% for p in recent_projects %}
                 <div class="card">
 
-                    <button class="crad-menu-btn"
+                    <button class="card-menu-btn"
                             onclick="openProjectMenu(event, '{{ p.id }}', '{{ p.name }}')">
                     </button>
 
