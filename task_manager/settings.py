@@ -15,6 +15,8 @@ from datetime import timedelta
 
 AUTH_USER_MODEL = "users.User" 
 
+LOGIN_URL = '/admin/login/'
+
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
