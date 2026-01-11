@@ -42,11 +42,18 @@ body {
 /*groups*/
 .spaces-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     cursor: pointer;
+    gap: 130px;  /*расстояние от spaces до кнопки +*/
     font-weight: bold;
     margin-top: 10px;
-    font-size: 15px;
+    font-size: 17px;
+}
+
+.spaces-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .spaces-group {
@@ -83,8 +90,8 @@ body {
 
 /*bottom*/
 .dashboard {
-    margin-top: auto;
-    font-weight: bold;
+    margin-top: 0;
+    font-weight: normal;
 }
 
 /*===MAIN===*/
@@ -324,4 +331,14 @@ body {
 
 #spaces-body.hidden {
     display: none;
+}
+
+
+.nav-item, .dashboard, .spaces-group strong {
+    font-weight: normal;
+    cursor: pointer;
+}
+
+.nav-item.active, .dashboard.active, .spaces-group strong.active {
+    font-weight: bold;
 }

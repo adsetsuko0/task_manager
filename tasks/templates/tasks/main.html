@@ -21,14 +21,18 @@
 
     <div class="spaces-section">
         <div class="spaces-header" onclick="toggleSpaces()">
-            <span id='spaces-arrow'>▼</span>Spaces
-            <button type="button">+</button>
+            <div class="spaces-left">
+                <span id='spaces-arrow'>▼</span>Spaces
+            </div>
+
+
+            <button type="button" class="spaces-add-btn">+</button>
         </div>
     </div>
 
 
 
-    <div id="spaces-body">
+    <div id="spaces-body" class="hidden">
         {% for group in groups %}
         <div class="space-group">
             <strong>{{ group.name }}</strong>
@@ -51,7 +55,7 @@
 
 
 
-    <div class="dashboard">Dashboard</div>
+    <div class="dashboard" id="dashboard">Dashboard</div>
 
 
 </aside>
