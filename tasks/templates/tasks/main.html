@@ -18,15 +18,15 @@
 
     <div class="nav-item">Home</div>
     
-    <div class="nav-item">
+    <div class="nav-item" id='spaces-nav'>
     <div class="spaces-section">
-        <div class="spaces-header" onclick="toggleSpaces()">
+        <div class="spaces-header" onclick="toggleSpaces(); setActiveNav('spaces-nav')">
             <div class="spaces-left">
                 <span id='spaces-arrow'>▼</span>Spaces
             </div>
 
 
-            <button type="button" class="spaces-add-btn">+</button>
+            <button type="button" class="spaces-add-btn" onclick="addSpace(event)">+</button>
         </div>
     </div>
 </div>

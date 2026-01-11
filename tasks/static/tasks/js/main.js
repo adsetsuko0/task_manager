@@ -33,6 +33,21 @@ sidebarItems.forEach(item => {
 });
 
 
+function setActiveNav(id) {
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    const activeItem = document.getElementById(id);
+    if (el) el.classList.add('active');
+}
+
+
+function addSpace(event) {
+    event.stopPropagation();
+    alert('Add Space functionality to be implemented.'); /*потом логика будет*/
+}
+
 
 
 /*===DROPDOWN MENU===*/
