@@ -347,3 +347,9 @@ body {
 .nav-item.active, .dashboard.active, .spaces-group strong.active {
     font-weight: bold;
 }
+
+.divider {
+    height: 1px;
+    background-color: #989898;
+    margin: 10px 0 18px;
+}
