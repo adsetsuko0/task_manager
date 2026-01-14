@@ -20,11 +20,11 @@ body {
 /*===SIDEBAR===*/
 .sidebar {
     background: #fff;
-    padding: 16px;
+    padding: 10px;
     display: flex;
     flex-direction: column;
     gap: 14px;
-    font-size: 18px;
+    font-size: 20px;
     user-select: none;
     margin-bottom: 16px;
     cursor: pointer;
@@ -33,6 +33,13 @@ body {
     transition: width 0.25s ease, padding 0.25s ease;
 }
 
+
+#sidebar-container {
+    position: relative; /* чтобы стрелка можно было позиционировать независимо */
+}
+
+
+
 #sidebar-toggle {
     font-size: 24px;       /* размер стрелки */
     cursor: pointer;
@@ -40,8 +47,18 @@ body {
     margin: 0 0 16px 0;   /* центрируем по горизонтали, снизу отступ 16px */
     display: block;        /* обязательно, чтобы margin:auto сработал */
     text-align: flex-start;    /* на всякий случай */
+    position: absolute;  /* отделяем от контента sidebar */
+    top: 16px;           /* отступ сверху */
+    left: 16px;
     transition: transform 0.25s ease;  /* для анимации при клике */
 }
+
+
+#sidebar-toggle.collapsed {
+    border-left: none;
+    border-right: 12px solid #000;
+}
+
 
 .sidebar.collapsed #sidebar-toggle{
     width: 60px;
@@ -73,7 +90,7 @@ body {
     padding: 8px 12px;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 15px;
+    font-size: 18px;
     font-weight: normal;
 }    
 
@@ -96,6 +113,7 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
+    font-size: 20px;
 }
 
 .spaces-group {
