@@ -13,9 +13,10 @@
 <div class="app">
 
 <!--SIDEBAR-->
-<aside class="sidebar">
+<div class="layout">
+<aside class="sidebar" id="sidebar">
 
-
+    <div id="sidebar-toggle" onclick="toggleSidebar()" class="triangle">◀</div>
     <div class="nav-item">Home</div>
     
     <div class="nav-item" id="spaces-nav" >
@@ -58,6 +59,8 @@
     <div class="nav-item">Dashboard</div>
 
 </aside>
+
+</div>
 
 <!--MAIN-->
 <main class="main">
@@ -212,6 +215,8 @@
         </form>
     </div>
 </div>
+
+
 
 <!--JS-->
 <script src="{% static 'tasks/js/main.js' %}"></script>
