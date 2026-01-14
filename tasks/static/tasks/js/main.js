@@ -51,13 +51,6 @@ function toggleSidebar() {
 
 
 
-function addSpace(event) {
-    event.stopPropagation();
-    alert('Add Space functionality to be implemented.'); /*потом логика будет*/
-}
-
-
-
 /*===DROPDOWN MENU===*/
 function openMenu(event, projectId, projectName) {
     event.stopPropagation();
@@ -95,4 +88,22 @@ function openDelete() {
 function closeModal() {
     document.getElementById('renameModal').style.display = 'none';
     document.getElementById('deleteModal').style.display = 'none';
+}
+
+
+
+
+/*===создание группы в сайдбаре===*/
+function addSpace(event) {
+    event.stopPropagation();
+
+    const spacesBody = document.getElementById('spaces-body');
+
+    const newGroup = document.createElement('div');
+    newGroup.className = 'space-group';
+    newGroup.innerHTML = `<strong>My First Group</strong>`;
+    spacesBody.appendChild(newGroup);
+    spacesBody.classList.remove('hidden');
+    document.getElementById('spaces-arrow').textContent = '▼';
+
 }
