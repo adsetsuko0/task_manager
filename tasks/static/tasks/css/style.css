@@ -12,7 +12,7 @@ body {
 /*===APP LAYOUT===*/
 .app {  
     display: grid;
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: auto 1fr;
     height: 100vh;
 }
 
@@ -20,12 +20,54 @@ body {
 /*===SIDEBAR===*/
 .sidebar {
     background: #fff;
-    /*background-color: #2c3e50;*/
     padding: 16px;
     display: flex;
     flex-direction: column;
     gap: 14px;
-}   
+    font-size: 18px;
+    user-select: none;
+    margin-bottom: 16px;
+    cursor: pointer;
+
+    width: 260px;
+    transition: width 0.25s ease, padding 0.25s ease;
+}
+
+#sidebar-toggle {
+    font-size: 24px;       /* размер стрелки */
+    cursor: pointer;
+    user-select: none;
+    margin: 0 0 16px 0;   /* центрируем по горизонтали, снизу отступ 16px */
+    display: block;        /* обязательно, чтобы margin:auto сработал */
+    text-align: flex-start;    /* на всякий случай */
+    transition: transform 0.25s ease;  /* для анимации при клике */
+}
+
+.sidebar.collapsed #sidebar-toggle{
+    width: 60px;
+    padding: 10px 8px;
+
+    transform: rotate(180deg);
+}
+
+
+.sidebar .nav-item,
+.sidebar .spaces-header,
+.sidebar #spaces-body {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.sidebar.collapsed .nav-item,
+.sidebar.collapsed .spaces-header,
+.sidebar.collapsed #spaces-body {
+    opacity: 0;
+    transform: translateX(-10px);
+    pointer-events: none;
+}
+
+.layout {
+    display: flex;
+}
 
 .nav-item {
     padding: 8px 12px;
@@ -388,4 +430,23 @@ body {
     height: 1px;
     background: #a2a2a2;
     margin: 10px 0 18px;
+}
+
+
+
+.triangle {
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 12px solid #000;
+    cursor: pointer;
+    transition: transform 0.25s ease;
+    align-self: flex-start; /* слева */
+    margin-bottom: 16px;
+}
+
+.triangle.collapsed {
+    border-left: none;
+    border-right: 12px solid #000;
 }

@@ -39,6 +39,17 @@ function toggleSpaces(event) {
 }
 
 
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const btn = document.getElementById('sidebar-toggle');
+
+    sidebar.classList.toggle('collapsed');
+
+    btn.textContent = sidebar.classList.contains('collapsed') ? '▶' : '◀';
+}
+
+
+
 
 function addSpace(event) {
     event.stopPropagation();
