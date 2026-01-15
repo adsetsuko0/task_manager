@@ -62,9 +62,9 @@ body {
 }   
 
 .group-title {
-    font-weight: bold;
     font-size: 14px;
-    margin: 8px 0 4px;
+    font-weight: 600;
+    padding: 6px 12px;
 }
 
 /*projects*/
@@ -333,7 +333,10 @@ body {
     display: none;
 }
 
-
+.spaces-group strong {
+    font-weight: normal;
+    cursor: pointer;
+}
 #spaces-arrow {
     font-size: 12px;
     transition: transform 0.2s;

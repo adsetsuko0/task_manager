@@ -34,8 +34,8 @@
 
     <div id="spaces-body" class="hidden">
         {% for group in groups %}
-        <div class="space-group">
-            <strong>{{ group.name }}</strong>
+        <div class="spaces-group">
+            <div class="group-title">{{ group.name }}</div>
 
             {% for project in group.projects.all %}
             <div class="project-row">
@@ -142,7 +142,7 @@
                 <div class="card">
 
                     <button class="card-menu-btn"
-                            onclick="openProjectMenu(event, '{{ p.id }}', '{{ p.name}}')">
+                            onclick="openProjectMenu(event, '{{ p.id }}', '{{ p.name }}')">
                     </button>
 
                     <div class="card-img">Image</div>
@@ -168,6 +168,38 @@
     <button onclick="openRename()">Rename</button>
     <button onclick="openDelete()">Delete</button>
 </div>
+
+<!--CREATE GROUP-->
+<div class="modal-backdrop" id="group-modal">
+    <div class="modal">
+        <h3>Create group</h3>
+
+        <label>
+            Group name
+            <input type="text" id="group-name">
+        </label>
+
+        <label>
+            Priority
+            <select id="group-priority">
+                <option value="low">Low</option>
+                <option value="normal">Normal</option>
+                <option value="high">High</option>
+            </select>
+        </label>
+
+        <label>
+            Project limit
+            <input type="number" id="group-limit" min="1">
+        </label>
+
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeGroupModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="createGroup()">Create</button>
+        </div>
+    </div>
+</div>
+
 
 <!--RENAME MODAL-->
 <div class="modal-backdrop" id='renameModal'>
