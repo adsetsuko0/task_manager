@@ -38,12 +38,46 @@ function toggleSpaces(event) {
     } 
 }
 
-
-
+/*===GROUP CREATING===*/
 function addSpace(event) {
     event.stopPropagation();
-    alert('Add Space functionality to be implemented.'); /*потом логика будет*/
+    openGroupModal();
 }
+
+function openGroupModal() {
+    document.getElementById('group-modal').style.display = 'flex';
+}
+
+function closeGroupModal() {
+    document.getElementById('group-modal').style.display = 'none';
+}
+
+function createGroup() {
+    const name = document.getElementById('group-name').value.trim();
+    const priority = document.getElementById('group-priority').value;
+    const limit = document.getElementById('group-limit').value;
+
+    if (!name) {
+        alert('Group name is required');
+        return;
+    }
+
+    // ВРЕМЕННО: только DOM
+    const container = document.getElementById('spaces-body');
+
+    const group = document.createElement('div');
+    group.className = 'space-group';
+
+    group.innerHTML = `
+        <div class="group-title">${name}</div>
+    `;
+
+    container.appendChild(group);
+
+    closeGroupModal();
+}
+
+
 
 
 
