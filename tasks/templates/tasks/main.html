@@ -26,7 +26,7 @@
             </div>
 
 
-            <button type="button" class="spaces-add-btn" onclick="addSpace(event)">+</button>
+            <button type="button" class="spaces-add-btn" onclick="openCreateGroupModal(event)">+</button>
         </div>
     </div>
 </div>
@@ -170,35 +170,36 @@
 </div>
 
 <!--CREATE GROUP-->
-<div class="modal-backdrop" id="group-modal">
-    <div class="modal">
-        <h3>Create group</h3>
+<div id="groupModal" class="modal-backdrop">
+  <div class="modal">
+    <h3>Create group</h3>
 
-        <label>
-            Group name
-            <input type="text" id="group-name">
-        </label>
+    <label>
+      Name
+      <input id="group-name" type="text">
+    </label>
 
-        <label>
-            Priority
-            <select id="group-priority">
-                <option value="low">Low</option>
-                <option value="normal">Normal</option>
-                <option value="high">High</option>
-            </select>
-        </label>
+    <label>
+      Priority
+      <select id="group-priority">
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+      </select>
+    </label>
 
-        <label>
-            Project limit
-            <input type="number" id="group-limit" min="1">
-        </label>
+    <label>
+      Project limit
+      <input id="group-limit" type="number" min="1">
+    </label>
 
-        <div class="modal-actions">
-            <button class="btn btn-secondary" onclick="closeGroupModal()">Cancel</button>
-            <button class="btn btn-primary" onclick="createGroup()">Create</button>
-        </div>
+    <div class="modal-actions">
+      <button onclick="closeGroupModal()">Cancel</button>
+      <button onclick="submitGroup()">Create</button>
     </div>
+  </div>
 </div>
+
 
 
 <!--RENAME MODAL-->

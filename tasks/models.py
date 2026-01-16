@@ -4,7 +4,14 @@ from users.models import User
 
 
 class Projects_Group(models.Model):
-    name=models.CharField(max_length=100)
+    PRIORITY_CHOICES = [
+        ('low', 'Low'),
+        ('normal', 'Normal'),
+        ('high', 'High'),
+    ]
+    name=models.CharField(max_length=100, unique=True)
+    priority=models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='normal')
+    project_limit=models.PositiveIntegerField(default=10)
     owner=models.ForeignKey(
         User,
         on_delete=models.CASCADE,
