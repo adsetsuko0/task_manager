@@ -41,15 +41,34 @@ function toggleSpaces(event) {
 /*===GROUP CREATING===*/
 function addSpace(event) {
     event.stopPropagation();
-    openGroupModal();
+    openCreateGroupModal();
 }
+
 
 function openGroupModal() {
     document.getElementById('group-modal').style.display = 'flex';
 }
 
 function closeGroupModal() {
-    document.getElementById('group-modal').style.display = 'none';
+    const modal = document.getElementById('groupModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function openCreateGroupModal(event) {
+    if (event) {
+        event.stopPropagation();
+    }
+
+    const modal = document.getElementById('groupModal');
+
+    if (!modal) {
+        console.error('❌ groupModal not found in DOM');
+        return;
+    }
+
+    modal.style.display = 'flex';
 }
 
 function createGroup() {
@@ -78,7 +97,72 @@ function createGroup() {
 }
 
 
+function submitGroup() {
+    const name = document.getElementById('group-name').value;
+    const priority = document.getElementById('group-priority').value;
+    const limit = document.getElementById('group-limit').value;
 
+    fetch('/groups/create/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken(),
+        },
+        body: JSON.stringify({
+            name,
+            priority,
+            limit
+        })
+    })
+    .then(res => res.json())
+    .then(group => {
+        renderGroup(group);   // 👈 только тут рисуем
+        closeGroupModal();
+    });
+}
+
+
+function getCSRFToken() {
+  return document.cookie
+    .split('; ')
+    .find(row => row.startsWith('csrftoken='))
+    ?.split('=')[1];
+}
+
+
+function addGroupToSidebar(group) {
+  const container = document.getElementById('spaces-body');
+
+  const el = document.createElement('div');
+  el.className = `space-group priority-${group.priority}`;
+
+  el.innerHTML = `
+    <div class="group-title">
+      ${group.name}
+      <span class="limit-badge">${group.limit}</span>
+    </div>
+  `;
+
+  container.appendChild(el);
+}
+
+
+
+function renderGroup(group) {
+    const spacesBody = document.getElementById('spaces-body');
+
+    const groupEl = document.createElement('div');
+    groupEl.className = 'space-group';
+
+    groupEl.innerHTML = `
+        <strong class="group-title priority-${group.priority}">
+            ${group.name}
+            <span class="limit-badge">${group.limit}</span>
+        </strong>
+    `;
+
+    spacesBody.appendChild(groupEl);
+}
 
 
 /*===DROPDOWN MENU===*/

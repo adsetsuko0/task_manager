@@ -1,10 +1,18 @@
+from tokenize import group
 from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework import viewsets, permissions
 from django_filters.rest_framework import DjangoFilterBackend
+
 from .models import Task, Projects_Group, Project
 from .serializers import TaskSerializer, ProjectSerialier, ProjectsGroupSerialier
 from .permissions import IsAdminOrOwner, IsAssigneeOrOwner, IsOwnerOrReadOnly
+
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from .models import Projects_Group
+import json
+
 
 
 @login_required
@@ -42,6 +50,28 @@ def project_delete(request, project_id):
         project=get_object_or_404(Project, id=project_id, owner=request.user)
         project.delete()
     return redirect('main')
+
+
+@require_POST
+def create_group(request):
+    data = json.loads(request.body)
+
+    if Projects_Group.objects.filter(name=data['name']).exists():
+        return JsonResponse({'error': 'duplicate'}, status=400)
+
+    group = Projects_Group.objects.create(
+        name=data['name'],
+        priority=data['priority'],
+        project_limit=data['limit']
+    )
+
+    return JsonResponse({
+        'id': group.id,
+        'name': group.name,
+        'priority': group.priority,
+        'limit': group.project_limit
+    })
+
 
 
 class ProjectsGroupViewSet(viewsets.ModelViewSet):
