@@ -11,13 +11,7 @@ class Projects_Group(models.Model):
     ]
     name=models.CharField(max_length=100, unique=True)
     priority=models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='normal')
-    project_limit=models.PositiveIntegerField(default=10)
-    owner=models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='projects_group'
-    )
-    created_at=models.DateTimeField(auto_now_add=True)
+    limit=models.PositiveIntegerField(default=10)
 
     def __str__(self):
         return self.name

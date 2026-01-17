@@ -1,3 +1,4 @@
+from email.headerregistry import Group
 from tokenize import group
 from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework import viewsets, permissions
@@ -10,6 +11,7 @@ from .permissions import IsAdminOrOwner, IsAssigneeOrOwner, IsOwnerOrReadOnly
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from .models import Projects_Group
 import json
 
@@ -17,8 +19,8 @@ import json
 
 @login_required
 def main_page(request):
-    projects=Project.objects.filter(owner=request.user)
-    groups=Projects_Group.objects.filter(owner=request.user).prefetch_related('projects')
+    projects=Project.objects.all()
+    groups=Projects_Group.objects.all()
 
     context={
         'page_title':'Home',
@@ -51,38 +53,35 @@ def project_delete(request, project_id):
         project.delete()
     return redirect('main')
 
-
-@require_POST
+@csrf_exempt
 def create_group(request):
-    data = json.loads(request.body)
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST'}, status=405)
 
-    if Projects_Group.objects.filter(name=data['name']).exists():
-        return JsonResponse({'error': 'duplicate'}, status=400)
+    data = json.loads(request.body)
 
     group = Projects_Group.objects.create(
         name=data['name'],
         priority=data['priority'],
-        project_limit=data['limit']
+        limit=int(data['limit'])
     )
 
     return JsonResponse({
         'id': group.id,
         'name': group.name,
         'priority': group.priority,
-        'limit': group.project_limit
+        'limit': group.limit
     })
-
-
 
 class ProjectsGroupViewSet(viewsets.ModelViewSet):
     serializer_class=ProjectsGroupSerialier
     permission_classes= [permissions.IsAuthenticated, IsOwnerOrReadOnly]
 
     def get_queryset(self):
-        return Projects_Group.objects.filter(owner=self.request.user)
+        return Projects_Group.objects.all()
     
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        serializer.save()
 
 
 

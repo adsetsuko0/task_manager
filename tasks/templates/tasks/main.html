@@ -13,6 +13,7 @@
 <div class="app">
 
 <!--SIDEBAR-->
+{% csrf_token %}
 <aside class="sidebar">
 
 
@@ -172,7 +173,8 @@
 <!--CREATE GROUP-->
 <div id="groupModal" class="modal-backdrop">
   <div class="modal">
-    <h3>Create group</h3>
+    <button type="button" onclick="createGroup()">Create</button>
+
 
     <label>
       Name
