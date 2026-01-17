@@ -46,7 +46,7 @@ function addSpace(event) {
 
 
 function openGroupModal() {
-    document.getElementById('group-modal').style.display = 'flex';
+    document.getElementById('groupModal').style.display = 'flex';
 }
 
 function closeGroupModal() {
@@ -72,35 +72,46 @@ function openCreateGroupModal(event) {
 }
 
 function createGroup() {
-    const name = document.getElementById('group-name').value.trim();
-    const priority = document.getElementById('group-priority').value;
-    const limit = document.getElementById('group-limit').value;
+    const nameInput = document.getElementById('group-name');
+    const name = nameInput.value.trim();
 
     if (!name) {
         alert('Group name is required');
         return;
     }
 
-    // ВРЕМЕННО: только DOM
-    const container = document.getElementById('spaces-body');
-
-    const group = document.createElement('div');
-    group.className = 'space-group';
-
-    group.innerHTML = `
-        <div class="group-title">${name}</div>
-    `;
-
-    container.appendChild(group);
-
-    closeGroupModal();
+    fetch('/groups/create/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({
+            name: name
+        })
+    })
+    .then(res => {
+        if (!res.ok) {
+            throw new Error('Group creation failed');
+        }
+        return res.json();
+    })
+    .then(data => {
+        addGroupToSidebar(data);
+        closeGroupModal();
+        nameInput.value = '';
+    })
+    .catch(err => {
+        alert(err.message);
+    });
 }
 
 
 function submitGroup() {
     const name = document.getElementById('group-name').value;
     const priority = document.getElementById('group-priority').value;
-    const limit = document.getElementById('group-limit').value;
+    const limit = Number(document.getElementById('group-limit').value);
+
 
     fetch('/groups/create/', {
         method: 'POST',
