@@ -16,5 +16,7 @@ urlpatterns = [
     path('project/delete/', project_delete, name='project_delete'),
 
     path('api/', include(router.urls)),
+
+    path('groups/', views.get_groups, name='get_groups'),
     path('groups/create/', views.create_group, name='group_create'),
 ]

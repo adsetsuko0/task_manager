@@ -159,6 +159,27 @@ function addGroupToSidebar(group) {
 
 
 
+function loadGroups() {
+    fetch('/groups/')
+        .then(res => res.json())
+        .then(groups => {
+            const container = document.getElementById('spaces-body');
+            container.innerHTML = ''; // очистка
+
+            groups.forEach(group => {
+                renderGroup(group);
+            });
+        })
+        .catch(err => {
+            console.error('Ошибка загрузки групп', err);
+        });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadGroups();
+});
+
+
 function renderGroup(group) {
     const spacesBody = document.getElementById('spaces-body');
 
@@ -166,14 +187,15 @@ function renderGroup(group) {
     groupEl.className = 'space-group';
 
     groupEl.innerHTML = `
-        <strong class="group-title priority-${group.priority}">
+        <div class="group-title priority-${group.priority}">
             ${group.name}
             <span class="limit-badge">${group.limit}</span>
-        </strong>
+        </div>
     `;
 
     spacesBody.appendChild(groupEl);
 }
+
 
 
 /*===DROPDOWN MENU===*/
