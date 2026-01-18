@@ -26,7 +26,8 @@ def main_page(request):
         'page_title':'Home',
         'projects':projects,
         'recent_projects':projects[:4],
-        'favourite_projects':projects[:4]
+        'favourite_projects':projects[:4],
+        'groups':groups,
     }
 
     return render(request, 'tasks/main.html', context)
@@ -72,6 +73,16 @@ def create_group(request):
         'priority': group.priority,
         'limit': group.limit
     })
+
+
+def get_groups(request):
+    groups = Projects_Group.objects.all().values(
+        'id',
+        'name',
+        'priority',
+        'limit'
+    )
+    return JsonResponse(list(groups), safe=False)
 
 class ProjectsGroupViewSet(viewsets.ModelViewSet):
     serializer_class=ProjectsGroupSerialier
