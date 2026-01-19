@@ -142,19 +142,18 @@ function getCSRFToken() {
 
 
 function addGroupToSidebar(group) {
-  const container = document.getElementById('spaces-body');
+    const container = document.getElementById('spaces-body');
 
-  const el = document.createElement('div');
-  el.className = `space-group priority-${group.priority}`;
+    const el = document.createElement('div');
+    el.className = `space-group priority-${group.priority}`;
 
-  el.innerHTML = `
+    el.innerHTML = `
     <div class="group-title">
       ${group.name}
       <span class="limit-badge">${group.limit}</span>
     </div>
-  `;
-
-  container.appendChild(el);
+    `;
+    container.appendChild(el);
 }
 
 
@@ -190,11 +189,46 @@ function renderGroup(group) {
         <div class="group-title priority-${group.priority}">
             ${group.name}
             <span class="limit-badge">${group.limit}</span>
+            <button class="group-menu-btn" onclick="openGroupMenu(event, ${group.id})">
+                ⋯
+            </button>
+
+
         </div>
+
     `;
 
     spacesBody.appendChild(groupEl);
+    const title=groupEl.querySelector('.group-title');
+    title.addEventListener('click', () => activateGroup(title));
 }
+
+function activateGroup(activeEl) {
+    document
+        .querySelectorAll('.group-title')
+        .forEach(el => el.classList.remove('active'));
+
+    activeEl.classList.add('active');
+}
+
+let CurrentGroupId = null;
+function CurrentGroupId(event, groupId) {
+    event.stopPropagation();
+
+    CurrentGroupId = groupId;
+
+    const dropdown = document.getElementById('group-dropdown');
+    const rect = event.target.getBoundingClientRect();
+
+    dropdown.style.display = 'block';
+    dropdown.style.top = (rect.bottom + window.scrollY) + "px";
+    dropdown.style.left = rect.left + "px";
+}
+
+document.addEventListener('click', () => {
+    const dropdown = document.getElementById('group-dropdown');
+    dropdown.style.display = 'none';
+});
 
 
 
