@@ -1,7 +1,8 @@
 let currentProjectId = null;
-let currentPrijectName = null;
+let сurrentGroupId = null;
+let currentProjectName = null;
 
-const dropdown = document.getElementById('dropdown');
+const dropdown = document.getElementById('group-dropdown');
 
 /*===COLLAPSE SECTION===*/
 const navItems = document.querySelectorAll('.nav-item');
@@ -211,11 +212,11 @@ function activateGroup(activeEl) {
     activeEl.classList.add('active');
 }
 
-let CurrentGroupId = null;
-function CurrentGroupId(event, groupId) {
+
+function openGroupMenu(event, groupId) {
     event.stopPropagation();
 
-    CurrentGroupId = groupId;
+    сurrentGroupId = groupId;
 
     const dropdown = document.getElementById('group-dropdown');
     const rect = event.target.getBoundingClientRect();
@@ -227,9 +228,8 @@ function CurrentGroupId(event, groupId) {
 
 document.addEventListener('click', () => {
     const dropdown = document.getElementById('group-dropdown');
-    dropdown.style.display = 'none';
+    if (dropdown) dropdown.style.display = 'none';
 });
-
 
 
 /*===DROPDOWN MENU===*/
@@ -244,10 +244,6 @@ function openMenu(event, projectId, projectName) {
     dropdown.style.top=(rect.bottom + window.scrollY) + "px";
     dropdown.style.left=rect.left + "px";   
 }
-
-document.addEventListener('click', () => {
-    dropdown.style.display = 'none';
-});
 
 /*===MODALS===*/
 function openRename() {
