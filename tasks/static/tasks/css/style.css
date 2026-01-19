@@ -82,7 +82,7 @@ body {
 
 .group-title {
     font-size: 14px;
-    font-weight: normal;
+    font-weight: 300;
     padding: 6px 12px;
     cursor: pointer;
 }
@@ -375,21 +375,18 @@ body {
     display: none;
 }
 
-.spaces-group strong {
-    font-weight: normal;
-    cursor: pointer;
-}
+
 #spaces-arrow {
     font-size: 12px;
     transition: transform 0.2s;
 }
 
-.nav-item, .dashboard, .spaces-group strong {
+.nav-item, .dashboard {
     font-weight: normal;
     cursor: pointer;
 }
 
-.nav-item.active, .dashboard.active, .spaces-group strong.active {
+.nav-item.active, .dashboard.active {
     font-weight: bold;
 }
 
