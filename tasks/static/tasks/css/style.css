@@ -50,10 +50,16 @@ body {
     font-size: 15px;
 }
 
+
+
 .spaces-left {
     display: flex;
     align-items: center;
     gap: 6px;
+}
+
+.space-group {
+    padding: 4px 8px;
 }
 
 .spaces-group {
@@ -62,7 +68,7 @@ body {
     padding: 6px 12px;
 }   
 
-.priority-low { border-left: 4px solid #9ca3af; }
+.priority-low { border-left: 4px solid #464747; }
 .priority-normal { border-left: 4px solid #4f46e5; }
 .priority-high { border-left: 4px solid #dc2626; }
 
@@ -76,8 +82,31 @@ body {
 
 .group-title {
     font-size: 14px;
-    font-weight: 600;
+    font-weight: normal;
     padding: 6px 12px;
+    cursor: pointer;
+}
+
+.group-title.active {
+    font-weight: bold;
+}
+
+.group-menu-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    opacity: 0.6;
+}
+
+.group-menu-btn :hover {
+    opacity: 1;
+}
+
+.group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 /*projects*/
