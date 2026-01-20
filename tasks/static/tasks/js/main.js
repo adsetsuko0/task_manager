@@ -180,19 +180,21 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-function renderGroup(group) {
+function renderGroup(group, ) {
     const spacesBody = document.getElementById('spaces-body');
-
     const groupEl = document.createElement('div');
+
+
     groupEl.className = 'space-group';
 
     groupEl.innerHTML = `
         <div class="group-title priority-${group.priority}">
-            ${group.name}
-            <span class="limit-badge">${group.limit}</span>
-            <button class="group-menu-btn" onclick="openGroupMenu(event, ${group.id})">
-                ⋯
-            </button>
+            <span class="group-name">${group.name}</span>
+
+            <div class="group-actions">
+                <span class="limit-badge">${group.limit}</span>
+                <button class="group-menu-btn">⋯</button>
+            </div>
 
 
         </div>
@@ -201,7 +203,14 @@ function renderGroup(group) {
 
     spacesBody.appendChild(groupEl);
     const title=groupEl.querySelector('.group-title');
+    const menuBtn = groupEl.querySelector('.group-menu-btn');
+    
     title.addEventListener('click', () => activateGroup(title));
+
+    menuBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); 
+        openGroupMenu(e, group.id);
+    });
 }
 
 function activateGroup(activeEl) {
