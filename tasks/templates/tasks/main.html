@@ -205,27 +205,21 @@
 
 
 <!--RENAME MODAL-->
-<div class="modal-backdrop" id='renameModal'>
-    <div class="modal">
-        <h3>Rename project</h3>
+<div class="modal-backdrop" id="renameGroupModal">
+  <div class="modal">
+    <h3>Rename group</h3>
 
-        <form method="post" action="{% url 'project_rename' %}">
+    <input type="hidden" id="renameGroupId">
+    <input type="text" id="renameGroupInput">
 
-            {% csrf_token %}
-
-            <input type="hidden" name="project_id" id="renameProjectId">
-            <input type="text" name="name" id="renameProjectName">
-
-            <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" onclick="closeModals()">Cancel</button>
-                <button class="btn vtn-primary">Save</button>
-            </div>
-
-        </form>
-
-
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeRenameGroupModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitRenameGroup()">Save</button>
     </div>
+  </div>
 </div>
+
+
 
 <!--DELETE MODAL-->
 <div class="modal-backdrop" id='deleteModal'>

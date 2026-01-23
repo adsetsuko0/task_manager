@@ -12,6 +12,7 @@ router.register(r"tasks", TaskViewSet, basename='tasks')
 
 urlpatterns = [
     path('', main_page, name='main'),
+    path('groups/rename/', views.rename_group, name='group_rename'),
     path('project/rename/', project_rename, name='project_rename'),
     path('project/delete/', project_delete, name='project_delete'),
 

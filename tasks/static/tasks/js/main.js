@@ -158,7 +158,6 @@ function addGroupToSidebar(group) {
 }
 
 
-
 function loadGroups() {
     fetch('/groups/')
         .then(res => res.json())
@@ -211,6 +210,9 @@ function renderGroup(group, ) {
         e.stopPropagation(); 
         openGroupMenu(e, group.id);
     });
+
+    groupEl.className = 'space-group';
+    groupEl.dataset.groupId = group.id;
 }
 
 function activateGroup(activeEl) {
@@ -225,7 +227,7 @@ function activateGroup(activeEl) {
 function openGroupMenu(event, groupId) {
     event.stopPropagation();
 
-    сurrentGroupId = groupId;
+    currentGroupId = groupId;
 
     const dropdown = document.getElementById('group-dropdown');
     const rect = event.target.getBoundingClientRect();
@@ -239,6 +241,48 @@ document.addEventListener('click', () => {
     const dropdown = document.getElementById('group-dropdown');
     if (dropdown) dropdown.style.display = 'none';
 });
+
+
+
+function renameGroup() {
+    const groupId = currentGroupId;
+    const titleEl = document.querySelector(`.space-group[data-group-id="${groupId}"] .group-name`);
+
+    document.getElementById('renameGroupId').value = groupId;
+    document.getElementById('renameGroupInput').value = titleEl.textContent;
+    document.getElementById('renameGroupModal').style.display = 'flex';
+}
+
+function submitRenameGroup() {
+    const groupId = document.getElementById('renameGroupId').value;
+    const newName = document.getElementById('renameGroupInput').value;
+
+    fetch('/groups/rename/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCSRFToken(),
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            group_id: groupId,
+            new_name: newName,
+        }),
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const titleEl = document.querySelector(`.space-group[data-group-id="${groupId}"] .group-name`);
+            titleEl.textContent = newName;
+            closeRenameGroupModal();
+        } else {
+            alert('Error renaming group');
+        }
+    });
+}
+
+function closeRenameGroupModal() {
+    document.getElementById('renameGroupModal').style.display = 'none';
+}
 
 
 /*===DROPDOWN MENU===*/
@@ -275,3 +319,13 @@ function closeModal() {
     document.getElementById('renameModal').style.display = 'none';
     document.getElementById('deleteModal').style.display = 'none';
 }
+
+
+
+
+
+
+
+window.renameGroup = renameGroup;
+window.submitRenameGroup = submitRenameGroup;
+window.closeRenameGroupModal = closeRenameGroupModal;
