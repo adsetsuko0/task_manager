@@ -89,7 +89,7 @@ def get_groups(request):
 @require_POST
 def rename_group(request):
     group_id = request.POST.get('group_id')
-    new_name = request.POST.get('name')
+    new_name = request.POST.get('new_name')
 
     if not group_id or not new_name:
         return JsonResponse({'error': 'Missing parameters'}, status=400)

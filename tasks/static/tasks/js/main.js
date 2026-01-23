@@ -1,5 +1,7 @@
+
+
 let currentProjectId = null;
-let сurrentGroupId = null;
+let currentGroupId = null;
 let currentProjectName = null;
 
 const dropdown = document.getElementById('group-dropdown');
@@ -245,13 +247,19 @@ document.addEventListener('click', () => {
 
 
 function renameGroup() {
-    const groupId = currentGroupId;
-    const titleEl = document.querySelector(`.space-group[data-group-id="${groupId}"] .group-name`);
+    console.log('renameGroup clicked', currentGroupId);
+    if (!currentGroupId) {
+        alert('Выберите группу перед переименованием!');
+        return;
+    }
+    const titleEl = document.querySelector(`.space-group[data-group-id="${currentGroupId}"] .group-name`);
+    if (!titleEl) return;
 
-    document.getElementById('renameGroupId').value = groupId;
+    document.getElementById('renameGroupId').value = currentGroupId;
     document.getElementById('renameGroupInput').value = titleEl.textContent;
     document.getElementById('renameGroupModal').style.display = 'flex';
 }
+
 
 function submitRenameGroup() {
     const groupId = document.getElementById('renameGroupId').value;
@@ -324,8 +332,24 @@ function closeModal() {
 
 
 
+document.addEventListener('DOMContentLoaded', () => {
+    const renameBtn = document.getElementById('renameGroupBtn');
+    if (renameBtn) {
+        renameBtn.addEventListener('click', renameGroup);
+    }
+
+    const addBtn = document.getElementById('addGroupProjectBtn');
+    if (addBtn) addBtn.addEventListener('click', addProjectInGroup);
+
+    const changeBtn = document.getElementById('changeGroupPriorityBtn');
+    if (changeBtn) changeBtn.addEventListener('click', changeGroupPriority);
+
+    const duplicateBtn = document.getElementById('duplicateGroupBtn');
+    if (duplicateBtn) duplicateBtn.addEventListener('click', duplicateGroup);
+
+    const deleteBtn = document.getElementById('deleteGroupBtn');
+    if (deleteBtn) deleteBtn.addEventListener('click', deleteGroup);
+});
 
 
-window.renameGroup = renameGroup;
-window.submitRenameGroup = submitRenameGroup;
-window.closeRenameGroupModal = closeRenameGroupModal;
+
