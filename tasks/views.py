@@ -53,6 +53,9 @@ def project_delete(request, project_id):
         project.delete()
     return redirect('main')
 
+
+#для групп
+
 @csrf_exempt
 def create_group(request):
     if request.method != 'POST':
@@ -82,6 +85,27 @@ def get_groups(request):
         'limit'
     )
     return JsonResponse(list(groups), safe=False)
+
+@require_POST
+def rename_group(request):
+    group_id = request.POST.get('group_id')
+    new_name = request.POST.get('name')
+
+    if not group_id or not new_name:
+        return JsonResponse({'error': 'Missing parameters'}, status=400)
+    
+    try:
+        group = Projects_Group.objects.get(id=group_id)
+        group.name = new_name
+        group.save()
+
+        return JsonResponse({'success': True, 'name': group.name},)
+    
+    except Projects_Group.DoesNotExist:
+        return JsonResponse({'error': 'Group not found'}, status=404)   
+    
+
+    
 
 class ProjectsGroupViewSet(viewsets.ModelViewSet):
     serializer_class=ProjectsGroupSerialier
