@@ -1,5 +1,6 @@
+
 let currentProjectId = null;
-let сurrentGroupId = null;
+let currentGroupId = null;
 let currentProjectName = null;
 
 const dropdown = document.getElementById('group-dropdown');
@@ -13,6 +14,8 @@ navItems.forEach(item => {
         item.classList.add('active');
     });
 });
+
+
 
 
 
@@ -179,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-function renderGroup(group, ) {
+function renderGroup(group) {
     const spacesBody = document.getElementById('spaces-body');
     const groupEl = document.createElement('div');
 
