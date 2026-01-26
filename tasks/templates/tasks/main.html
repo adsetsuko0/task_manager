@@ -12,6 +12,8 @@
 <body>
 <div class="app">
 
+
+
 <!--SIDEBAR-->
 {% csrf_token %}
 <aside class="sidebar">
@@ -31,6 +33,7 @@
         </div>
     </div>
 </div>
+
 
 
     <div id="spaces-body" class="hidden">
@@ -59,6 +62,9 @@
     <div class="nav-item">Dashboard</div>
 
 </aside>
+
+
+
 
 <!--MAIN-->
 <main class="main">
@@ -107,6 +113,8 @@
 </div>
 
 <div class="divider"></div>
+
+
 
         <!--RECENT PROJECTS-->
         <section class="section" id="recent">
@@ -170,17 +178,15 @@
     <button onclick="openDelete()">Delete</button>
 </div>
 
-<!--CREATE GROUP-->
+
+
+<!-- ===================== GROUPS ===================== -->
+
+<!-- CREATE GROUP MODAL -->
 <div id="groupModal" class="modal-backdrop">
   <div class="modal">
-    <button type="button" onclick="createGroup()">Create</button>
-
-
-    <label>
-      Name
-      <input id="group-name" type="text">
-    </label>
-
+    <h3>Create Group</h3>
+    <label>Name<input id="group-name" type="text"></label>
     <label>
       Priority
       <select id="group-priority">
@@ -189,12 +195,7 @@
         <option value="high">High</option>
       </select>
     </label>
-
-    <label>
-      Project limit
-      <input id="group-limit" type="number" min="1">
-    </label>
-
+    <label>Project limit<input id="group-limit" type="number" min="1"></label>
     <div class="modal-actions">
       <button onclick="closeGroupModal()">Cancel</button>
       <button onclick="submitGroup()">Create</button>
@@ -203,8 +204,17 @@
 </div>
 
 
+<!-- GROUP DROPDOWN MODAL-->
+<div id="group-dropdown" class="dropdown">
+    <button onclick="renameGroup()">Rename</button>
+    <button onclick="addProjectInGroup()">Add Project</button>
+    <button onclick="changeGroupPriority()">Change Priority</button>
+    <button onclick="duplicateGroup()">Duplicate</button>
+    <button onclick="deleteGroup()">Delete</button>
+</div>
 
-<!--RENAME MODAL-->
+
+<!--RENAME GROUP MODAL-->
 <div class="modal-backdrop" id="renameGroupModal">
   <div class="modal">
     <h3>Rename group</h3>
@@ -217,6 +227,35 @@
       <button class="btn btn-primary" onclick="submitRenameGroup()">Save</button>
     </div>
   </div>
+</div>
+
+
+
+
+<!-- ===================== PROJECTS ===================== -->
+<!-- CREATE PROJECT MODAL -->
+<div id="createProjectModal" class="modal-backdrop" style="display:none;">
+    <div class="modal">
+        <input type="hidden" id="createProjectGroupId">
+        <h3>Create Project</h3>
+
+        <label>Name<input id="createProjectName" type="text"></label>
+        <label>Task limit<input id="createProjectLimit" type="number" min="1"></label>
+
+        <div class="modal-actions">
+        <button type="button" onclick="closeCreateProjectModal()">Cancel</button>
+        <button id="submitCreateProjectBtn" type="button">Create</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- PROJECT DROPDOWN MODAL-->
+<div id="project-dropdown" class="dropdown">
+    <button onclick="renameProject()">Rename</button>
+    <button onclick="toggleFavorite()">Add To Favorites</button>
+    <button onclick="duplicateProject()">Duplicate</button>
+    <button onclick="deleteProject()">Delete</button>
 </div>
 
 
@@ -242,13 +281,7 @@
     </div>
 </div>
 
-<div id="group-dropdown" class="dropdown">
-    <button onclick="renameGroup()">Rename</button>
-    <button onclick="addProjectInGroup()">Add Project</button>
-    <button onclick="changeGroupPriority()">Change Priority</button>
-    <button onclick="duplicateGroup()">Duplicate</button>
-    <button onclick="deleteGroup()">Delete</button>
-</div>
+
 
 <!--JS-->
 <script src="{% static 'tasks/js/main.js' %}"></script>
