@@ -18,7 +18,6 @@ navItems.forEach(item => {
 
 
 
-
 function toggleSection(Id) {
     const section = document.getElementById(Id);
     if (section) {
@@ -42,12 +41,14 @@ function toggleSpaces(event) {
     } 
 }
 
-/*===GROUP CREATING===*/
+/*===========================GROUP============================*/
 function addSpace(event) {
     event.stopPropagation();
     openCreateGroupModal();
 }
 
+
+/*==GROUP MODAL===*/
 
 function openGroupModal() {
     document.getElementById('groupModal').style.display = 'flex';
@@ -68,12 +69,19 @@ function openCreateGroupModal(event) {
     const modal = document.getElementById('groupModal');
 
     if (!modal) {
-        console.error('❌ groupModal not found in DOM');
+        console.error('groupModal is not found');
         return;
     }
 
     modal.style.display = 'flex';
 }
+
+
+function closeRenameGroupModal() {
+    document.getElementById('renameGroupModal').style.display = 'none';
+}
+
+/*===GROUPS===*/
 
 function createGroup() {
     const nameInput = document.getElementById('group-name');
@@ -136,13 +144,6 @@ function submitGroup() {
     });
 }
 
-
-function getCSRFToken() {
-  return document.cookie
-    .split('; ')
-    .find(row => row.startsWith('csrftoken='))
-    ?.split('=')[1];
-}
 
 
 function addGroupToSidebar(group) {
@@ -256,9 +257,16 @@ function renameGroup() {
     document.getElementById('renameGroupModal').style.display = 'flex';
 }
 
+
 function submitRenameGroup() {
     const groupId = document.getElementById('renameGroupId').value;
     const newName = document.getElementById('renameGroupInput').value;
+
+    if (!newName) {
+        alert('Name is empty');
+        return;
+    }
+
 
     fetch('/groups/rename/', {
         method: 'POST',
@@ -283,9 +291,134 @@ function submitRenameGroup() {
     });
 }
 
-function closeRenameGroupModal() {
-    document.getElementById('renameGroupModal').style.display = 'none';
+
+
+/*===OTHER===*/
+function getCSRFToken() {
+  return document.cookie
+    .split('; ')
+    .find(row => row.startsWith('csrftoken='))
+    ?.split('=')[1];
 }
+
+
+/*===========================PROJECT============================*/
+function addProjectInGroup() {
+    if (!currentGroupId) {
+        alert('No group selected');
+        return;
+    }
+
+    document.getElementById('createProjectGroupId').value = currentGroupId;
+    document.getElementById('createProjectModal').style.display = 'flex';
+}
+
+function submitCreateProject() {
+    const name = document.getElementById('createProjectName').value;
+    const groupId = document.getElementById('createProjectGroupId').value;
+    const limit = Number(document.getElementById('createProjectLimit').value);
+
+    fetch('/projects/create/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken(),
+        },
+        body: JSON.stringify({
+            name,
+            group_id: groupId,
+            limit
+        }) 
+    })
+    .then(res => res.json())
+    .then(project => {
+        addProjectToGroupSidebar(project);
+        closeCreateProjectModal();
+    })
+    .catch(err => {
+        console.error('Error creating project', err);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('submitCreateProjectBtn');
+    if (btn) {
+        btn.addEventListener('click', submitCreateProject);
+    }
+});
+
+
+
+function renderProject(project) {
+    const groupEl = document.querySelector(`.space-group[data-group-id="${project.group_id}"]`);
+
+    if (!groupEl) {
+        console.error('Group element not found for project rendering');
+        return;
+    }
+
+    let projectContainer = groupEl.querySelector('.projects');
+    if (!projectContainer) {
+        projectContainer = document.createElement('div');
+        projectContainer.className = 'projects';
+        groupEl.appendChild(projectContainer);
+    }
+
+    const el = document.createElement('div');
+    el.className = 'project-item';
+    el.dataset.projectId = project.id;
+    el.innerHTML = `
+        <span class="project-name">${project.name}</span>
+
+        <div class="project-actions">
+            <span class="limit-badge">${project.task_limit}</span>
+            <button class="project-menu-btn">⋯</button>
+        </div>
+    `;
+
+    projectContainer.appendChild(el);
+    el.querySelector('.project-name').addEventListener('click', () => {
+        e.stopPropagation();
+        openProjectMenu(e, project.id, project.name);
+    });
+}   
+
+function openProjectMenu(event, projectId, projectName) {
+    currentProjectId = projectId;
+    currentProjectName = projectName;
+
+    const dropdown = document.getElementById('project-dropdown');
+    const rect = event.target.getBoundingClientRect();
+
+    dropdown.style.display = 'block';
+    dropdown.style.top = (rect.bottom + window.scrollY) + "px";
+    dropdown.style.left = rect.left + "px";
+}
+
+function loadProjects() {
+    fetch('/projects/')
+        .then(res => res.json())
+        .then(projects => {
+            projects.forEach(project => {
+                renderProject(project);
+            });
+        })
+        .catch(err => {
+            console.error('Error loading projects', err);
+        });
+}
+document.addEventListener('DOMContentLoaded', () => {
+    loadProjects();
+});
+
+
+
+/*==PROJECT MODAL===*/
+function closeCreateProjectModal() {
+    document.getElementById('createProjectModal').style.display = 'none';
+}
+
+
 
 
 /*===DROPDOWN MENU===*/

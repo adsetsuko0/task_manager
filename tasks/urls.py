@@ -12,12 +12,14 @@ router.register(r"tasks", TaskViewSet, basename='tasks')
 
 urlpatterns = [
     path('', main_page, name='main'),
-    path('groups/rename/', views.rename_group, name='group_rename'),
-    path('project/rename/', project_rename, name='project_rename'),
-    path('project/delete/', project_delete, name='project_delete'),
 
     path('api/', include(router.urls)),
+    path('projects/', views.project_get, name='project_get'),
+    path('projects/rename/', project_rename, name='project_rename'),
+    path('projects/delete/', project_delete, name='project_delete'),
+    path('projects/create/', views.create_project, name='project_create'),
 
     path('groups/', views.get_groups, name='get_groups'),
     path('groups/create/', views.create_group, name='group_create'),
+    path('groups/rename/', views.rename_group, name='group_rename'),
 ]

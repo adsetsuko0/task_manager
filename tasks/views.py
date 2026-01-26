@@ -32,6 +32,48 @@ def main_page(request):
     return render(request, 'tasks/main.html', context)
 
 
+#для проектов
+@require_POST
+@login_required
+@csrf_exempt
+def create_project(request):
+    try:
+        data = json.loads(request.body)
+        name = data.get('name')
+        task_limit = int(data.get('limit', 10))  # default 10
+        group_id = data.get('group_id')
+
+        if not name or not group_id:
+            return JsonResponse({'error': 'Missing parameters'}, status=400)
+
+        group = Projects_Group.objects.get(id=int(group_id))
+
+        project = Project.objects.create(
+            name=name,
+            task_limit=task_limit,
+            is_favourite=False,
+            group=group,
+            owner=request.user,
+            created_at=None
+        )
+
+        return JsonResponse({
+            'id': project.id,
+            'name': project.name,
+            'task_limit': project.task_limit,
+            'is_favourite': project.is_favourite,
+            'group_id': group.id
+        })
+
+    except Projects_Group.DoesNotExist:
+        return JsonResponse({'error': 'Group not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+
+
+
 @login_required
 def project_rename(request):
     if request.method=='POST':
@@ -54,9 +96,18 @@ def project_delete(request, project_id):
     return redirect('main')
 
 
+def project_get(request):
+    projects=Project.objects.all().values(
+        'id',
+        'name',
+        'task_limit',
+        'is_favourite',
+        'group_id',
+    )
+    return JsonResponse(list(projects), safe=False)
+
 #для групп
 
-@csrf_exempt
 def create_group(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Only POST'}, status=405)
@@ -86,15 +137,26 @@ def get_groups(request):
     )
     return JsonResponse(list(groups), safe=False)
 
+
 @require_POST
 def rename_group(request):
     group_id = request.POST.get('group_id')
     new_name = request.POST.get('name')
 
-    if not group_id or not new_name:
-        return JsonResponse({'error': 'Missing parameters'}, status=400)
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST allowed'}, status=405)
+
     
     try:
+        data = json.loads(request.body)
+        group_id = data.get('group_id')
+        new_name = data.get('new_name')
+
+        if not group_id or not new_name:
+            return JsonResponse({'error': 'Missing parameters'}, status=400)
+    
+
+
         group = Projects_Group.objects.get(id=group_id)
         group.name = new_name
         group.save()
@@ -102,8 +164,13 @@ def rename_group(request):
         return JsonResponse({'success': True, 'name': group.name},)
     
     except Projects_Group.DoesNotExist:
-        return JsonResponse({'error': 'Group not found'}, status=404)   
+        return JsonResponse({'error': 'Group not found'}, status=404)  
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400) 
     
+
+
 
     
 
