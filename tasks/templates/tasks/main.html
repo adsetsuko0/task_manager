@@ -6,11 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Manager</title>
 
-    <!--CSS-->
-    <link rel="stylesheet" href="{% static 'tasks/css/style.css' %}?v=3">
+<!--CSS-->
+<link rel="stylesheet" href="{% static 'tasks/css/style.css' %}?v=3">
 </head>
 <body>
 <div class="app">
+
+
+
+
 
 <!--SIDEBAR-->
 {% csrf_token %}
@@ -60,6 +64,10 @@
 
 </aside>
 
+
+
+
+
 <!--MAIN-->
 <main class="main">
 
@@ -107,6 +115,7 @@
 </div>
 
 <div class="divider"></div>
+
 
         <!--RECENT PROJECTS-->
         <section class="section" id="recent">
@@ -161,40 +170,32 @@
 </main>
 
 </div>
-    
 
+<!-- ===================== GROUPS ===================== -->
 
-<!--DROPDOWN MENU-->
-<div class="dropdown" id="dropdown">
-    <button onclick="openRename()">Rename</button>
-    <button onclick="openDelete()">Delete</button>
+<!--GROUP DROPDOWN-->
+<div id="group-dropdown" class="dropdown">
+    <button id="renameGroupBtn">Rename</button>
+    <button id="addGroupProjectBtn">Add Project</button>
+    <button id="changeGroupPriorityBtn">Change Priority</button>
+    <button id="duplicateGroupBtn">Duplicate</button>
+    <button id="deleteGroupBtn">Delete</button>
 </div>
 
-<!--CREATE GROUP-->
+
+<!--CREATE GROUP MODAL-->
 <div id="groupModal" class="modal-backdrop">
   <div class="modal">
-    <button type="button" onclick="createGroup()">Create</button>
-
-
-    <label>
-      Name
-      <input id="group-name" type="text">
-    </label>
-
-    <label>
-      Priority
+    <h3>Create Group</h3>
+    <label>Name <input id="group-name" type="text"></label>
+    <label>Priority
       <select id="group-priority">
         <option value="low">Low</option>
         <option value="medium">Medium</option>
         <option value="high">High</option>
       </select>
     </label>
-
-    <label>
-      Project limit
-      <input id="group-limit" type="number" min="1">
-    </label>
-
+    <label>Limit <input id="group-limit" type="number" min="1"></label>
     <div class="modal-actions">
       <button onclick="closeGroupModal()">Cancel</button>
       <button onclick="submitGroup()">Create</button>
@@ -202,12 +203,10 @@
   </div>
 </div>
 
-
-
-<!--RENAME MODAL-->
+<!-- RENAME GROUP MODAL -->
 <div class="modal-backdrop" id="renameGroupModal">
   <div class="modal">
-    <h3>Rename group</h3>
+    <h3>Rename Group</h3>
 
     <input type="hidden" id="renameGroupId">
     <input type="text" id="renameGroupInput">
@@ -219,35 +218,44 @@
   </div>
 </div>
 
+    
 
 
-<!--DELETE MODAL-->
-<div class="modal-backdrop" id='deleteModal'>
-    <div class="modal"></div>
-        <h3>Delete project?</h3>
+<!-- ===================== PROJECTS ===================== -->
 
-        <form method="post" action="{% url 'project_delete' %}">
-
-            {% csrf_token %}
-
-            <input type="hidden" name="project_id" id="deleteProjectId">
-            <p>This action cannot be undone.</p>
-
-            <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" onclick="closeModals()">Cancel</button>
-                <button class="btn vtn-primary">Delete</button>
-            </div>
-
-        </form>
-    </div>
+<!-- PROJECT DROPDOWN -->
+<div id="project-dropdown" class="dropdown">
+    <button id="renameProjectBtn">Rename Project</button>
+    <button id="deleteProjectBtn">Delete Project</button>
 </div>
 
-<div id="group-dropdown" class="dropdown">
-    <button id="renameGroupBtn">Rename</button>
-    <button id="addGroupProjectBtn">Add Project</button>
-    <button id="changeGroupPriorityBtn">Change Priority</button>
-    <button id="duplicateGroupBtn">Duplicate</button>
-    <button id="deleteGroupBtn">Delete</button>
+<!-- RENAME PROJECT MODAL -->
+<div class="modal-backdrop" id="renameProjectModal">
+  <div class="modal">
+    <h3>Rename Project</h3>
+    <input type="hidden" id="renameProjectId">
+    <input type="text" id="renameProjectName">
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeRenameProjectModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitRenameProject()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE PROJECT MODAL -->
+<div class="modal-backdrop" id="deleteProjectModal">
+  <div class="modal">
+    <h3>Delete Project?</h3>
+    <form method="post" action="{% url 'project_delete' %}">
+        {% csrf_token %}
+        <input type="hidden" name="project_id" id="deleteProjectId">
+        <p>This action cannot be undone.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeProjectDeleteModal()">Cancel</button>
+          <button class="btn btn-primary">Delete</button>
+        </div>
+    </form>
+  </div>
 </div>
 
 <!--JS-->

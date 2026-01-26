@@ -6,15 +6,47 @@ let currentProjectName = null;
 
 const dropdown = document.getElementById('group-dropdown');
 
-/*===COLLAPSE SECTION===*/
-const navItems = document.querySelectorAll('.nav-item');
 
-navItems.forEach(item => {
-    item.addEventListener('click', () => {
-        navItems.forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
+
+
+
+/*===COLLAPSE SECTION===*/
+document.addEventListener('DOMContentLoaded', () => {
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            navItems.forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+        });
     });
+
+    // Слушатели для dropdown кнопок
+    const renameBtn = document.getElementById('renameGroupBtn');
+    const addProjectBtn = document.getElementById('addGroupProjectBtn');
+    const changePriorityBtn = document.getElementById('changeGroupPriorityBtn');
+    const duplicateBtn = document.getElementById('duplicateGroupBtn');
+    const deleteBtn = document.getElementById('deleteGroupBtn');
+
+    if (renameBtn) {
+        renameBtn.addEventListener('click', () => {
+            if (!currentGroupId) {
+                alert('Выберите группу перед переименованием!');
+                return;
+            }
+            renameGroup();
+        });
+    }
+
+    if (addProjectBtn) addProjectBtn.addEventListener('click', addProjectInGroup);
+    if (changePriorityBtn) changePriorityBtn.addEventListener('click', changeGroupPriority);
+    if (duplicateBtn) duplicateBtn.addEventListener('click', duplicateGroup);
+    if (deleteBtn) deleteBtn.addEventListener('click', deleteGroup);
+
+    // Загружаем группы при старте
+    loadGroups();
 });
+
+
 
 
 
@@ -26,10 +58,9 @@ function toggleSection(Id) {
 }
 
 
-
+/*===ARROW MOVING===*/
 function toggleSpaces(event) {
     event.stopPropagation();
-    
     const body = document.getElementById('spaces-body');
     const arrow = document.getElementById('spaces-arrow');
 
@@ -41,6 +72,82 @@ function toggleSpaces(event) {
     } 
 }
 
+
+
+
+/*===GROUP MODAL AND ITS FUNCTIONS===*/
+function openCreateGroupModal(event) {
+    if (event) {event.stopPropagation();}
+
+    const modal = document.getElementById('groupModal');
+
+    if (!modal) {console.error('groupModal not found in DOM');
+        return;}
+
+    modal.style.display = 'flex';
+}
+
+
+
+function closeGroupModal() {
+    const modal = document.getElementById('groupModal');
+    if (modal) {modal.style.display = 'none';}
+}
+
+
+function renameGroup() {
+    console.log('renameGroup clicked', currentGroupId);
+    if (!currentGroupId) {
+        alert('You must select a group to rename!');
+        return;
+    }
+    const titleEl = document.querySelector(`.space-group[data-group-id="${currentGroupId}"] .group-name`);
+    if (!titleEl) return;
+
+    document.getElementById('renameGroupId').value = currentGroupId;
+    document.getElementById('renameGroupInput').value = titleEl.textContent;
+    document.getElementById('renameGroupModal').style.display = 'flex';
+}
+window.renameGroup = renameGroup;
+
+
+
+function submitRenameGroup() {
+    const groupId = document.getElementById('renameGroupId').value;
+    const newName = document.getElementById('renameGroupInput').value;
+
+    fetch('/groups/rename/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCSRFToken(),
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            group_id: groupId,
+            new_name: newName,
+        }),
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const titleEl = document.querySelector(`.space-group[data-group-id="${groupId}"] .group-name`);
+            titleEl.textContent = newName;
+            closeRenameGroupModal();
+        } else {
+            alert('Error renaming group');
+        }
+    });
+}
+
+function closeRenameGroupModal() {
+    document.getElementById('renameGroupModal').style.display = 'none';
+}
+
+
+
+
+
+
 /*===GROUP CREATING===*/
 function addSpace(event) {
     event.stopPropagation();
@@ -48,40 +155,12 @@ function addSpace(event) {
 }
 
 
-function openGroupModal() {
-    document.getElementById('groupModal').style.display = 'flex';
-}
-
-function closeGroupModal() {
-    const modal = document.getElementById('groupModal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
-function openCreateGroupModal(event) {
-    if (event) {
-        event.stopPropagation();
-    }
-
-    const modal = document.getElementById('groupModal');
-
-    if (!modal) {
-        console.error('❌ groupModal not found in DOM');
-        return;
-    }
-
-    modal.style.display = 'flex';
-}
-
 function createGroup() {
     const nameInput = document.getElementById('group-name');
     const name = nameInput.value.trim();
 
-    if (!name) {
-        alert('Group name is required');
-        return;
-    }
+    if (!name) {alert('Group name is required');
+        return;}
 
     fetch('/groups/create/', {
         method: 'POST',
@@ -136,30 +215,6 @@ function submitGroup() {
 }
 
 
-function getCSRFToken() {
-  return document.cookie
-    .split('; ')
-    .find(row => row.startsWith('csrftoken='))
-    ?.split('=')[1];
-}
-
-
-function addGroupToSidebar(group) {
-    const container = document.getElementById('spaces-body');
-
-    const el = document.createElement('div');
-    el.className = `space-group priority-${group.priority}`;
-
-    el.innerHTML = `
-    <div class="group-title">
-      ${group.name}
-      <span class="limit-badge">${group.limit}</span>
-    </div>
-    `;
-    container.appendChild(el);
-}
-
-
 function loadGroups() {
     fetch('/groups/')
         .then(res => res.json())
@@ -172,13 +227,9 @@ function loadGroups() {
             });
         })
         .catch(err => {
-            console.error('Ошибка загрузки групп', err);
+            console.error('Error loading groups!', err);
         });
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    loadGroups();
-});
 
 
 function renderGroup(group, ) {
@@ -217,16 +268,36 @@ function renderGroup(group, ) {
     groupEl.dataset.groupId = group.id;
 }
 
+
+
 function activateGroup(activeEl) {
     document
-        .querySelectorAll('.group-title')
-        .forEach(el => el.classList.remove('active'));
+        .querySelectorAll('.group-title').forEach(el => el.classList.remove('active'));
 
     activeEl.classList.add('active');
 }
 
 
-function openGroupMenu(event, groupId) {
+
+function addGroupToSidebar(group) {
+    const container = document.getElementById('spaces-body');
+
+    const el = document.createElement('div');
+    el.className = `space-group priority-${group.priority}`;
+
+    el.innerHTML = `
+    <div class="group-title">
+      ${group.name}
+      <span class="limit-badge">${group.limit}</span>
+    </div>
+    `;
+    container.appendChild(el);
+}
+
+
+
+
+function openGroupDropdown(event, groupId) {
     event.stopPropagation();
 
     currentGroupId = groupId;
@@ -238,6 +309,18 @@ function openGroupMenu(event, groupId) {
     dropdown.style.top = (rect.bottom + window.scrollY) + "px";
     dropdown.style.left = rect.left + "px";
 }
+window.openGroupDropdown = openGroupDropdown;
+
+
+
+/*===OTHER===*/
+function getCSRFToken() {
+  return document.cookie
+    .split('; ')
+    .find(row => row.startsWith('csrftoken='))
+    ?.split('=')[1];
+}
+
 
 document.addEventListener('click', () => {
     const dropdown = document.getElementById('group-dropdown');
@@ -246,54 +329,11 @@ document.addEventListener('click', () => {
 
 
 
-function renameGroup() {
-    console.log('renameGroup clicked', currentGroupId);
-    if (!currentGroupId) {
-        alert('Выберите группу перед переименованием!');
-        return;
-    }
-    const titleEl = document.querySelector(`.space-group[data-group-id="${currentGroupId}"] .group-name`);
-    if (!titleEl) return;
-
-    document.getElementById('renameGroupId').value = currentGroupId;
-    document.getElementById('renameGroupInput').value = titleEl.textContent;
-    document.getElementById('renameGroupModal').style.display = 'flex';
-}
 
 
-function submitRenameGroup() {
-    const groupId = document.getElementById('renameGroupId').value;
-    const newName = document.getElementById('renameGroupInput').value;
-
-    fetch('/groups/rename/', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCSRFToken(),
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            group_id: groupId,
-            new_name: newName,
-        }),
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            const titleEl = document.querySelector(`.space-group[data-group-id="${groupId}"] .group-name`);
-            titleEl.textContent = newName;
-            closeRenameGroupModal();
-        } else {
-            alert('Error renaming group');
-        }
-    });
-}
-
-function closeRenameGroupModal() {
-    document.getElementById('renameGroupModal').style.display = 'none';
-}
 
 
-/*===DROPDOWN MENU===*/
+/*===PROJECT DROPDOWN MENU FIX LATER===*/
 function openMenu(event, projectId, projectName) {
     event.stopPropagation();
 
@@ -306,8 +346,8 @@ function openMenu(event, projectId, projectName) {
     dropdown.style.left=rect.left + "px";   
 }
 
-/*===MODALS===*/
-function openRename() {
+/*===PROJECT MODALS===*/
+function openRenameProject() {
     dropdown.style.display = 'none';
 
     document.getElementById('renameProjectId').value = currentProjectId;
@@ -316,7 +356,7 @@ function openRename() {
 
 }
 
-function openDelete() {
+function openDeleteProject() {
     dropdown.style.display = 'none';
 
     document.getElementById('deleteProjectId').value = currentProjectId;
@@ -327,29 +367,4 @@ function closeModal() {
     document.getElementById('renameModal').style.display = 'none';
     document.getElementById('deleteModal').style.display = 'none';
 }
-
-
-
-
-
-document.addEventListener('DOMContentLoaded', () => {
-    const renameBtn = document.getElementById('renameGroupBtn');
-    if (renameBtn) {
-        renameBtn.addEventListener('click', renameGroup);
-    }
-
-    const addBtn = document.getElementById('addGroupProjectBtn');
-    if (addBtn) addBtn.addEventListener('click', addProjectInGroup);
-
-    const changeBtn = document.getElementById('changeGroupPriorityBtn');
-    if (changeBtn) changeBtn.addEventListener('click', changeGroupPriority);
-
-    const duplicateBtn = document.getElementById('duplicateGroupBtn');
-    if (duplicateBtn) duplicateBtn.addEventListener('click', duplicateGroup);
-
-    const deleteBtn = document.getElementById('deleteGroupBtn');
-    if (deleteBtn) deleteBtn.addEventListener('click', deleteGroup);
-});
-
-
 
