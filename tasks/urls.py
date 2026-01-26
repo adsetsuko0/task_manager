@@ -1,6 +1,6 @@
 from django.urls import path,include
 from rest_framework.routers import DefaultRouter
-from .views import TaskViewSet, ProjectsGroupViewSet, ProjectViewSet, main_page, project_rename, project_delete, create_group
+from .views import TaskViewSet, ProjectsGroupViewSet, ProjectViewSet, create_project, main_page, project_rename, project_delete, create_group
 from tasks import views
 
 router=DefaultRouter()
@@ -17,7 +17,7 @@ urlpatterns = [
     path('projects/', views.project_get, name='project_get'),
     path('projects/rename/', project_rename, name='project_rename'),
     path('projects/delete/', project_delete, name='project_delete'),
-    path('projects/create/', views.create_project, name='project_create'),
+    path('projects/create/', create_project, name='project_create'),
 
     path('groups/', views.get_groups, name='get_groups'),
     path('groups/create/', views.create_group, name='group_create'),
