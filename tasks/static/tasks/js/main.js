@@ -310,48 +310,94 @@ function addProjectInGroup() {
     }
 
     document.getElementById('createProjectGroupId').value = currentGroupId;
+    document.getElementById('createProjectName').value = '';
+    document.getElementById('createProjectLimit').value = 50;
     document.getElementById('createProjectModal').style.display = 'flex';
 }
 
+
+
+function addProjectToGroupSidebar(project) {
+    // Найти контейнер группы
+    const groupEl = document.querySelector(`.space-group[data-group-id="${project.group_id}"]`);
+    if (!groupEl) {
+        console.error('Group element not found for project rendering');
+        return;
+    }
+
+    // Создать контейнер проектов, если его нет
+    let projectContainer = groupEl.querySelector('.projects');
+    if (!projectContainer) {
+        projectContainer = document.createElement('div');
+        projectContainer.className = 'projects';
+        groupEl.appendChild(projectContainer);
+    }
+
+    // Создать элемент проекта
+    const el = document.createElement('div');
+    el.className = 'project-item';
+    el.dataset.projectId = project.id;
+    el.innerHTML = `
+        <span class="project-name">${project.name}</span>
+        <div class="project-actions">
+            <span class="limit-badge">${project.task_limit}</span>
+            <button class="project-menu-btn">⋯</button>
+        </div>
+    `;
+
+    projectContainer.appendChild(el);
+
+    // Навешиваем открытие меню на кнопку
+    const btn = el.querySelector('.project-menu-btn');
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openProjectMenu(e, project.id, project.name);
+    });
+
+    // Навешиваем клик на имя проекта (если нужно отдельное поведение)
+    el.querySelector('.project-name').addEventListener('click', (e) => {
+        e.stopPropagation();
+        openProjectMenu(e, project.id, project.name);
+    });
+}
+
+
+
+
 function submitCreateProject() {
-    const name = document.getElementById('createProjectName').value;
+    const name = document.getElementById('createProjectName').value.trim();
     const groupId = document.getElementById('createProjectGroupId').value;
     const limit = Number(document.getElementById('createProjectLimit').value);
+
+    if (!name) {
+        alert('Project name is required');
+        return;
+    }
 
     fetch('/projects/create/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCSRFToken(),
+            'X-CSRFToken': getCSRFToken()
         },
-        body: JSON.stringify({
-            name,
-            group_id: groupId,
-            limit
-        }) 
+        body: JSON.stringify({ name, group_id: groupId, limit })
     })
     .then(res => res.json())
     .then(project => {
-        addProjectToGroupSidebar(project);
+        if (project.error) {
+            alert(project.error);
+            return;
+        }
+        renderProject(project);
         closeCreateProjectModal();
     })
-    .catch(err => {
-        console.error('Error creating project', err);
-    });
+    .catch(err => console.error('Error creating project', err));
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('submitCreateProjectBtn');
-    if (btn) {
-        btn.addEventListener('click', submitCreateProject);
-    }
-});
 
 
 
 function renderProject(project) {
     const groupEl = document.querySelector(`.space-group[data-group-id="${project.group_id}"]`);
-
     if (!groupEl) {
         console.error('Group element not found for project rendering');
         return;
@@ -369,19 +415,21 @@ function renderProject(project) {
     el.dataset.projectId = project.id;
     el.innerHTML = `
         <span class="project-name">${project.name}</span>
-
         <div class="project-actions">
             <span class="limit-badge">${project.task_limit}</span>
-            <button class="project-menu-btn">⋯</button>
+            <button class="project-menu-btn" onclick="openProjectMenu(event, ${project.id}, '${project.name}')">⋯</button>
         </div>
     `;
-
     projectContainer.appendChild(el);
-    el.querySelector('.project-name').addEventListener('click', () => {
-        e.stopPropagation();
-        openProjectMenu(e, project.id, project.name);
-    });
-}   
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('submitCreateProjectBtn');
+    if (btn) btn.addEventListener('click', submitCreateProject);
+});
+
+
+
 
 function openProjectMenu(event, projectId, projectName) {
     currentProjectId = projectId;
