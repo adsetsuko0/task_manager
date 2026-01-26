@@ -53,7 +53,6 @@ def create_project(request):
             task_limit=task_limit,
             is_favourite=False,
             group=group,
-            owner=request.user,
             created_at=None
         )
 
