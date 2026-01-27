@@ -467,3 +467,43 @@ body {
     background: #a2a2a2;
     margin: 10px 0 18px;
 }
+
+
+
+.project-item {
+    display: flex;
+    align-items: center;   /* выравнивание по вертикали */
+    justify-content: space-between; /* название слева, кнопка справа */
+    padding: 2px 4px;      /* чуть внутреннего отступа */
+}
+
+.project-name {
+    margin-left: 8px; /* слегка смещаем название вправо */
+}
+
+.project-actions {
+    margin-left: 8px;
+    display: flex;
+    align-items: center;
+}
+
+
+.project-menu-btn {
+    background: none;       /* убираем фон */
+    border: none;           /* убираем рамку */
+    padding: 0;             /* убираем внутренние отступы */
+    font-size: 16px;        /* размер точек */
+    cursor: pointer;        /* курсор как кнопка */
+    color: #555;            /* можно подобрать цвет, как у группы */
+}
+
+.project-menu-btn:hover {
+    color: #000;            /* при наведении чуть темнее */
+}
+
+
+.projects {
+    border-left: 2px solid #ccc; /* линия слева */
+    margin-left: 12px;           /* отступ от названия группы */
+    padding-left: 8px;           /* отступ текста от линии */
+}
