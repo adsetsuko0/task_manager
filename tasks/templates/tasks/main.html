@@ -38,10 +38,12 @@
 
     <div id="spaces-body" class="hidden">
         {% for group in groups %}
-        <div class="spaces-group">
-            <div class="group-title">{{ group.name }}</div>
+        <div class="spaces-group" data-group-id="{{ group.id }}">
+            <div class="group-title clickable">
+            <span class="group-name">{{ group.name }}</span>
+            </div>
 
-            <div class="projects">
+            <div class="projects" style="display: none;">
             {% for project in group.projects.all %}
             <div class="project-item" data-project-id="{{ project.id }}">
                 <span class="project-name">{{ project.name }}</span>
