@@ -189,9 +189,10 @@ function renderGroup(group) {
 
 
     groupEl.className = 'space-group';
+    groupEl.dataset.groupId = group.id;
 
     groupEl.innerHTML = `
-        <div class="group-title priority-${group.priority}">
+        <div class="group-title clickable priority-${group.priority}">
             <span class="group-name">${group.name}</span>
 
             <div class="group-actions">
@@ -214,6 +215,9 @@ function renderGroup(group) {
         e.stopPropagation(); 
         openGroupMenu(e, group.id);
     });
+    title.addEventListener('click', toggleGroupProjects);
+
+    spacesBody.appendChild(groupEl);
 
     groupEl.className = 'space-group';
     groupEl.dataset.groupId = group.id;
@@ -290,6 +294,38 @@ function submitRenameGroup() {
         }
     });
 }
+
+function toggleGroupProjects(event) {
+    const titleEl = event.currentTarget;
+    const groupEl = titleEl.closest('.spaces-group');
+    const projectsContainer = groupEl.querySelector('.projects');
+
+    // если проектов нет — ничего не делаем
+    if (!projectsContainer) return;
+
+    // скрываем/показываем проекты
+    if (projectsContainer.style.display === 'none') {
+        projectsContainer.style.display = 'block';
+        titleEl.classList.add('active');  // выделяем группу
+    } else {
+        projectsContainer.style.display = 'none';
+        titleEl.classList.remove('active'); // снимаем выделение
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+    loadGroups();
+    loadProjects();
+
+    // навешиваем toggle на все группы
+    document.querySelectorAll('.group-title.clickable').forEach(title => {
+        title.addEventListener('click', toggleGroupProjects);
+    });
+});
+}
+
+
+
+
+
 
 
 

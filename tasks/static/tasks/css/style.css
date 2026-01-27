@@ -93,6 +93,7 @@ body {
 
 }
 
+
 .group-actions {
     display: flex;
     align-items: center;
@@ -100,6 +101,23 @@ body {
 }
 
 .group-title.active {
+    font-weight: bold;
+}
+
+.group-title.clickable {
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+.group-title.clickable:hover {
+    background-color: #eef2ff; /* светлый эффект при наведении */
+}
+
+.group-title.clickable.active {
+    background-color: #4f46e5; /* синий фон при выделении */
+    color: white;               /* белый текст */
     font-weight: bold;
 }
 
