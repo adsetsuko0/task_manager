@@ -416,7 +416,6 @@ function renderProject(project) {
     el.innerHTML = `
         <span class="project-name">${project.name}</span>
         <div class="project-actions">
-            <span class="limit-badge">${project.task_limit}</span>
             <button class="project-menu-btn" onclick="openProjectMenu(event, ${project.id}, '${project.name}')">⋯</button>
         </div>
     `;
