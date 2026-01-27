@@ -340,7 +340,6 @@ function addProjectToGroupSidebar(project) {
     el.innerHTML = `
         <span class="project-name">${project.name}</span>
         <div class="project-actions">
-            <span class="limit-badge">${project.task_limit}</span>
             <button class="project-menu-btn">⋯</button>
         </div>
     `;
@@ -359,6 +358,8 @@ function addProjectToGroupSidebar(project) {
         e.stopPropagation();
         openProjectMenu(e, project.id, project.name);
     });
+
+    
 }
 
 
@@ -388,7 +389,7 @@ function submitCreateProject() {
             alert(project.error);
             return;
         }
-        renderProject(project);
+        addProjectToGroupSidebar(project); // добавляем проект в нужную группу
         closeCreateProjectModal();
     })
     .catch(err => console.error('Error creating project', err));
@@ -455,6 +456,7 @@ function loadProjects() {
         });
 }
 document.addEventListener('DOMContentLoaded', () => {
+    loadGroups();   // загружаем все группы
     loadProjects();
 });
 
