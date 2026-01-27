@@ -146,21 +146,6 @@ function submitGroup() {
 
 
 
-function addGroupToSidebar(group) {
-    const container = document.getElementById('spaces-body');
-
-    const el = document.createElement('div');
-    el.className = `space-group priority-${group.priority}`;
-
-    el.innerHTML = `
-    <div class="group-title">
-      ${group.name}
-      <span class="limit-badge">${group.limit}</span>
-    </div>
-    `;
-    container.appendChild(el);
-}
-
 
 function loadGroups() {
     fetch('/groups/')
@@ -187,41 +172,62 @@ function renderGroup(group) {
     const spacesBody = document.getElementById('spaces-body');
     const groupEl = document.createElement('div');
 
-
-    groupEl.className = 'space-group';
+    groupEl.className = 'spaces-group';
     groupEl.dataset.groupId = group.id;
 
     groupEl.innerHTML = `
         <div class="group-title clickable priority-${group.priority}">
             <span class="group-name">${group.name}</span>
-
             <div class="group-actions">
                 <span class="limit-badge">${group.limit}</span>
                 <button class="group-menu-btn">⋯</button>
             </div>
-
-
         </div>
-
+        <div class="projects" style="display:none"></div>
     `;
 
     spacesBody.appendChild(groupEl);
-    const title=groupEl.querySelector('.group-title');
+
+    const title = groupEl.querySelector('.group-title');
     const menuBtn = groupEl.querySelector('.group-menu-btn');
-    
+
     title.addEventListener('click', () => activateGroup(title));
+    title.addEventListener('click', toggleGroupProjects);
 
     menuBtn.addEventListener('click', (e) => {
         e.stopPropagation(); 
         openGroupMenu(e, group.id);
     });
-    title.addEventListener('click', toggleGroupProjects);
-
-    spacesBody.appendChild(groupEl);
-
-    groupEl.className = 'space-group';
-    groupEl.dataset.groupId = group.id;
 }
+
+function renderProject(project) {
+    const groupEl = document.querySelector(`.spaces-group[data-group-id="${project.group_id}"]`);
+    if (!groupEl) {
+        console.error('Group element not found for project rendering', project);
+        return;
+    }
+
+    let projectContainer = groupEl.querySelector('.projects');
+    if (!projectContainer) {
+        projectContainer = document.createElement('div');
+        projectContainer.className = 'projects';
+        projectContainer.style.display = 'none';
+        groupEl.appendChild(projectContainer);
+    }
+
+    const el = document.createElement('div');
+    el.className = 'project-item';
+    el.dataset.projectId = project.id;
+    el.innerHTML = `
+        <span class="project-name">${project.name}</span>
+        <div class="project-actions">
+            <button class="project-menu-btn" onclick="openProjectMenu(event, ${project.id}, '${project.name}')">⋯</button>
+        </div>
+    `;
+
+    projectContainer.appendChild(el);
+}
+
 
 function activateGroup(activeEl) {
     document
@@ -254,7 +260,7 @@ document.addEventListener('click', () => {
 
 function renameGroup() {
     const groupId = currentGroupId;
-    const titleEl = document.querySelector(`.space-group[data-group-id="${groupId}"] .group-name`);
+    const titleEl = document.querySelector(`.spaces-group[data-group-id="${groupId}"] .group-name`);
 
     document.getElementById('renameGroupId').value = groupId;
     document.getElementById('renameGroupInput').value = titleEl.textContent;
@@ -286,7 +292,7 @@ function submitRenameGroup() {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            const titleEl = document.querySelector(`.space-group[data-group-id="${groupId}"] .group-name`);
+            const titleEl = document.querySelector(`.spaces-group[data-group-id="${groupId}"] .group-name`);
             titleEl.textContent = newName;
             closeRenameGroupModal();
         } else {
@@ -298,29 +304,16 @@ function submitRenameGroup() {
 function toggleGroupProjects(event) {
     const titleEl = event.currentTarget;
     const groupEl = titleEl.closest('.spaces-group');
-    const projectsContainer = groupEl.querySelector('.projects');
+    if (!groupEl) return;
 
-    // если проектов нет — ничего не делаем
+    const projectsContainer = groupEl.querySelector('.projects');
     if (!projectsContainer) return;
 
-    // скрываем/показываем проекты
-    if (projectsContainer.style.display === 'none') {
-        projectsContainer.style.display = 'block';
-        titleEl.classList.add('active');  // выделяем группу
-    } else {
-        projectsContainer.style.display = 'none';
-        titleEl.classList.remove('active'); // снимаем выделение
-    }
-    document.addEventListener('DOMContentLoaded', () => {
-    loadGroups();
-    loadProjects();
-
-    // навешиваем toggle на все группы
-    document.querySelectorAll('.group-title.clickable').forEach(title => {
-        title.addEventListener('click', toggleGroupProjects);
-    });
-});
+    const isHidden = projectsContainer.style.display === 'none';
+    projectsContainer.style.display = isHidden ? 'block' : 'none';
+    titleEl.classList.toggle('active', isHidden);
 }
+
 
 
 
@@ -355,7 +348,7 @@ function addProjectInGroup() {
 
 function addProjectToGroupSidebar(project) {
     // Найти контейнер группы
-    const groupEl = document.querySelector(`.space-group[data-group-id="${project.group_id}"]`);
+    const groupEl = document.querySelector(`.spaces-group[data-group-id="${project.group_id}"]`);
     if (!groupEl) {
         console.error('Group element not found for project rendering');
         return;
@@ -430,39 +423,6 @@ function submitCreateProject() {
     })
     .catch(err => console.error('Error creating project', err));
 }
-
-
-
-function renderProject(project) {
-    const groupEl = document.querySelector(`.space-group[data-group-id="${project.group_id}"]`);
-    if (!groupEl) {
-        console.error('Group element not found for project rendering');
-        return;
-    }
-
-    let projectContainer = groupEl.querySelector('.projects');
-    if (!projectContainer) {
-        projectContainer = document.createElement('div');
-        projectContainer.className = 'projects';
-        groupEl.appendChild(projectContainer);
-    }
-
-    const el = document.createElement('div');
-    el.className = 'project-item';
-    el.dataset.projectId = project.id;
-    el.innerHTML = `
-        <span class="project-name">${project.name}</span>
-        <div class="project-actions">
-            <button class="project-menu-btn" onclick="openProjectMenu(event, ${project.id}, '${project.name}')">⋯</button>
-        </div>
-    `;
-    projectContainer.appendChild(el);
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('submitCreateProjectBtn');
-    if (btn) btn.addEventListener('click', submitCreateProject);
-});
 
 
 
@@ -550,3 +510,27 @@ function closeModal() {
 window.renameGroup = renameGroup;
 window.submitRenameGroup = submitRenameGroup;
 window.closeRenameGroupModal = closeRenameGroupModal;
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadGroups();
+
+    setTimeout(() => {
+        loadProjects();
+    }, 0);
+});
+
+
+
+
+
+document.addEventListener('click', (event) => {
+    const dropdown = document.getElementById('project-dropdown');
+    if (!dropdown) return;
+
+    // Если клик не по dropdown и не по кнопке ⋯
+    if (!dropdown.contains(event.target) && !event.target.classList.contains('project-menu-btn')) {
+        dropdown.style.display = 'none';
+    }
+});
