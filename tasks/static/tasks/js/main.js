@@ -314,6 +314,10 @@ function toggleGroupProjects(event) {
     titleEl.classList.toggle('active', isHidden);
 }
 
+
+
+
+
 function changeGroupPriority() {
     if (!currentGroupId) {
         alert('No group selected');
@@ -367,7 +371,63 @@ window.closeChangePriorityModal = closeChangePriorityModal;
 window.submitChangePriority = submitChangePriority;
 
 
+function duplicateGroup() {
+    if (!currentGroupId) {
+        alert('No group selected');
+        return;
+    }
 
+    fetch(`/groups/duplicate/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({ group_id: currentGroupId })
+    })
+    .then(res => res.json())
+    .then(group => {
+        // Добавляем новую группу **сразу после оригинала**
+        const originalGroupEl = document.querySelector(`.spaces-group[data-group-id="${currentGroupId}"]`);
+        const spacesBody = document.getElementById('spaces-body');
+
+        const groupEl = document.createElement('div');
+        groupEl.className = 'spaces-group';
+        groupEl.dataset.groupId = group.id;
+
+        groupEl.innerHTML = `
+            <div class="group-title clickable priority-${group.priority}">
+                <span class="group-name">${group.name}</span>
+                <div class="group-actions">
+                    <span class="limit-badge">${group.limit}</span>
+                    <button class="group-menu-btn">⋯</button>
+                </div>
+            </div>
+            <div class="projects" style="display:none"></div>
+        `;
+
+        // Вставка после оригинала
+        originalGroupEl.after(groupEl);
+
+        // Навешиваем обработчики
+        const title = groupEl.querySelector('.group-title');
+        const menuBtn = groupEl.querySelector('.group-menu-btn');
+
+        title.addEventListener('click', () => activateGroup(title));
+        title.addEventListener('click', toggleGroupProjects);
+
+        menuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openGroupMenu(e, group.id);
+        });
+
+        // Добавляем проекты группы
+        group.projects.forEach(project => {
+            renderProject(project);
+        });
+    })
+    .catch(err => console.error('Error duplicating group', err));
+}
 
 
 

@@ -23,4 +23,5 @@ urlpatterns = [
     path('groups/create/', views.create_group, name='group_create'),
     path('groups/rename/', views.rename_group, name='group_rename'),
     path('groups/change_priority/', views.change_group_priority, name='group_change_priority'),
+    path('groups/duplicate/', views.duplicate_group, name='group_duplicate'),
 ]

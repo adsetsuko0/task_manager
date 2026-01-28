@@ -521,5 +521,6 @@ body {
 .projects {
     border-left: 2px solid #ccc; /* линия слева */
     margin-left: 12px;           /* отступ от названия группы */
-    padding-left: 8px;           /* отступ текста от линии */
+    padding-left: 8px;
 }
+
