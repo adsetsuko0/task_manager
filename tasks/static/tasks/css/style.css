@@ -63,15 +63,15 @@ body {
 }
 
 .spaces-group {
-    margin-left: 8px;
-    margin-top: 6px;
-    padding: 6px 12px;
+    margin-left: 4px;
+    margin-top: 2px;
+    padding: 6px 8px;
     width: 100%;
 }   
 
 .priority-low { border-left: 4px solid #464747; }
-.priority-normal { border-left: 4px solid #4f46e5; }
-.priority-high { border-left: 4px solid #dc2626; }
+.priority-normal { border-left: 4px solid #6f6cb7; }
+.priority-high { border-left: 4px solid #b45353; }
 
 .limit-badge {
   background: #e5e7eb;
@@ -84,7 +84,7 @@ body {
 .group-title {
     font-size: 14px;
     font-weight: 300;
-    padding: 6px 12px;
+    padding: 4px 6px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -170,6 +170,7 @@ body {
 .dashboard {
     margin-top: 0;
     font-weight: normal;
+    
 }
 
 /*===MAIN===*/
@@ -324,6 +325,8 @@ body {
     box-shadow: 0 4px 10px rgba(0, 0, 0, .1);
     display: none;
     z-index: 1000;
+    min-width: 180px;   /* было обычно 240–300 */
+    max-width: 220px;
 }
 
 .dropdown button {
@@ -474,8 +477,18 @@ body {
     display: flex;
     align-items: center;   /* выравнивание по вертикали */
     justify-content: space-between; /* название слева, кнопка справа */
-    padding: 2px 4px;      /* чуть внутреннего отступа */
+    padding: 2px 4px; 
+    margin-top: 6px;      /* расстояние сверху */
+    margin-bottom: 6px;
 }
+
+
+.project-item:hover .project-actions {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+
 
 .project-name {
     margin-left: 8px; /* слегка смещаем название вправо */
@@ -485,6 +498,9 @@ body {
     margin-left: 8px;
     display: flex;
     align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
 }
 
 
