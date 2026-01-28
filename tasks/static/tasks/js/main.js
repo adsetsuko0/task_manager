@@ -314,6 +314,62 @@ function toggleGroupProjects(event) {
     titleEl.classList.toggle('active', isHidden);
 }
 
+function changeGroupPriority() {
+    if (!currentGroupId) {
+        alert('No group selected');
+        return;
+    }
+
+    const groupEl = document.querySelector(`.spaces-group[data-group-id="${currentGroupId}"] .group-title`);
+    const currentPriorityClass = Array.from(groupEl.classList).find(cls => cls.startsWith('priority-'));
+    const currentPriority = currentPriorityClass ? currentPriorityClass.replace('priority-', '') : 'normal';
+
+    document.getElementById('changePriorityGroupId').value = currentGroupId;
+    document.getElementById('changePrioritySelect').value = currentPriority;
+
+    document.getElementById('changePriorityModal').style.display = 'flex';
+}
+
+function closeChangePriorityModal() {
+    document.getElementById('changePriorityModal').style.display = 'none';
+}
+
+function submitChangePriority() {
+    const groupId = document.getElementById('changePriorityGroupId').value;
+    const newPriority = document.getElementById('changePrioritySelect').value;
+
+    fetch('/groups/change_priority/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken(),
+        },
+        body: JSON.stringify({ group_id: groupId, new_priority: newPriority })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            // Меняем класс группы на новый приоритет
+            const groupEl = document.querySelector(`.spaces-group[data-group-id="${groupId}"] .group-title`);
+            groupEl.classList.remove('priority-low', 'priority-normal', 'priority-high');
+            groupEl.classList.add(`priority-${newPriority}`);
+            closeChangePriorityModal();
+        } else {
+            alert(data.error || 'Error changing priority');
+        }
+    })
+    .catch(err => console.error(err));
+}
+
+// Делаем функции глобальными, чтобы их вызывал dropdown
+window.changeGroupPriority = changeGroupPriority;
+window.closeChangePriorityModal = closeChangePriorityModal;
+window.submitChangePriority = submitChangePriority;
+
+
+
+
+
 
 
 

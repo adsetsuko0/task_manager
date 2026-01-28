@@ -238,6 +238,33 @@
 </div>
 
 
+<!-- CHANGE PRIORITY MODAL -->
+<div id="changePriorityModal" class="modal-backdrop">
+  <div class="modal">
+    <h3>Change Group Priority</h3>
+    
+    <input type="hidden" id="changePriorityGroupId">
+
+    <label>
+      Priority
+      <select id="changePrioritySelect">
+        <option value="low">Low</option>
+        <option value="normal">Normal</option>
+        <option value="high">High</option>
+      </select>
+    </label>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeChangePriorityModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitChangePriority()">Change</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
 
 
 <!-- ===================== PROJECTS ===================== -->

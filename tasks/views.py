@@ -168,7 +168,31 @@ def rename_group(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400) 
     
+@csrf_exempt
+@login_required
+@require_POST
+def change_group_priority(request):
+    try:
+        data = json.loads(request.body)
+        group_id = data.get('group_id')
+        new_priority = data.get('new_priority')
 
+        if not group_id or not new_priority:
+            return JsonResponse({'error': 'Missing parameters'}, status=400)
+
+        if new_priority not in ['low', 'normal', 'high']:
+            return JsonResponse({'error': 'Invalid priority'}, status=400)
+
+        group = Projects_Group.objects.get(id=group_id)
+        group.priority = new_priority
+        group.save()
+
+        return JsonResponse({'success': True, 'priority': group.priority})
+
+    except Projects_Group.DoesNotExist:
+        return JsonResponse({'error': 'Group not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 
     
