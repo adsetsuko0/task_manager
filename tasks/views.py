@@ -168,6 +168,9 @@ def rename_group(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400) 
     
+
+
+    
 @csrf_exempt
 @login_required
 @require_POST
@@ -188,6 +191,58 @@ def change_group_priority(request):
         group.save()
 
         return JsonResponse({'success': True, 'priority': group.priority})
+
+    except Projects_Group.DoesNotExist:
+        return JsonResponse({'error': 'Group not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+
+
+@csrf_exempt
+@login_required
+@require_POST
+def duplicate_group(request):
+    try:
+        data = json.loads(request.body)
+        group_id = data.get('group_id')
+        if not group_id:
+            return JsonResponse({'error': 'Missing group_id'}, status=400)
+
+        original_group = Projects_Group.objects.get(id=group_id)
+
+        # Создаём копию группы
+        new_group = Projects_Group.objects.create(
+            name=f"{original_group.name} Copy",
+            priority=original_group.priority,
+            limit=original_group.limit
+        )
+
+        # Дублируем все проекты этой группы
+        new_projects = []
+        for project in original_group.projects.all():
+            new_project = Project.objects.create(
+                name=project.name,
+                group=new_group,
+                task_limit=project.task_limit,
+                is_favourite=project.is_favourite,
+            )
+            new_projects.append({
+                'id': new_project.id,
+                'name': new_project.name,
+                'task_limit': new_project.task_limit,
+                'is_favourite': new_project.is_favourite,
+                'group_id': new_group.id
+            })
+
+        # Возвращаем новую группу вместе с проектами
+        return JsonResponse({
+            'id': new_group.id,
+            'name': new_group.name,
+            'priority': new_group.priority,
+            'limit': new_group.limit,
+            'projects': new_projects
+        })
 
     except Projects_Group.DoesNotExist:
         return JsonResponse({'error': 'Group not found'}, status=404)
