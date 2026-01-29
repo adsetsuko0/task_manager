@@ -70,7 +70,7 @@ body {
 }   
 
 .priority-low { border-left: 4px solid #464747; }
-.priority-normal { border-left: 4px solid #6f6cb7; }
+.priority-normal { border-left: 4px solid #514da4; }
 .priority-high { border-left: 4px solid #b45353; }
 
 .limit-badge {
@@ -116,7 +116,7 @@ body {
 }
 
 .group-title.clickable.active {
-    background-color: #4f46e5; /* синий фон при выделении */
+    background-color: #7c76f0; /* синий фон при выделении */
     color: white;               /* белый текст */
     font-weight: bold;
 }
@@ -207,9 +207,10 @@ body {
 }
 
 .avatar {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
+    margin-right: 14px;
     background: #ddd;
     display: flex;
     align-items: center;
@@ -359,7 +360,10 @@ body {
     border-radius: 12px;
     padding: 20px;
     width: 320px;
+
 }
+
+
 
 .modal h3 {
     margin-top: 0;
@@ -379,6 +383,16 @@ body {
     margin-top: 8px;
 }
 
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
 /* ===== BUTTONS ===== */
 
 .btn {
@@ -389,7 +403,7 @@ body {
 }
 
 .btn-danger {
-    background: #dc2626;
+    background: #c75353;
     color: white;
 }
 
@@ -398,7 +412,7 @@ body {
 }
 
 .btn-primary {
-    background: #4f46e5;
+    background: #7c76f0;
     color: white;
 }
 
@@ -457,11 +471,11 @@ body {
 
 .view-btn.active {
     background: #eef2ff;
-    border-color: #4f46e5;
+    border-color: #7c76f0;
 }
 
 .view-btn.active .view-icon {
-    fill: #4f46e5;
+    fill: #746fc8;
 }
 
 
@@ -480,12 +494,17 @@ body {
     padding: 2px 4px; 
     margin-top: 6px;      /* расстояние сверху */
     margin-bottom: 6px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    border-radius: 6px;
+
 }
 
 
 .project-item:hover .project-actions {
     opacity: 1;
     pointer-events: auto;
+    background-color: #eef2ff;
 }
 
 
@@ -504,13 +523,20 @@ body {
 }
 
 
+.project-item.active {
+    background-color: #eef2ff;
+    color: rgb(0, 0, 0);
+    font-weight: bold;
+}
+
+
 .project-menu-btn {
     background: none;       /* убираем фон */
     border: none;           /* убираем рамку */
     padding: 0;             /* убираем внутренние отступы */
     font-size: 16px;        /* размер точек */
     cursor: pointer;        /* курсор как кнопка */
-    color: #555;            /* можно подобрать цвет, как у группы */
+    color: #333333;            /* можно подобрать цвет, как у группы */
 }
 
 .project-menu-btn:hover {
@@ -524,3 +550,7 @@ body {
     padding-left: 8px;
 }
 
+
+.project-item.active .project-menu-btn {
+    color: rgb(0, 0, 0);
+}
