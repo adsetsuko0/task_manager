@@ -148,11 +148,11 @@ function submitGroup() {
 
 
 function loadGroups() {
-    fetch('/groups/')
+    return fetch('/groups/')
         .then(res => res.json())
         .then(groups => {
             const container = document.getElementById('spaces-body');
-            container.innerHTML = ''; // очистка
+            container.innerHTML = ''; // очистка всех групп
 
             groups.forEach(group => {
                 renderGroup(group);
@@ -226,6 +226,11 @@ function renderProject(project) {
     `;
 
     projectContainer.appendChild(el);
+
+    el.addEventListener('click', (e) => {
+    e.stopPropagation();
+    activateProject(el);
+    });
 }
 
 
@@ -300,6 +305,8 @@ function submitRenameGroup() {
         }
     });
 }
+
+
 
 function toggleGroupProjects(event) {
     const titleEl = event.currentTarget;
@@ -430,9 +437,56 @@ function duplicateGroup() {
 }
 
 
+function deleteGroup() {
+    if (!currentGroupId) return;
+
+    const modal = document.getElementById('delete-group-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+document.getElementById('confirm-delete-group')
+    ?.addEventListener('click', function () {
+
+        fetch('/groups/delete/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({ group_id: currentGroupId })
+        })
+        .then(() => {
+            const groupEl = document.querySelector(
+                `.spaces-group[data-group-id="${currentGroupId}"]`
+            );
+            if (groupEl) groupEl.remove();
+
+            closeDeleteGroupModal();
+            currentGroupId = null;
+        });
+    });
+document.getElementById('cancel-delete-group')
+    ?.addEventListener('click', closeDeleteGroupModal);
 
 
 
+
+function closeDeleteGroupModal() {
+    const modal = document.getElementById('delete-group-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+
+
+function activateProject(activeEl) {
+    document
+        .querySelectorAll('.project-item')
+        .forEach(el => el.classList.remove('active'));
+
+    activeEl.classList.add('active');
+}
 
 
 
@@ -504,8 +558,12 @@ function addProjectToGroupSidebar(project) {
         openProjectMenu(e, project.id, project.name);
     });
 
-    
-}
+    el.addEventListener('click', (e) => {
+    e.stopPropagation();
+    activateProject(el);
+});}
+
+
 
 
 
@@ -555,10 +613,15 @@ function openProjectMenu(event, projectId, projectName) {
     dropdown.style.left = rect.left + "px";
 }
 
+
+
 function loadProjects() {
     fetch('/projects/')
         .then(res => res.json())
         .then(projects => {
+            // Удаляем все существующие проекты, чтобы не дублировать
+            document.querySelectorAll('.project-item').forEach(el => el.remove());
+
             projects.forEach(project => {
                 renderProject(project);
             });
@@ -567,10 +630,7 @@ function loadProjects() {
             console.error('Error loading projects', err);
         });
 }
-document.addEventListener('DOMContentLoaded', () => {
-    loadGroups();   // загружаем все группы
-    loadProjects();
-});
+
 
 
 
@@ -626,18 +686,17 @@ function closeModal() {
 window.renameGroup = renameGroup;
 window.submitRenameGroup = submitRenameGroup;
 window.closeRenameGroupModal = closeRenameGroupModal;
+window.deleteGroup = deleteGroup;
 
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadGroups();
-
-    setTimeout(() => {
-        loadProjects();
-    }, 0);
+    // Загружаем группы и после успешного рендера загружаем проекты
+    loadGroups()
+        .then(() => {
+            loadProjects();
+        });
 });
-
-
 
 
 

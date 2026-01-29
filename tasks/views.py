@@ -250,6 +250,29 @@ def duplicate_group(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
+@csrf_exempt
+@login_required
+@require_POST
+def delete_group(request):
+    try:
+        data = json.loads(request.body)
+        group_id = data.get('group_id')
+
+        if not group_id:
+            return JsonResponse({'error': 'Missing group_id'}, status=400)
+
+        group = Projects_Group.objects.get(id=group_id)
+        group.delete()  # CASCADE удалит проекты автоматически
+
+        return JsonResponse({'success': True})
+
+    except Projects_Group.DoesNotExist:
+        return JsonResponse({'error': 'Group not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+
+
     
 
 class ProjectsGroupViewSet(viewsets.ModelViewSet):
