@@ -578,3 +578,21 @@ body {
 .project-item.active .project-menu-btn {
     color: rgb(0, 0, 0);
 }
+
+
+
+.project-fav {
+    cursor: pointer;
+    font-size: 18px;
+    color: #888; /* серый по умолчанию */
+    transition: color 0.2s, transform 0.2s;
+}
+
+.project-fav:hover {
+    color: red; /* подсветка при наведении */
+    transform: scale(1.2);
+}
+
+.project-fav.filled {
+    color: gray; /* заполненное сердечко после клика */
+}
