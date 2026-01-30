@@ -710,18 +710,25 @@ function submitRenameProject() {
         },
         body: JSON.stringify({ project_id: projectId, new_name: newName })
     })
-    .then(res => res.text())   // сначала как текст
-.then(text => {
-    try {
-        const data = JSON.parse(text);
-        // работаем с data
-    } catch(e) {
-        console.error('Ошибка парсинга JSON:', text);
-    }
-});}
-
-
-
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            // Обновляем имя на странице
+            const projectEl = document.querySelector(`.project-item[data-project-id="${projectId}"]`);
+            if (projectEl) {
+                projectEl.querySelector('.project-name').textContent = newName;
+            }
+            // Закрываем модалку
+            closeRenameProjectModal();
+        } else {
+            alert('Ошибка: ' + data.error);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Error renaming project');
+    });
+}
 
 
 /*===MODALS===*/
