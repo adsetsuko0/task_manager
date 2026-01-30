@@ -1,3 +1,6 @@
+let spacesActive = false;
+let spacesExpanded = false;
+
 
 let currentProjectId = null;
 let currentGroupId = null;
@@ -26,20 +29,52 @@ function toggleSection(Id) {
 }
 
 
-
 function toggleSpaces(event) {
     event.stopPropagation();
-    
+
+    const header = event.currentTarget; // .spaces-header
     const body = document.getElementById('spaces-body');
     const arrow = document.getElementById('spaces-arrow');
 
-    body.classList.toggle('hidden');
-    if (body.classList.contains('hidden')) {
+    // ❌ если ещё НЕ активен — НИЧЕГО не открываем
+    if (!spacesActive) {
+        header.classList.add('active');
+        spacesActive = true;
+
+        // гарантированно держим закрытым
+        body.classList.add('hidden');
         arrow.textContent = '▶';
-    } else {
+        return;
+    }
+
+    // ✅ только если уже активен — разрешаем раскрытие
+    spacesExpanded = !spacesExpanded;
+
+    if (spacesExpanded) {
+        body.classList.remove('hidden');
         arrow.textContent = '▼';
-    } 
+    } else {
+        body.classList.add('hidden');
+        arrow.textContent = '▶';
+    }
 }
+document.addEventListener('click', (e) => {
+    const header = document.querySelector('.spaces-header');
+    const body = document.getElementById('spaces-body');
+    const arrow = document.getElementById('spaces-arrow');
+
+    if (!e.target.closest('.spaces-header') &&
+        !e.target.closest('#spaces-body')) {
+
+        header.classList.remove('active');
+        body.classList.add('hidden');
+        arrow.textContent = '▶';
+
+        spacesActive = false;
+        spacesExpanded = false;
+    }
+});
+
 
 /*===========================GROUP============================*/
 function addSpace(event) {
