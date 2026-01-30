@@ -58,22 +58,6 @@ function toggleSpaces(event) {
         arrow.textContent = '▶';
     }
 }
-document.addEventListener('click', (e) => {
-    const header = document.querySelector('.spaces-header');
-    const body = document.getElementById('spaces-body');
-    const arrow = document.getElementById('spaces-arrow');
-
-    if (!e.target.closest('.spaces-header') &&
-        !e.target.closest('#spaces-body')) {
-
-        header.classList.remove('active');
-        body.classList.add('hidden');
-        arrow.textContent = '▶';
-
-        spacesActive = false;
-        spacesExpanded = false;
-    }
-});
 
 
 /*===========================GROUP============================*/
@@ -690,6 +674,56 @@ function openMenu(event, projectId, projectName) {
     dropdown.style.left=rect.left + "px";   
 }
 
+
+function renameProject() {
+    if (!currentProjectId) return;
+
+    const projectEl = document.querySelector(`.project-item[data-project-id="${currentProjectId}"]`);
+    const projectName = projectEl ? projectEl.querySelector('.project-name').textContent : '';
+
+    document.getElementById('renameProjectId').value = currentProjectId;
+    document.getElementById('renameProjectName').value = projectName;
+
+    document.getElementById('renameProjectModal').style.display = 'flex';
+}
+
+// закрыть модалку
+function closeRenameProjectModal() {
+    document.getElementById('renameProjectModal').style.display = 'none';
+}
+
+// отправка изменений на сервер
+function submitRenameProject() {
+    const projectId = document.getElementById('renameProjectId').value;
+    const newName = document.getElementById('renameProjectName').value.trim();
+
+    if (!newName) {
+        alert('Project name cannot be empty');
+        return;
+    }
+
+    fetch('/projects/rename/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({ project_id: projectId, new_name: newName })
+    })
+    .then(res => res.text())   // сначала как текст
+.then(text => {
+    try {
+        const data = JSON.parse(text);
+        // работаем с data
+    } catch(e) {
+        console.error('Ошибка парсинга JSON:', text);
+    }
+});}
+
+
+
+
+
 /*===MODALS===*/
 function openRename() {
     dropdown.style.display = 'none';
@@ -722,6 +756,9 @@ window.renameGroup = renameGroup;
 window.submitRenameGroup = submitRenameGroup;
 window.closeRenameGroupModal = closeRenameGroupModal;
 window.deleteGroup = deleteGroup;
+window.renameProject = renameProject;
+window.closeRenameProjectModal = closeRenameProjectModal;
+window.submitRenameProject = submitRenameProject;
 
 
 

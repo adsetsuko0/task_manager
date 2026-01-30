@@ -73,6 +73,26 @@ body {
     display: none;
 }
 
+
+.spaces-add-btn {
+    border: none;       /* убираем рамку */
+    background: transparent; /* убираем фон кнопки */
+    padding: 0;         /* чтобы не было лишнего пространства */
+    cursor: pointer;    /* как у трёх точек, чтобы был указатель */
+    outline: none;      /* убираем синюю рамку при фокусе */
+    font-size: 20px;    /* размер плюса можно подкорректировать */
+    font-weight: normal !important;
+    margin-left: 5px;
+}
+
+.spaces-add-btn:hover {
+    color: #7c76f0; /* светло-синий при наведении */
+}
+
+.spaces-add-btn:active {
+    color: #363434; /* чуть жирнее при клике */
+}
+
 .priority-low { border-left: 4px solid #464747; }
 .priority-normal { border-left: 4px solid #514da4; }
 .priority-high { border-left: 4px solid #b45353; }

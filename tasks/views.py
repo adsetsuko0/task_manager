@@ -70,19 +70,6 @@ def create_project(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
-
-
-
-@login_required
-def project_rename(request):
-    if request.method=='POST':
-        project_id=request.POST.get('project_id')
-        new_name=request.POST.get('new_name')
-
-        project=get_object_or_404(Project, id=project_id, owner=request.user)
-        project.name=new_name
-        project.save()
-    return redirect('main')
     
 
 @login_required
@@ -90,7 +77,7 @@ def project_delete(request, project_id):
     if request.method=='POST':
         project_id=request.POST.get('project_id')
         
-        project=get_object_or_404(Project, id=project_id, owner=request.user)
+        project=get_object_or_404(Project, id=project_id)
         project.delete()
     return redirect('main')
 
@@ -104,6 +91,40 @@ def project_get(request):
         'group_id',
     )
     return JsonResponse(list(projects), safe=False)
+
+
+@csrf_exempt
+def project_rename(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+    try:
+        data = json.loads(request.body)
+        project_id = data.get('project_id')
+        new_name = data.get('new_name')
+
+        if not new_name:
+            return JsonResponse({'success': False, 'error': 'Name is empty'})
+
+        # Берем проект по ID без касания owner
+        project = Project.objects.get(id=project_id)
+        project.name = new_name
+        project.save(update_fields=['name'])  # 👈 обновляем только поле name
+
+        return JsonResponse({'success': True})
+
+    except Project.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Project not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+    
+
+
+
+
+
+
+
 
 #для групп
 
@@ -273,7 +294,11 @@ def delete_group(request):
     
 
 
-    
+
+
+
+
+
 
 class ProjectsGroupViewSet(viewsets.ModelViewSet):
     serializer_class=ProjectsGroupSerialier
@@ -292,10 +317,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
     permission_classes= [permissions.IsAuthenticated, IsOwnerOrReadOnly]
 
     def get_queryset(self):
-        return Project.objects.filter(owner=self.request.user)
+        return Project.objects.all()
     
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        serializer.save()
 
 
 
