@@ -69,6 +69,10 @@ body {
     width: 100%;
 }   
 
+#spaces-body.hidden {
+    display: none;
+}
+
 .priority-low { border-left: 4px solid #464747; }
 .priority-normal { border-left: 4px solid #514da4; }
 .priority-high { border-left: 4px solid #b45353; }
