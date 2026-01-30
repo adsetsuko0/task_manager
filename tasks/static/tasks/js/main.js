@@ -250,6 +250,14 @@ function renderProject(project) {
     e.stopPropagation();
     activateProject(el);
     });
+    const fav = el.querySelector('.project-fav');
+    if (fav) {
+        fav.addEventListener('click', (e) => {
+            e.stopPropagation(); // чтобы клик по сердечку не активировал проект
+            fav.classList.toggle('filled');
+            fav.textContent = fav.classList.contains('filled') ? '♥' : '♡';
+    });
+}
 }
 
 
@@ -787,4 +795,13 @@ document.addEventListener('click', (event) => {
     if (!dropdown.contains(event.target) && !event.target.classList.contains('project-menu-btn')) {
         dropdown.style.display = 'none';
     }
+});
+
+
+document.querySelectorAll('.project-fav').forEach(icon => {
+    icon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        icon.classList.toggle('filled');
+        icon.textContent = icon.classList.contains('filled') ? '♥' : '♡';
+    });
 });
