@@ -312,27 +312,19 @@
 </div>
 
 
-
-<!--DELETE MODAL-->
-<div class="modal-backdrop" id='deleteModal'>
-    <div class="modal"></div>
-        <h3>Delete project?</h3>
-
-        <form method="post" action="{% url 'project_delete' %}">
-
-            {% csrf_token %}
-
-            <input type="hidden" name="project_id" id="deleteProjectId">
-            <p>This action cannot be undone.</p>
-
-            <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" onclick="closeModals()">Cancel</button>
-                <button class="btn vtn-primary">Delete</button>
-            </div>
-
-        </form>
+<!-- RENAME PROJECT MODAL -->
+<div id="renameProjectModal" class="modal-backdrop modal-overlay" style="display: none;">
+    <div class="modal">
+        <h3>Rename Project</h3>
+        <input type="hidden" id="renameProjectId">
+        <input type="text" id="renameProjectName" placeholder="Project name">
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeRenameProjectModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="submitRenameProject()">Rename</button>
+        </div>
     </div>
 </div>
+
 
 
 
