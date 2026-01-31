@@ -50,8 +50,7 @@
                 <span class="project-name">{{ project.name }}</span>
 
                 <div class="project-actions">
-                    <span class="project-fav" title="Add to favourites">♡</span>
-
+                    <span class="project-fav" onclick="toggleFavourite(event, '{{ project.id }}')" title="Add to favourites"></span>
 
                     <button class="project-menu-btn" 
                             onclick="openProjectMenu(event, '{{ project.id }}', '{{ project.name }}')">
@@ -66,7 +65,7 @@
 </div>
 
 
-
+    <div class="nav-item">Favourites</div>
     <div class="nav-item">Dashboard</div>
 
 </aside>
@@ -309,7 +308,7 @@
 <!-- PROJECT DROPDOWN MODAL-->
 <div id="project-dropdown" class="dropdown">
     <button onclick="renameProject()">Rename</button>
-    <button onclick="toggleFavorite()">Add To Favorites</button>
+    <button onclick="toggleFavourite(this, currentProjectId)">Add To Favorites</button>
     <button onclick="duplicateProject()">Duplicate</button>
     <button onclick="deleteProject()">Delete</button>
 </div>
@@ -334,6 +333,6 @@
 <!--JS-->
 <script src="{% static 'tasks/js/main.js' %}"></script>
 </div>
-
+<div id="toast" class="toast"></div>
 </body>
 </html>

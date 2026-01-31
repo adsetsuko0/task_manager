@@ -120,7 +120,23 @@ def project_rename(request):
     
 
 
+@require_POST
+def toggle_favourite_project(request):
+    try:
+        data = json.loads(request.body)
+        project_id = data.get('project_id')
 
+        project = Project.objects.get(id=project_id)
+        project.is_favourite = not project.is_favourite
+        project.save(update_fields=['is_favourite'])
+
+        return JsonResponse({
+            'success': True,
+            'is_favourite': project.is_favourite
+        })
+
+    except Project.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Project not found'})
 
 
 

@@ -19,7 +19,10 @@ urlpatterns = [
     path('projects/delete/', project_delete, name='project_delete'),
     path('projects/create/', create_project, name='project_create'),
     path('projects/rename/', views.project_rename, name='project_rename'),
+    path('projects/favourite/', views.toggle_favourite_project, name='toggle_favourite_project'),
 
+
+    
     path('groups/', views.get_groups, name='get_groups'),
     path('groups/create/', views.create_group, name='group_create'),
     path('groups/rename/', views.rename_group, name='group_rename'),
