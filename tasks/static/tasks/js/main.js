@@ -739,6 +739,34 @@ function submitRenameProject() {
 }
 
 
+function toggleFavourite(button, projectId) {
+    console.log('CLICKED, projectId =', projectId);
+
+    fetch('/projects/favourite/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({ project_id: projectId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.success) return;
+
+        button.classList.toggle('active', data.is_favourite);
+
+        showToast(
+            data.is_favourite
+                ? 'Successfully added to favourites'
+                : 'Removed from favourites'
+        );
+    });
+}
+
+
+
+
 /*===MODALS===*/
 function openRename() {
     dropdown.style.display = 'none';
@@ -798,10 +826,22 @@ document.addEventListener('click', (event) => {
 });
 
 
-document.querySelectorAll('.project-fav').forEach(icon => {
-    icon.addEventListener('click', (e) => {
-        e.stopPropagation();
-        icon.classList.toggle('filled');
-        icon.textContent = icon.classList.contains('filled') ? '♥' : '♡';
-    });
+document.addEventListener('click', (e) => {
+    const fav = e.target.closest('.project-fav');
+    if (!fav) return;
+
+    e.stopPropagation();
+    fav.classList.toggle('filled');
 });
+
+
+
+function showToast(text) {
+    const toast = document.getElementById('toast');
+    toast.textContent = text;
+    toast.classList.add('show');
+
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 5000);
+}
