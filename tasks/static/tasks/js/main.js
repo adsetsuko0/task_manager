@@ -473,29 +473,33 @@ function deleteGroup() {
     }
 }
 
-document.getElementById('confirm-delete-group')
-    ?.addEventListener('click', function () {
+function confirmDeleteGroup() {
+    if (!currentGroupId) return;
 
-        fetch('/groups/delete/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCSRFToken()
-            },
-            body: JSON.stringify({ group_id: currentGroupId })
-        })
-        .then(() => {
-            const groupEl = document.querySelector(
-                `.spaces-group[data-group-id="${currentGroupId}"]`
-            );
-            if (groupEl) groupEl.remove();
+    fetch('/groups/delete/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({ group_id: currentGroupId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.success) return;
 
-            closeDeleteGroupModal();
-            currentGroupId = null;
-        });
+        const groupEl = document.querySelector(
+            `.spaces-group[data-group-id="${currentGroupId}"]`
+        );
+        if (groupEl) groupEl.remove();
+
+        closeDeleteGroupModal();
+        currentGroupId = null;
+
+        showToast('Group successfully deleted');
     });
-document.getElementById('cancel-delete-group')
-    ?.addEventListener('click', closeDeleteGroupModal);
+}
+
 
 
 
@@ -766,6 +770,109 @@ function toggleFavourite(button, projectId) {
 
 
 
+function duplicateProject() {
+    if (!currentProjectId) {
+        alert("No project selected");
+        return;
+    }
+
+    fetch("/projects/duplicate/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken()
+        },
+        body: JSON.stringify({ project_id: currentProjectId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.success) {
+            alert(data.error || "Error duplicating project");
+            return;
+        }
+
+        const project = data.project;
+
+        // Найдем контейнер группы
+        const groupEl = document.querySelector(`.spaces-group[data-group-id="${project.group_id}"]`);
+        if (!groupEl) return;
+
+        let projectContainer = groupEl.querySelector(".projects");
+        if (!projectContainer) {
+            projectContainer = document.createElement("div");
+            projectContainer.className = "projects";
+            projectContainer.style.display = "none";
+            groupEl.appendChild(projectContainer);
+        }
+
+        // Создаем элемент нового проекта
+        const el = document.createElement("div");
+        el.className = "project-item";
+        el.dataset.projectId = project.id;
+        el.innerHTML = `
+            <span class="project-name">${project.name}</span>
+            <div class="project-actions">
+                <button class="project-menu-btn" onclick="openProjectMenu(event, ${project.id}, '${project.name}')">⋯</button>
+            </div>
+        `;
+
+        // Вставляем новый проект сразу после оригинала
+        const originalEl = groupEl.querySelector(`.project-item[data-project-id="${currentProjectId}"]`);
+        originalEl.after(el);
+
+        // Навешиваем клики
+        el.addEventListener("click", (e) => {
+            e.stopPropagation();
+            activateProject(el);
+        });
+    })
+    .catch(err => console.error(err));
+}
+
+
+
+function deleteProject() {
+    if (!currentProjectId) return;
+
+    document.getElementById('delete-project-modal').style.display = 'flex';
+}
+
+
+function closeDeleteProjectModal() {
+    const modal = document.getElementById('delete-project-modal');
+    if (modal) modal.style.display = 'none';
+}
+document.getElementById('confirm-delete-project')
+    ?.addEventListener('click', () => {
+
+        fetch('/projects/delete/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({ project_id: currentProjectId })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                alert(data.error || 'Error deleting project');
+                return;
+            }
+
+            // 🔥 Удаляем проект из сайдбара
+            const projectEl = document.querySelector(
+                `.project-item[data-project-id="${currentProjectId}"]`
+            );
+            if (projectEl) projectEl.remove();
+
+            closeDeleteProjectModal();
+            currentProjectId = null;
+
+            showToast('Project successfully deleted');
+        });
+    });
+
 
 /*===MODALS===*/
 function openRename() {
@@ -802,7 +909,9 @@ window.deleteGroup = deleteGroup;
 window.renameProject = renameProject;
 window.closeRenameProjectModal = closeRenameProjectModal;
 window.submitRenameProject = submitRenameProject;
-
+window.duplicateProject = duplicateProject;
+window.deleteProject = deleteProject;
+window.closeDeleteProjectModal = closeDeleteProjectModal;
 
 
 document.addEventListener('DOMContentLoaded', () => {

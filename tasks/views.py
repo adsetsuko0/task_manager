@@ -139,6 +139,66 @@ def toggle_favourite_project(request):
         return JsonResponse({'success': False, 'error': 'Project not found'})
 
 
+@csrf_exempt
+def duplicate_project(request):
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "Invalid request"})
+
+    try:
+        data = json.loads(request.body)
+        project_id = data.get("project_id")
+        project = Project.objects.get(id=project_id)
+
+        # Создаем копию проекта
+        new_project = Project.objects.create(
+            name=f"{project.name} (copy)",
+            group=project.group,
+            task_limit=project.task_limit,
+            is_favourite=project.is_favourite
+        )
+
+        return JsonResponse({
+            "success": True,
+            "project": {
+                "id": new_project.id,
+                "name": new_project.name,
+                "group_id": new_project.group.id,
+                "task_limit": new_project.task_limit,
+                "is_favourite": new_project.is_favourite
+            }
+        })
+    except Project.DoesNotExist:
+        return JsonResponse({"success": False, "error": "Project not found"})
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)})
+
+
+
+@csrf_exempt
+def project_delete(request):
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "Invalid request"})
+
+    try:
+        data = json.loads(request.body)
+        project_id = data.get("project_id")
+
+        project = Project.objects.get(id=project_id)
+        project.delete()
+
+        return JsonResponse({"success": True})
+
+    except Project.DoesNotExist:
+        return JsonResponse({"success": False, "error": "Project not found"})
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)})
+
+
+
+
+
+
+
 
 
 
