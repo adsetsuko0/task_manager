@@ -1,5 +1,3 @@
-let spacesActive = false;
-let spacesExpanded = false;
 
 
 let currentProjectId = null;
@@ -7,8 +5,6 @@ let currentGroupId = null;
 let currentProjectName = null;
 
 const dropdown = document.getElementById('group-dropdown');
-
-/*===COLLAPSE SECTION===*/
 const navItems = document.querySelectorAll('.nav-item');
 
 navItems.forEach(item => {
@@ -58,6 +54,44 @@ function toggleSpaces(event) {
         arrow.textContent = '▶';
     }
 }
+
+function handleSpacesClick(event) {
+    event.stopPropagation();
+
+    const nav = document.getElementById('spaces-nav');
+    const body = document.getElementById('spaces-body');
+    const arrow = document.getElementById('spaces-arrow');
+
+    const isActive = nav.classList.contains('active');
+    const isExpanded = !body.classList.contains('hidden');
+
+    // 1️⃣ Первый клик — просто активируем
+    if (!isActive) {
+        document
+            .querySelectorAll('.nav-item')
+            .forEach(i => i.classList.remove('active'));
+
+        nav.classList.add('active');
+
+        body.classList.add('hidden');
+        arrow.textContent = '▶';
+        return;
+    }
+
+    // 2️⃣ Второй клик — раскрываем / закрываем
+    if (isExpanded) {
+        body.classList.add('hidden');
+        arrow.textContent = '▶';
+    } else {
+        body.classList.remove('hidden');
+        arrow.textContent = '▼';
+    }
+}
+
+
+
+
+
 
 
 /*===========================GROUP============================*/
