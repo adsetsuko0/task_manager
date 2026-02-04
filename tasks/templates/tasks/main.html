@@ -421,22 +421,28 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const themeToggle = document.getElementById('theme-icon');
+    const themeToggle = document.getElementById('theme-icon'); // твоя иконка
     const body = document.body;
 
-    // Проверка сохраненной темы в localStorage
+    // Проверка сохраненной темы при загрузке страницы
     if(localStorage.getItem('theme') === 'dark') {
         body.classList.add('dark-theme');
+        // При темной теме показываем светлое солнце
         themeToggle.src = "{% static 'tasks/icons/light_mode.png' %}";
+    } else {
+        // При светлой теме показываем луну
+        themeToggle.src = "{% static 'tasks/icons/night_mode.png' %}";
     }
 
     themeToggle.addEventListener('click', function() {
         body.classList.toggle('dark-theme');
 
         if(body.classList.contains('dark-theme')) {
+            // Темная тема включена → иконка солнца
             themeToggle.src = "{% static 'tasks/icons/light_mode.png' %}";
             localStorage.setItem('theme', 'dark');
         } else {
+            // Светлая тема → иконка луны
             themeToggle.src = "{% static 'tasks/icons/night_mode.png' %}";
             localStorage.setItem('theme', 'light');
         }
