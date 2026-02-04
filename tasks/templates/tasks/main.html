@@ -86,7 +86,7 @@
 
     <div class="topbar-right" style="margin-left: auto; position: relative;">
         <div id="theme-toggle" class="theme-toggle">
-            <img src="{% static 'tasks/icons/night_mode.png' %}" alt="Dark Theme" />
+            <img id='theme-icon' src="{% static 'tasks/icons/night_mode.png' %}" alt="Dark Theme" />
         </div>
         <div class="avatar-dropdown-wrapper">
 
@@ -420,23 +420,29 @@
 
 
 <script>
-const toggle = document.getElementById('theme-toggle');
+document.addEventListener('DOMContentLoaded', function() {
+    const themeToggle = document.getElementById('theme-icon');
+    const body = document.body;
 
-toggle.addEventListener('click', () => {
-    document.body.classList.toggle('dark-theme');
-
-    if(document.body.classList.contains('dark-theme')){
-        localStorage.setItem('theme', 'dark');
-    } else {
-        localStorage.setItem('theme', 'light');
+    // Проверка сохраненной темы в localStorage
+    if(localStorage.getItem('theme') === 'dark') {
+        body.classList.add('dark-theme');
+        themeToggle.src = "{% static 'tasks/icons/light_mode.png' %}";
     }
+
+    themeToggle.addEventListener('click', function() {
+        body.classList.toggle('dark-theme');
+
+        if(body.classList.contains('dark-theme')) {
+            themeToggle.src = "{% static 'tasks/icons/light_mode.png' %}";
+            localStorage.setItem('theme', 'dark');
+        } else {
+            themeToggle.src = "{% static 'tasks/icons/night_mode.png' %}";
+            localStorage.setItem('theme', 'light');
+        }
+    });
 });
-
-if(localStorage.getItem('theme') === 'dark'){
-    document.body.classList.add('dark-theme');
-}
 </script>
-
 
 
 </body>
