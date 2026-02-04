@@ -227,19 +227,105 @@ body {
     padding: 8px 12px;
     border-radius: 20px;
     border: 1px solid #ccc;
-    margin-top: 20px;
+    margin-top: 10px;
+}
+
+
+
+
+
+.avatar-dropdown-wrapper {
+    position: relative;
 }
 
 .avatar {
-    width: 44px;
-    height: 44px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    margin-right: 14px;
     background: #ddd;
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+    position: relative;
+    font-weight: bold;
+    margin-right: 20px; 
 }
+
+.avatar-dropdown {
+    position: absolute;
+    top: 50px; /* чуть ниже аватара */
+    right: 0;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    display: none;
+    min-width: 200px;
+    z-index: 1000;
+}
+
+.avatar-dropdown .dropdown-header {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.avatar-dropdown .small-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+}
+
+.avatar-dropdown .user-info {
+    margin-left: 10px;
+}
+
+.avatar-dropdown .username {
+    font-weight: bold;
+}
+
+.avatar-dropdown .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.avatar-dropdown .dropdown-item:hover {
+    background-color: #eef2ff;
+}
+
+.avatar-dropdown .icon {
+    font-size: 16px;
+}
+
+.avatar-status {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white; /* белая обводка */
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+.avatar-status.online {
+    background-color: #4caf50; /* зеленый = онлайн */
+}
+
+.avatar-status.offline {
+    background-color: #888; /* серый = оффлайн */
+}
+
+
+
+
+
+
 
 /* ===== CONTENT ===== */
 
