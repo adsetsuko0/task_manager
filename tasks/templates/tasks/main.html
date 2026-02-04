@@ -83,12 +83,60 @@
             <input class="search" placeholder="Search">
         </div>
 
-    <div class="topbar-right">
-        <div class="avatar">{{ request.user.username|first|upper }}</div>
-    </div>
-    </div>
+    <div class="topbar-right" style="margin-left: auto; position: relative;">
+        <div class="avatar-dropdown-wrapper">
 
-    <div class="content">
+            <!-- Аватар -->
+            <div class="avatar" id="user-avatar">
+                {{ request.user.username|slice:":1" }}
+                <span class="avatar-status
+                    {% if request.user.is_active %}
+                        online
+                    {% else %}
+                        offline
+                    {% endif %}
+                "></span>
+            </div>
+
+            <!-- Dropdown -->
+            <div class="dropdown avatar-dropdown" id="avatar-dropdown">
+
+                <div class="dropdown-header">
+                    <div class="avatar small-avatar">
+                        {{ request.user.username|slice:":1" }}
+                        <span class="avatar-status
+                            {% if request.user.is_active %}
+                                online
+                            {% else %}
+                                offline
+                            {% endif %}
+                        "></span>
+                    </div>
+
+                    <div class="user-info">
+                        <div class="username">{{ request.user.username }}</div>
+                    </div>
+                </div>
+
+                <div class="dropdown-divider"></div>
+
+                <div class="dropdown-item" id="settings-btn">
+                    <span class="icon">⚙️</span>
+                    <span class="text">Settings</span>
+                </div>
+
+                <div class="dropdown-item" id="logout-btn">
+                    <span class="icon">🚪</span>
+                    <span class="text">Log out</span>
+                </div>
+
+            </div> <!-- dropdown -->
+
+        </div> <!-- avatar-dropdown-wrapper -->
+    </div> <!-- topbar-right -->
+</div> <!-- topbar -->
+
+ <div class="content">
 
         <div class="view-switch">
     <button class="view-btn active">
@@ -118,8 +166,10 @@
         <span>Calendar</span>
     </button>
 </div>
-
 <div class="divider"></div>
+
+
+
 
 
 
@@ -344,5 +394,22 @@
 <script src="{% static 'tasks/js/main.js' %}"></script>
 </div>
 <div id="toast" class="toast"></div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const avatar = document.getElementById("user-avatar");
+        const dropdown = document.getElementById("avatar-dropdown");
+
+        avatar.addEventListener("click", () => {
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        });
+
+        // Закрыть при клике вне дропдауна
+        document.addEventListener("click", (e) => {
+            if (!dropdown.contains(e.target) && !avatar.contains(e.target)) {
+                dropdown.style.display = "none";
+            }
+        });
+    });
+    </script>
 </body>
 </html>
