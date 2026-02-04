@@ -18,10 +18,8 @@ urlpatterns = [
     path('projects/rename/', project_rename, name='project_rename'),
     path('projects/delete/', project_delete, name='project_delete'),
     path('projects/create/', create_project, name='project_create'),
-    path('projects/rename/', views.project_rename, name='project_rename'),
     path('projects/favourite/', views.toggle_favourite_project, name='toggle_favourite_project'),
     path('projects/duplicate/', duplicate_project, name='duplicate_project'),
-    path('projects/delete/', project_delete, name='project_delete'),
 
 
 

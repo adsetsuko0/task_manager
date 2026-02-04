@@ -78,12 +78,16 @@
 
     <div class="topbar">
 
+
         <div class="topbar-left">
             <div class="page-title">{{ page_title }}</div>
             <input class="search" placeholder="Search">
         </div>
 
     <div class="topbar-right" style="margin-left: auto; position: relative;">
+        <div id="theme-toggle" class="theme-toggle">
+            <img src="{% static 'tasks/icons/night_mode.png' %}" alt="Dark Theme" />
+        </div>
         <div class="avatar-dropdown-wrapper">
 
             <!-- Аватар -->
@@ -121,12 +125,12 @@
                 <div class="dropdown-divider"></div>
 
                 <div class="dropdown-item" id="settings-btn">
-                    <span class="icon">⚙️</span>
+                    <span class="icon">⛭</span>
                     <span class="text">Settings</span>
                 </div>
 
                 <div class="dropdown-item" id="logout-btn">
-                    <span class="icon">🚪</span>
+                    <span class="icon">⏼</span>
                     <span class="text">Log out</span>
                 </div>
 
@@ -411,5 +415,29 @@
         });
     });
     </script>
+
+
+
+
+<script>
+const toggle = document.getElementById('theme-toggle');
+
+toggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-theme');
+
+    if(document.body.classList.contains('dark-theme')){
+        localStorage.setItem('theme', 'dark');
+    } else {
+        localStorage.setItem('theme', 'light');
+    }
+});
+
+if(localStorage.getItem('theme') === 'dark'){
+    document.body.classList.add('dark-theme');
+}
+</script>
+
+
+
 </body>
 </html>
