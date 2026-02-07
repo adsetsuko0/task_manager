@@ -29,4 +29,6 @@ urlpatterns = [
     path('groups/change_priority/', views.change_group_priority, name='group_change_priority'),
     path('groups/duplicate/', views.duplicate_group, name='group_duplicate'),
     path('groups/delete/', views.delete_group, name='group_delete'),
+
+    path('search_suggestions/', views.search_suggestions, name='search_suggestions'),
 ]
