@@ -263,16 +263,16 @@ body {
     position: absolute;
     top: 50px; /* чуть ниже аватара */
     right: 0;
-    background: #fff;
+    background: #fff; /* убрал возможную полупрозрачность */
     border: 1px solid #ddd;
     border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     display: none;
     min-width: 200px;
     z-index: 1000;
-    background-color: #1e1e1e;
     color: #e0e0e0;
-    border-color: #333;
+    border-color: #000000;
+    opacity: 1 !important;
 }
 
 .avatar-dropdown .dropdown-header {
@@ -521,9 +521,9 @@ body {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    margin-top: 16px;
+    margin-top: 12px;
     border-radius: 50%; /* Делаем кнопки круглыми */
-    padding: 12px 18px; /* Размер кнопок, чтобы они стали круглыми */
+    padding: 14px 18px; /* Размер кнопок, чтобы они стали круглыми */
     font-size: 16px; /* Для читаемости */
     border: none; /* Убираем лишние границы */
     cursor: pointer;
@@ -786,7 +786,7 @@ body.dark-theme .topbar {
 
 body.dark-theme .card {
     background-color: #1e1e1e;
-    color: #fff;
+    color: #ffffff;
 }
 
 
@@ -868,4 +868,35 @@ h3 {
     border-color: #7c76f0;    /* синий контур при фокусе/hover */
     background-color: #fff;    /* фон белый при фокусе */
     box-shadow: 0 2px 8px rgba(124, 118, 240, 0.2); /* мягкая тень */
+}
+
+
+.avatar-dropdown .dropdown-item {
+    color: #333; /* Темный цвет для светлой темы */
+}
+
+.avatar-dropdown .username {
+    color: #000; /* Черный цвет для имени пользователя */
+}
+
+.avatar-dropdown .group-name {
+    color: #555; /* Цвет для групп */
+}
+
+
+.rename-input {
+    border-radius: 5px;  /* Округлые углы */
+    border: 1px solid #ccc; /* Цвет границы */
+    padding: 10px; /* Отступы внутри поля */
+    font-size: 14px; /* Размер шрифта */
+    width: 100%; /* Растягиваем на всю ширину контейнера */
+    box-sizing: border-box; /* Учитываем отступы в ширине */
+    background-color: #fff; /* Цвет фона */
+    color: #333; /* Цвет текста */
+}
+
+.rounded-input {
+    border-radius: 8px; /* Установим радиус скругления */
+    padding: 8px; /* Паддинг для удобства */
+    border: 1px solid #ccc; /* Обычная рамка */
 }
