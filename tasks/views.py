@@ -9,6 +9,7 @@ from .serializers import TaskSerializer, ProjectSerialier, ProjectsGroupSerialie
 from .permissions import IsAdminOrOwner, IsAssigneeOrOwner, IsOwnerOrReadOnly
 
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
@@ -371,6 +372,22 @@ def delete_group(request):
     
 
 
+def search_suggestions(request):
+    q = request.GET.get('q', '').strip()
+    if not q:
+        return JsonResponse([], safe=False)
+
+    projects = Project.objects.filter(name__istartswith=q)[:5]
+    groups = Projects_Group.objects.filter(name__istartswith=q)[:5]
+    tasks = Task.objects.filter(title__istartswith=q)[:5]
+
+    results = []
+
+    results += [{"id": p.id, "name": p.name, "type": "project"} for p in projects]
+    results += [{"id": g.id, "name": g.name, "type": "group"} for g in groups]
+    results += [{"id": t.id, "name": t.title, "type": "task"} for t in tasks]
+
+    return JsonResponse(results, safe=False)
 
 
 

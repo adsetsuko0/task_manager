@@ -81,7 +81,11 @@
 
         <div class="topbar-left">
             <div class="page-title">{{ page_title }}</div>
-            <input class="search" placeholder="Search">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍︎</span>
+                <input class="search" placeholder="Search" id="global-search">
+                <div id="search-suggestions" class="search-suggestions"></div>
+            </div>
         </div>
 
     <div class="topbar-right" style="margin-left: auto; position: relative;">

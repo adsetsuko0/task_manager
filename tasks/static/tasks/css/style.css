@@ -209,7 +209,7 @@ body {
     color: #000;
     justify-content: flex-end;
     padding: 12px 16px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #bdbdbd;
     gap: 16px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     display: flex;
@@ -369,7 +369,7 @@ body {
 .section-header {
     display: flex;
     gap: 8px;
-    font-size: 30px;
+    font-size: 20px;
     font-weight: bold;
     cursor: pointer;
     align-items: center;
@@ -782,11 +782,28 @@ body.dark-theme {
 body.dark-theme .topbar {
     background-color: #1e1e1e;
     color: #fff;
+    border-bottom: 1px solid #333;
 }
 
 body.dark-theme .card {
     background-color: #1e1e1e;
     color: #ffffff;
+}
+
+body.dark-theme .topbar-left .page-title,
+body.dark-theme .topbar-left .search,
+body.dark-theme .section-header {
+    color: #b0b0b0; /* менее яркий белый, больше серого */
+    /* Для input можно дополнительно изменить placeholder */
+}
+
+body.dark-theme .divider {
+    background-color: #3b3b3b; /* более приглушённый серый */
+}
+
+
+body.dark-theme .topbar-left .search::placeholder {
+    color: #999999; /* приглушенный серый placeholder */
 }
 
 
@@ -899,4 +916,80 @@ h3 {
     border-radius: 8px; /* Установим радиус скругления */
     padding: 8px; /* Паддинг для удобства */
     border: 1px solid #ccc; /* Обычная рамка */
+}
+
+body.dark-theme .search {
+    background-color: #2a2a2a;  /* тёмно-серый фон */
+    color: #c0c0c0;             /* текст серый, не белый */
+    border: 1px solid #555;     /* граница чуть светлее фона */
+}
+
+body.dark-theme .search::placeholder {
+    color: #888888;             /* приглушённый серый placeholder */
+}
+
+
+.search-suggestions {
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    width: 200px; /* подстрой под ширину инпута */
+    max-height: 200px;
+    overflow-y: auto;
+    display: none; /* скрыт по умолчанию */
+    z-index: 1000;
+    border-radius: 6px;
+
+    font-weight: 400;  /* чуть тоньше */
+    font-size: 14px;
+}
+
+body.dark-theme .search-suggestions {
+    background-color: #2a2a2a;
+    border-color: #444;
+    color: #ccc;
+}
+
+.search-suggestions-item {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.search-suggestions-item:hover {
+    background-color: #eee;
+}
+
+.search-wrapper {
+    position: relative;
+    display: inline-block;
+    align-items: center;
+    width: 250px; /* можно подстроить под topbar */
+}
+
+.search-wrapper .search {
+    padding-left: 28px; /* место для иконки */
+    width: 100%;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    line-height: 1.2;
+}
+
+.search-wrapper .search-icon {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; /* чтобы иконка не мешала клику по input */
+    color: #888; /* цвет иконки */
+    font-size: 16px;
+    margin: auto 0;
+}
+
+
+
+
+body.dark-theme .search-suggestions-item:hover {
+    background-color: #444;
 }

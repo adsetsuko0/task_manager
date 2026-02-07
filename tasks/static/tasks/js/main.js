@@ -938,6 +938,96 @@ document.getElementById('confirm-delete-project')
     });
 
 
+
+const searchInput = document.getElementById('global-search');
+const suggestionsBox = document.getElementById('search-suggestions');
+
+let searchTimeout = null;
+
+searchInput.addEventListener('input', () => {
+    const query = searchInput.value.trim();
+
+    if (searchTimeout) clearTimeout(searchTimeout);
+
+    if (query.length === 0) {
+        suggestionsBox.style.display = 'none';
+        return;
+    }
+
+    // немного задержки, чтобы не спамить сервер на каждый символ
+    searchTimeout = setTimeout(() => {
+        fetch(`/search_suggestions/?q=${encodeURIComponent(query)}`)
+            .then(res => res.json())
+            .then(results => {
+                renderSearchSuggestions(results);
+            });
+    }, 300);
+});
+
+function renderSearchSuggestions(results) {
+    suggestionsBox.innerHTML = '';
+
+    if (!results || results.length === 0) {
+        suggestionsBox.style.display = 'none';
+        return;
+    }
+
+    results.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'search-suggestion-item';
+        div.textContent = item.name + ` (${item.type})`; // type: project/group/task
+        div.addEventListener('click', () => {
+            searchInput.value = item.name;
+            suggestionsBox.style.display = 'none';
+            // Дополнительно: можешь добавить переход к элементу
+            highlightItem(item);
+        });
+        suggestionsBox.appendChild(div);
+    });
+
+    if (results.length) {
+            // 🔹 растягиваем подсказки по ширине input
+            const rect = searchInput.getBoundingClientRect();
+            suggestionsBox.style.width = rect.width + 'px';
+            suggestionsBox.style.top = (rect.bottom + window.scrollY) + 'px';
+            suggestionsBox.style.left = rect.left + 'px';
+            suggestionsBox.style.display = 'block';
+        } else {
+            suggestionsBox.style.display = 'none';
+        }
+
+    suggestionsBox.style.display = 'block';
+}
+
+// пример подсветки выбранного элемента
+function highlightItem(item) {
+    // project: {id: ..., type: 'project'}
+    if(item.type === 'project') {
+        const el = document.querySelector(`.project-item[data-project-id="${item.id}"]`);
+        if(el) {
+            el.scrollIntoView({behavior: 'smooth', block: 'center'});
+            el.classList.add('highlight');
+            setTimeout(() => el.classList.remove('highlight'), 2000);
+        }
+    }
+
+    if(item.type === 'group') {
+        const el = document.querySelector(`.spaces-group[data-group-id="${item.id}"]`);
+        if(el) {
+            el.scrollIntoView({behavior: 'smooth', block: 'center'});
+            el.classList.add('highlight');
+            setTimeout(() => el.classList.remove('highlight'), 2000);
+        }
+    }
+}
+document.addEventListener('click', (e) => {
+    if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+        suggestionsBox.style.display = 'none';
+    }
+});
+
+
+
 /*===MODALS===*/
 function openRename() {
     dropdown.style.display = 'none';
@@ -1018,3 +1108,5 @@ function showToast(text) {
         toast.classList.remove('show');
     }, 5000);
 }
+
+
