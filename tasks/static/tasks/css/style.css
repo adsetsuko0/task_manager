@@ -279,7 +279,7 @@ body {
     display: flex;
     align-items: center;
     padding: 10px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #444;
 }
 
 .avatar-dropdown .small-avatar {
@@ -978,4 +978,35 @@ body.dark-theme .search-suggestions {
 
 body.dark-theme .search-suggestion-item:hover {
     background-color: #444;
+}
+
+
+
+body.dark-theme .avatar-dropdown {
+    background-color: #1e1e1e; /* темный фон */
+    border: 1px solid #333;    /* приглушённая граница */
+    color: #aaa;               /* серый текст по умолчанию */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* тень */
+}
+
+/* Заголовок и имя пользователя */
+body.dark-theme .avatar-dropdown .dropdown-header,
+body.dark-theme .avatar-dropdown .username,
+body.dark-theme .avatar-dropdown .group-name {
+    color: #bbb; /* более мягкий серый */
+}
+
+/* Разделители / линии */
+body.dark-theme .avatar-dropdown .dropdown-header + .dropdown-item,
+body.dark-theme .avatar-dropdown .dropdown-item + .dropdown-item {
+    border-top: 1px solid #444; /* приглушённая линия */
+}
+
+/* Элементы дропдауна */
+body.dark-theme .avatar-dropdown .dropdown-item {
+    color: #aaa; /* серый текст */
+}
+
+body.dark-theme .avatar-dropdown .dropdown-item:hover {
+    background-color: #2a2a2a; /* чуть темнее при наведении */
 }
