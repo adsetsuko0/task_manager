@@ -349,7 +349,8 @@ body {
 .view-switch {
     display: flex;
     gap: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 10px;; 
+    color: #000;  
 }
 
 .view-switch button {
@@ -953,6 +954,8 @@ body.dark-theme .search-suggestions {
 .search-suggestion-item {
     padding: 5px 10px;
     cursor: pointer;
+    font-size: 14px; /* уменьшенный шрифт */
+    font-weight: 400;
 }
 
 .search-suggestion-item:hover {
