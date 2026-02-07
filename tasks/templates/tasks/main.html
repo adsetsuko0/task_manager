@@ -451,6 +451,22 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<script>
+const viewButtons = document.querySelectorAll('.view-switch .view-btn');
+
+viewButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        // убрать active со всех
+        viewButtons.forEach(b => b.classList.remove('active'));
+        // добавить active к нажатой
+        btn.classList.add('active');
+
+        // здесь можно добавить логику для изменения вида страницы
+        console.log("Selected view:", btn.querySelector('span').textContent);
+    });
+});
+</script>
+
 
 </body>
 </html>
