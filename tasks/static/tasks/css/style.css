@@ -929,6 +929,9 @@ body.dark-theme .search::placeholder {
 }
 
 
+
+
+
 .search-suggestions {
     position: absolute;
     background-color: #fff;
@@ -939,9 +942,6 @@ body.dark-theme .search::placeholder {
     display: none; /* скрыт по умолчанию */
     z-index: 1000;
     border-radius: 6px;
-
-    font-weight: 400;  /* чуть тоньше */
-    font-size: 14px;
 }
 
 body.dark-theme .search-suggestions {
@@ -950,46 +950,15 @@ body.dark-theme .search-suggestions {
     color: #ccc;
 }
 
-.search-suggestions-item {
+.search-suggestion-item {
     padding: 5px 10px;
     cursor: pointer;
 }
 
-.search-suggestions-item:hover {
+.search-suggestion-item:hover {
     background-color: #eee;
 }
 
-.search-wrapper {
-    position: relative;
-    display: inline-block;
-    align-items: center;
-    width: 250px; /* можно подстроить под topbar */
-}
-
-.search-wrapper .search {
-    padding-left: 28px; /* место для иконки */
-    width: 100%;
-    height: 32px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-    line-height: 1.2;
-}
-
-.search-wrapper .search-icon {
-    position: absolute;
-    left: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none; /* чтобы иконка не мешала клику по input */
-    color: #888; /* цвет иконки */
-    font-size: 16px;
-    margin: auto 0;
-}
-
-
-
-
-body.dark-theme .search-suggestions-item:hover {
+body.dark-theme .search-suggestion-item:hover {
     background-color: #444;
 }
