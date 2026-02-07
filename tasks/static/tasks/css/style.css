@@ -349,16 +349,30 @@ body {
 .view-switch {
     display: flex;
     gap: 10px;
-    margin-bottom: 10px;; 
-    color: #000;  
+    margin-bottom: 10px;
 }
 
 .view-switch button {
     padding: 6px 12px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    background: #fff;
+    border-radius: 10px;           /* как у карточек */
+    border: 1px solid transparent; /* убрать рамку */
+    background-color: #fff;        /* светлая тема фон как карточки */
+    color: #000;                   /* текст */
     cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.view-switch button:hover {
+    background-color: #f0f0f0;     /* чуть темнее при наведении */
+}
+
+body.dark-theme .view-switch button {
+    background-color: #1e1e1e;     /* темный фон, как карточки */
+    color: #c0c0c0;                /* серый текст */
+}
+
+body.dark-theme .view-switch button:hover {
+    background-color: #2a2a2a;     /* чуть темнее при наведении */
 }
 
 /* ===== SECTIONS (PROJECT BLOCKS) ===== */
