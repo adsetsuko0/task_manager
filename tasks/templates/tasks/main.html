@@ -256,14 +256,14 @@
       Priority
       <select id="group-priority">
         <option value="low">Low</option>
-        <option value="medium">Medium</option>
+        <option value="normal">Normal</option>
         <option value="high">High</option>
       </select>
     </label>
     <label>Project limit<input id="group-limit" type="number" min="1"></label>
     <div class="modal-actions">
-      <button onclick="closeGroupModal()">Cancel</button>
-      <button onclick="submitGroup()">Create</button>
+      <button class="btn btn-cancel" onclick="closeGroupModal()">Cancel</button>
+      <button class="btn btn-create" onclick="submitGroup()">Create</button>
     </div>
   </div>
 </div>
@@ -349,8 +349,8 @@
         <label>Task limit<input id="createProjectLimit" type="number" min="1"></label>
 
         <div class="modal-actions">
-        <button type="button" onclick="closeCreateProjectModal()">Cancel</button>
-        <button id="submitCreateProjectBtn" type="button" onclick="submitCreateProject()">Create</button>
+        <button class="btn btn-secondary" onclick="closeCreateProjectModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitCreateProject()">Save</button>
     </div>
   </div>
 </div>
