@@ -459,37 +459,42 @@ function duplicateGroup() {
     })
     .then(res => res.json())
     .then(group => {
-        let baseName = group.name;
-        let copyIndex = 1;
-        const existingNames = Array.from(document.querySelectorAll('.group-name'))
-            .map(el => el.textContent);
-        while (existingNames.includes(group.name)) {
-            group.name = `${baseName} copy ${copyIndex}`;
-            copyIndex++;
+        if (!group) {
+            console.error('Server returned empty group');
+            return;
         }
-        // Добавляем новую группу **сразу после оригинала**
+
+        // Находим все дубликаты с таким же именем
         const originalGroupEl = document.querySelector(`.spaces-group[data-group-id="${currentGroupId}"]`);
         const spacesBody = document.getElementById('spaces-body');
 
+        let baseName = group.name || 'Duplicated Group';
+        const existingNames = Array.from(document.querySelectorAll('.spaces-group .group-name'))
+            .map(el => el.textContent)
+            .filter(name => name.startsWith(baseName));
+
+        let copyNumber = existingNames.length; // сколько уже дубликатов
+        let groupName = copyNumber > 0 ? `${baseName} (${copyNumber})` : baseName;
+
+        // Создаём новый элемент группы
         const groupEl = document.createElement('div');
         groupEl.className = 'spaces-group';
         groupEl.dataset.groupId = group.id;
 
         groupEl.innerHTML = `
-            <div class="group-title clickable priority-${group.priority}">
-                <span class="group-name">${group.name}</span>
+            <div class="group-title clickable priority-${group.priority || 'normal'}">
+                <span class="group-name">${groupName}</span>
                 <div class="group-actions">
-                    <span class="limit-badge">${group.limit}</span>
+                    <span class="limit-badge">${group.limit || 0}</span>
                     <button class="group-menu-btn">⋯</button>
                 </div>
             </div>
-            <div class="projects" style="display:none"></div>
+            <div class="projects"></div>
         `;
 
         // Вставка после оригинала
         originalGroupEl.after(groupEl);
 
-        // Навешиваем обработчики
         const title = groupEl.querySelector('.group-title');
         const menuBtn = groupEl.querySelector('.group-menu-btn');
 
@@ -501,9 +506,22 @@ function duplicateGroup() {
             openGroupMenu(e, group.id);
         });
 
-        // Добавляем проекты группы
-        group.projects.forEach(project => {
-            renderProject(project);
+        // Добавляем проекты оригинальной группы
+        const originalProjects = originalGroupEl.querySelectorAll('.project-item');
+        const projectsContainer = groupEl.querySelector('.projects');
+
+        originalProjects.forEach(project => {
+            const clone = project.cloneNode(true);
+            projectsContainer.appendChild(clone);
+
+            // Навешиваем обработчики на клонированные проекты
+            const menuBtn = clone.querySelector('.project-menu-btn');
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openProjectMenu(e, project.dataset.projectId);
+            });
+
+            clone.addEventListener('click', () => activateProject(clone));
         });
     })
     .catch(err => console.error('Error duplicating group', err));
