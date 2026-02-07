@@ -522,6 +522,32 @@ body {
     justify-content: flex-end;
     gap: 10px;
     margin-top: 16px;
+    border-radius: 50%; /* Делаем кнопки круглыми */
+    padding: 12px 18px; /* Размер кнопок, чтобы они стали круглыми */
+    font-size: 16px; /* Для читаемости */
+    border: none; /* Убираем лишние границы */
+    cursor: pointer;
+    transition: all 0.3s ease; /* Плавный переход при наведении */
+
+}
+/* Кнопка Cancel */
+.modal-actions .btn-cancel {
+    background-color: #e5e7eb; /* Красный цвет для Cancel */
+    color: rgb(23, 23, 23);
+}
+
+.modal-actions .btn-cancel:hover {
+    background-color: #c1c1c1; /* Тёмный красный при наведении */
+}
+
+/* Кнопка Create */
+.modal-actions .btn-create {
+    background-color: #7c76f0; /* Зелёный цвет для Create */
+    color: white;
+}
+
+.modal-actions .btn-create:hover {
+    background-color: #6f6ad2; /* Тёмно-зелёный при наведении */
 }
 
 .modal input,
@@ -767,4 +793,79 @@ body.dark-theme .card {
 body.dark-theme .theme-icon {
     content: url("{% static 'tasks/icons/light_mode.png' %}"); /* путь к картинке солнца */
     filter: brightness(0.8); /* слегка серый, не ярко-белый */
+}
+
+
+label {
+    display: block; /* Ставим метки и элементы на новые строки */
+    margin-bottom: 15px; /* Отступы для разделения */
+    font-size: 14px; /* Размер шрифта */
+    font-weight: bold; /* Выделяем текст */
+}
+
+label input, label select {
+    width: 100%; /* Делаем элементы на всю ширину */
+    padding: 10px 15px; /* Увеличиваем внутренние отступы */
+    margin-top: 5px; /* Отступ сверху */
+    border-radius: 25px; /* Очень округлые края */
+    border: 1px solid #ddd; /* Тонкая граница */
+    font-size: 14px; /* Читаемый шрифт */
+    background-color: #f9f9f9; /* Светлый фон */
+    transition: all 0.3s ease; /* Плавный переход при фокусе */
+}
+
+/* Добавляем эффект фокуса */
+label input:focus, label select:focus {
+    outline: none; /* Убираем стандартную обводку */
+    border-color: #7c76f0; /* Зеленая обводка при фокусе */
+    background-color: #fff; /* Белый фон при фокусе */
+}
+
+/* Добавляем плавные тени */
+label input, label select {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Легкая тень */
+}
+
+label input:focus, label select:focus {
+    box-shadow: 0 2px 8px rgba(0, 150, 136, 0.2); /* Тень на фокус */
+}
+
+/* Кастомизируем для поля select */
+label select {
+    background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"%3E%3Cpath d="M0 3L5 8l5-5z" fill="%23999"%3E%3C/path%3E%3C/svg%3E'); /* Стиль для стрелки в select */
+    background-repeat: no-repeat;
+    background-position: right 10px center; /* Позиционируем стрелку */
+    background-size: 12px;
+    -webkit-appearance: none; /* Отключаем стили для select в некоторых браузерах */
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Стиль для заголовков (если нужно) */
+h3 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+
+#renameGroupInput {
+    width: 100%;
+    padding: 10px 18px;        /* внутренние отступы */
+    font-size: 15px;
+    border-radius: 25px;       /* округлые края */
+    border: 1px solid #ddd;    /* легкая граница */
+    background-color: #f9f9f9; /* светлый фон */
+    color: #333;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* мягкая тень */
+}
+
+/* Фокус и hover */
+#renameGroupInput:focus,
+#renameGroupInput:hover {
+    outline: none;
+    border-color: #7c76f0;    /* синий контур при фокусе/hover */
+    background-color: #fff;    /* фон белый при фокусе */
+    box-shadow: 0 2px 8px rgba(124, 118, 240, 0.2); /* мягкая тень */
 }

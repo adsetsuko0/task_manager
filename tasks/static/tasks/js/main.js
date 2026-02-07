@@ -126,6 +126,10 @@ function openCreateGroupModal(event) {
         return;
     }
 
+    document.getElementById('group-name').value = '';  // очищаем имя группы
+    document.getElementById('group-priority').value = 'medium';  // сбрасываем приоритет на 'medium'
+    document.getElementById('group-limit').value = ''; 
+
     modal.style.display = 'flex';
 }
 
@@ -455,6 +459,14 @@ function duplicateGroup() {
     })
     .then(res => res.json())
     .then(group => {
+        let baseName = group.name;
+        let copyIndex = 1;
+        const existingNames = Array.from(document.querySelectorAll('.group-name'))
+            .map(el => el.textContent);
+        while (existingNames.includes(group.name)) {
+            group.name = `${baseName} copy ${copyIndex}`;
+            copyIndex++;
+        }
         // Добавляем новую группу **сразу после оригинала**
         const originalGroupEl = document.querySelector(`.spaces-group[data-group-id="${currentGroupId}"]`);
         const spacesBody = document.getElementById('spaces-body');
