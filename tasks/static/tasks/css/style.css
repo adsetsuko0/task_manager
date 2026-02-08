@@ -876,13 +876,10 @@ label input:focus, label select:focus {
 
 /* Кастомизируем для поля select */
 label select {
-    background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"%3E%3Cpath d="M0 3L5 8l5-5z" fill="%23999"%3E%3C/path%3E%3C/svg%3E'); /* Стиль для стрелки в select */
-    background-repeat: no-repeat;
-    background-position: right 10px center; /* Позиционируем стрелку */
-    background-size: 12px;
-    -webkit-appearance: none; /* Отключаем стили для select в некоторых браузерах */
-    -moz-appearance: none;
-    appearance: none;
+    -webkit-appearance: none; /* отключаем стандартный вид для WebKit */
+    -moz-appearance: none;    /* отключаем для Firefox */
+    appearance: none;         /* стандартный вид отключен */
+    background-image: none;   /* убираем кастомную стрелку */
 }
 
 /* Стиль для заголовков (если нужно) */
@@ -1074,3 +1071,132 @@ body.dark-theme .project-actions {
     letter-spacing: 0.3px;   /* чуть просторнее текст параграфа */
     line-height: 1.6;        /* для удобного чтения */
 }
+
+
+body.dark-theme .modal-backdrop,
+body.dark-theme .modal-overlay {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+body.dark-theme .modal {
+    background-color: #1e1e1e;          /* как topbar / cards */
+    color: #cfcfcf;
+    border: 1px solid #333;
+}
+
+/* Заголовки */
+body.dark-theme .modal h3 {
+    color: #e0e0e0;
+}
+
+/* Текст */
+body.dark-theme .modal p,
+body.dark-theme .modal label {
+    color: #b8b8b8;
+}
+
+/* Inputs / Selects */
+body.dark-theme .modal input,
+body.dark-theme .modal select {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    border: 1px solid #444;
+}
+
+body.dark-theme .modal input::placeholder {
+    color: #888;
+}
+
+/* ================= BUTTONS ================= */
+
+/* Cancel */
+body.dark-theme .btn-secondary,
+body.dark-theme .btn-cancel {
+    background-color: #2f2f2f;
+    color: #cfcfcf;
+}
+
+body.dark-theme .btn-secondary:hover,
+body.dark-theme .btn-cancel:hover {
+    background-color: #3a3a3a;
+}
+
+/* Primary (Create / Save / Rename / Change) */
+body.dark-theme .btn-primary,
+body.dark-theme .btn-create {
+    background-color: #6f6ad2;
+    color: #fff;
+}
+
+body.dark-theme .btn-primary:hover,
+body.dark-theme .btn-create:hover {
+    background-color: #7c76f0;
+}
+
+/* Danger (Delete) */
+body.dark-theme .btn-danger {
+    background-color: #8b3a3a;
+}
+
+body.dark-theme .btn-danger:hover {
+    background-color: #a04747;
+}
+
+body.dark-theme #group-name,
+body.dark-theme #group-name:focus,
+body.dark-theme #group-name:active,
+body.dark-theme #group-name:not(:placeholder-shown) {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    border-color: #444;
+    outline: none;
+}
+
+body.dark-theme input:-webkit-autofill,
+body.dark-theme input:-webkit-autofill:focus,
+body.dark-theme input:-webkit-autofill:hover,
+body.dark-theme input:-webkit-autofill:active {
+    -webkit-text-fill-color: #e0e0e0 !important;
+    box-shadow: 0 0 0 1000px #2a2a2a inset !important;
+    caret-color: #e0e0e0;
+}
+
+
+body.dark-theme #group-dropdown {
+    background-color: #1f1f1f;
+    border: 1px solid #2c2c2c;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    padding: 4px 0;
+    min-width: 180px;
+}
+
+/* кнопки */
+body.dark-theme #group-dropdown button {
+    background: transparent;
+    color: #d1d5db;
+    padding: 8px 14px;
+    width: 100%;
+    text-align: left;
+    font-size: 13px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+/* hover */
+body.dark-theme #group-dropdown button:hover {
+    background-color: #2a2a2a;
+    color: #ffffff;
+}
+
+/* delete — аккуратно опасный */
+body.dark-theme #group-dropdown button:last-child {
+    color: #ef4444;
+}
+
+body.dark-theme #group-dropdown button:last-child:hover {
+    background-color: rgba(239, 68, 68, 0.12);
+    color: #f87171;
+}
+
