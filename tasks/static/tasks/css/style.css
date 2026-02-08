@@ -876,10 +876,10 @@ label input:focus, label select:focus {
 
 /* Кастомизируем для поля select */
 label select {
-    -webkit-appearance: none; /* отключаем стандартный вид для WebKit */
-    -moz-appearance: none;    /* отключаем для Firefox */
-    appearance: none;         /* стандартный вид отключен */
-    background-image: none;   /* убираем кастомную стрелку */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: none !important; /* убираем встроенную стрелку */
 }
 
 /* Стиль для заголовков (если нужно) */
@@ -909,6 +909,7 @@ h3 {
     border-color: #7c76f0;    /* синий контур при фокусе/hover */
     background-color: #fff;    /* фон белый при фокусе */
     box-shadow: 0 2px 8px rgba(124, 118, 240, 0.2); /* мягкая тень */
+    padding: 6px 12px;
 }
 
 
@@ -1159,6 +1160,7 @@ body.dark-theme input:-webkit-autofill:active {
     -webkit-text-fill-color: #e0e0e0 !important;
     box-shadow: 0 0 0 1000px #2a2a2a inset !important;
     caret-color: #e0e0e0;
+    border-color: #7c76f0;
 }
 
 
@@ -1200,3 +1202,74 @@ body.dark-theme #group-dropdown button:last-child:hover {
     color: #f87171;
 }
 
+
+body.dark-theme #renameGroupInput {
+    background-color: #2a2a2a;  /* темный фон */
+    color: #e0e0e0;             /* текст серый */
+    border: 1px solid #444;     /* рамка */
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+body.dark-theme #renameGroupInput:focus {
+    outline: none;
+    border-color: #7c76f0;
+    background-color: #2a2a2a; /* сохраняем темный фон */
+    color: #e0e0e0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;           /* убираем стандартную обводку */
+    border-color: #7c76f0;  /* синий контур при фокусе */
+    box-shadow: 0 2px 8px rgba(124, 118, 240, 0.2); /* мягкая тень */
+}
+
+/* Все поля input, select и textarea в темной теме */
+body.dark-theme input:focus,
+body.dark-theme select:focus,
+body.dark-theme textarea:focus {
+    outline: none;
+    border-color: #7c76f0;  /* синий контур при фокусе */
+    box-shadow: 0 2px 8px rgba(124, 118, 240, 0.2);
+    background-color: #2a2a2a; /* сохраняем темный фон */
+    color: #e0e0e0;           /* текст серый */
+}
+
+body.dark-theme #project-dropdown {
+    background-color: #1e1e1e;  /* темный фон */
+    border: 1px solid #333;     /* приглушённая граница */
+    color: #ccc;                /* текст серый */
+}
+
+body.dark-theme #project-dropdown button {
+    background: none;           /* без фонового цвета */
+    color: #ccc;                /* серый текст */
+    border: none;               /* убираем границы кнопок */
+    padding: 8px 12px;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+body.dark-theme #project-dropdown button:hover {
+    background-color: #2a2a2a;  /* чуть темнее при наведении */
+}
+
+/* delete — аккуратно опасный */
+body.dark-theme #project-dropdown button:last-child {
+    color: #ef4444;
+}
+
+body.dark-theme #project-dropdown button:last-child:hover {
+    background-color: rgba(239, 68, 68, 0.12);
+    color: #f87171;
+}

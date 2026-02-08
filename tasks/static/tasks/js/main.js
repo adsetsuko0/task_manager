@@ -1137,3 +1137,15 @@ function showToast(text) {
 }
 
 
+document.addEventListener('click', function(e) {
+    const spacesBody = document.getElementById('spaces-body');
+    const spacesHeader = document.querySelector('.spaces-header');
+
+    if (!spacesBody || spacesBody.classList.contains('hidden')) return;
+
+    // Если клик не по самому контейнеру и не по заголовку группы
+    if (!spacesBody.contains(e.target) && !spacesHeader.contains(e.target)) {
+        spacesBody.classList.add('hidden');
+    }
+});
+
