@@ -181,6 +181,21 @@ function submitGroup() {
     const priority = document.getElementById('group-priority').value;
     const limit = Number(document.getElementById('group-limit').value);
 
+    if (!name) {
+        showToast('Name is required!', 'error');
+        return;
+    }
+
+    if (!priority) {
+        showToast('Priority is required!', 'error');
+        return;
+    }
+
+    if (!limit) {
+        showToast('Limit is required!', 'error');
+        return;
+    }
+
 
     fetch('/groups/create/', {
         method: 'POST',
@@ -332,6 +347,7 @@ function renameGroup() {
     const groupId = currentGroupId;
     const titleEl = document.querySelector(`.spaces-group[data-group-id="${groupId}"] .group-name`);
 
+
     document.getElementById('renameGroupId').value = groupId;
     document.getElementById('renameGroupInput').value = titleEl.textContent;
     document.getElementById('renameGroupModal').style.display = 'flex';
@@ -343,7 +359,7 @@ function submitRenameGroup() {
     const newName = document.getElementById('renameGroupInput').value;
 
     if (!newName) {
-        alert('Name is empty');
+        showToast('Name is required!', 'error');
         return;
     }
 
@@ -669,7 +685,12 @@ function submitCreateProject() {
     const limit = Number(document.getElementById('createProjectLimit').value);
 
     if (!name) {
-        alert('Project name is required');
+        showToast('Name is required!', 'error');
+        return;
+    }
+
+    if (!limit) {
+        showToast('Limit is required!', 'error');
         return;
     }
 
@@ -684,10 +705,16 @@ function submitCreateProject() {
     .then(res => res.json())
     .then(project => {
         if (project.error) {
-            alert(project.error);
+            if (project.error === 'PROJECT_LIMIT_REACHED') {
+                showToast('Project limit reached for this group!');
+                return;
+            }
+
+            showToast(project.error);
             return;
         }
-        addProjectToGroupSidebar(project); // добавляем проект в нужную группу
+
+        addProjectToGroupSidebar(project);
         closeCreateProjectModal();
     })
     .catch(err => console.error('Error creating project', err));
