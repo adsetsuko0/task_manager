@@ -696,6 +696,8 @@ body.dark-theme .view-switch button:hover {
 
 .project-name {
     margin-left: 8px; /* слегка смещаем название вправо */
+    font-size: 14px; /* меньше, чем 15px по умолчанию */
+    font-weight: 500;
 }
 
 .project-actions {

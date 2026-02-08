@@ -156,6 +156,15 @@ def duplicate_project(request):
         data = json.loads(request.body)
         project_id = data.get("project_id")
         project = Project.objects.get(id=project_id)
+        group = project.group
+
+        # Проверка лимита перед созданием дубликата
+        projects_count = Project.objects.filter(group=group).count()
+        if projects_count >= group.limit:
+            return JsonResponse({
+                "success": False,
+                "error": "Project limit reached for this group"
+            })
 
         # Создаем копию проекта
         new_project = Project.objects.create(
@@ -179,6 +188,7 @@ def duplicate_project(request):
         return JsonResponse({"success": False, "error": "Project not found"})
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
+
 
 
 
