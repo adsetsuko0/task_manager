@@ -252,7 +252,7 @@
 <div id="groupModal" class="modal-backdrop">
   <div class="modal">
     <h3>Create Group</h3>
-    <label>Name<input id="group-name" type="text"></label>
+    <label>Name<input id="group-name" type="text" placeholder="Enter name"></label>
     <label>
       Priority
       <select id="group-priority">
@@ -261,7 +261,7 @@
         <option value="high">High</option>
       </select>
     </label>
-    <label>Project limit<input id="group-limit" type="number" min="1"></label>
+    <label>Project limit<input id="group-limit" type="number" min="1" placeholder="Enter limit"></label>
     <div class="modal-actions">
       <button class="btn btn-cancel" onclick="closeGroupModal()">Cancel</button>
       <button class="btn btn-create" onclick="submitGroup()">Create</button>
