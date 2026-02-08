@@ -724,6 +724,8 @@ function submitCreateProject() {
 
 
 function openProjectMenu(event, projectId, projectName) {
+    event.stopPropagation(); 
+
     currentProjectId = projectId;
     currentProjectName = projectName;
 
@@ -863,8 +865,25 @@ function toggleFavourite(button, projectId) {
 
 function duplicateProject() {
     if (!currentProjectId) {
-        alert("No project selected");
+        showToast("No project selected");
         return;
+    }
+
+    const originalEl = document.querySelector(`.project-item[data-project-id="${currentProjectId}"]`);
+    if (!originalEl) return;
+
+    const groupEl = originalEl.closest(".spaces-group");
+    if (!groupEl) return;
+
+    const projectContainer = groupEl.querySelector(".projects") || originalEl.parentElement;
+    const currentProjectsCount = projectContainer.querySelectorAll(".project-item").length;
+
+    // Получаем лимит группы из data-атрибута (добавить на сервере при рендере)
+    const groupLimit = parseInt(groupEl.dataset.groupLimit, 10);
+
+    if (currentProjectsCount >= groupLimit) {
+        showToast("Project limit reached for this group");
+        return; // не создаем дубликат
     }
 
     fetch("/projects/duplicate/", {
@@ -878,25 +897,20 @@ function duplicateProject() {
     .then(res => res.json())
     .then(data => {
         if (!data.success) {
-            alert(data.error || "Error duplicating project");
+            showToast(data.error || "Error duplicating project");
             return;
         }
 
         const project = data.project;
 
-        // Найдем контейнер группы
-        const groupEl = document.querySelector(`.spaces-group[data-group-id="${project.group_id}"]`);
-        if (!groupEl) return;
-
-        let projectContainer = groupEl.querySelector(".projects");
-        if (!projectContainer) {
-            projectContainer = document.createElement("div");
-            projectContainer.className = "projects";
-            projectContainer.style.display = "none";
-            groupEl.appendChild(projectContainer);
+        let container = groupEl.querySelector(".projects");
+        if (!container) {
+            container = document.createElement("div");
+            container.className = "projects";
+            container.style.display = "none";
+            groupEl.appendChild(container);
         }
 
-        // Создаем элемент нового проекта
         const el = document.createElement("div");
         el.className = "project-item";
         el.dataset.projectId = project.id;
@@ -906,12 +920,7 @@ function duplicateProject() {
                 <button class="project-menu-btn" onclick="openProjectMenu(event, ${project.id}, '${project.name}')">⋯</button>
             </div>
         `;
-
-        // Вставляем новый проект сразу после оригинала
-        const originalEl = groupEl.querySelector(`.project-item[data-project-id="${currentProjectId}"]`);
         originalEl.after(el);
-
-        // Навешиваем клики
         el.addEventListener("click", (e) => {
             e.stopPropagation();
             activateProject(el);
@@ -919,7 +928,6 @@ function duplicateProject() {
     })
     .catch(err => console.error(err));
 }
-
 
 
 function deleteProject() {
@@ -1140,12 +1148,16 @@ function showToast(text) {
 document.addEventListener('click', function(e) {
     const spacesBody = document.getElementById('spaces-body');
     const spacesHeader = document.querySelector('.spaces-header');
+    const projectDropdown = document.getElementById('project-dropdown');
+    const groupDropdown = document.getElementById('group-dropdown');
 
     if (!spacesBody || spacesBody.classList.contains('hidden')) return;
 
-    // Если клик не по самому контейнеру и не по заголовку группы
-    if (!spacesBody.contains(e.target) && !spacesHeader.contains(e.target)) {
+    // Если клик не по spacesBody, не по заголовку и не по дропдаунам
+    if (!spacesBody.contains(e.target) &&
+        !spacesHeader.contains(e.target) &&
+        (!projectDropdown || !projectDropdown.contains(e.target)) &&
+        (!groupDropdown || !groupDropdown.contains(e.target))) {
         spacesBody.classList.add('hidden');
     }
 });
-
