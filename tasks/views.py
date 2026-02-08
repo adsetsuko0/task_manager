@@ -49,6 +49,13 @@ def create_project(request):
 
         group = Projects_Group.objects.get(id=int(group_id))
 
+        projects_count=Project.objects.filter(group=group).count()
+
+        if projects_count >= group.limit:
+            return JsonResponse({
+                'success': False,
+                'error': 'Group project limit reached'}, status=400)
+
         project = Project.objects.create(
             name=name,
             task_limit=task_limit,

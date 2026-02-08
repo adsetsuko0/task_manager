@@ -58,13 +58,10 @@ body {
     gap: 6px;
 }
 
-.space-group {
-    padding: 4px 8px;
-}
 
 .spaces-group {
     margin-left: 4px;
-    margin-top: 2px;
+    margin-top: 0px;
     padding: 6px 8px;
     width: 100%;
 }   
@@ -98,11 +95,11 @@ body {
 .priority-high { border-left: 4px solid #b45353; }
 
 .limit-badge {
-  background: #e5e7eb;
-  border-radius: 10px;
   padding: 2px 8px;
-  font-size: 11px;
+  font-size: 12px;
   margin-right: 0px;
+  color: #666; 
+  font-weight: 700;
 }
 
 .group-title {
@@ -136,7 +133,7 @@ body {
 }
 
 .group-title.clickable:hover {
-    background-color: #eef2ff; /* светлый эффект при наведении */
+    background-color: #818181; /* светлый эффект при наведении */
 }
 
 .group-title.clickable.active {
@@ -385,7 +382,7 @@ body.dark-theme .view-switch button:hover {
     display: flex;
     gap: 8px;
     font-size: 20px;
-    font-weight: bold;
+    font-weight: 600;
     cursor: pointer;
     align-items: center;
 }
@@ -794,6 +791,22 @@ body.dark-theme {
     color: #e0e0e0;
 }
 
+body.dark-theme .sidebar {
+    background-color: #1e1e1e;
+    color: #bbb; /* базовый серый текст */
+}
+
+
+body.dark-theme .sidebar * {
+    color: #bbb;
+}
+
+body.dark-theme .sidebar .item:hover,
+body.dark-theme .sidebar .active {
+    background-color: #2a2a2a; /* как у карточек */
+}
+
+
 body.dark-theme .topbar {
     background-color: #1e1e1e;
     color: #fff;
@@ -1009,4 +1022,29 @@ body.dark-theme .avatar-dropdown .dropdown-item {
 
 body.dark-theme .avatar-dropdown .dropdown-item:hover {
     background-color: #2a2a2a; /* чуть темнее при наведении */
+}
+
+body.dark-theme .projects {
+    border-left: 2px solid #555; /* линия слева */
+}
+
+body.dark-theme .toast {
+    background-color: #f2f2f2;   /* светлый, не чисто белый */
+    color: #222;                /* тёмный текст */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+}
+
+
+body.dark-theme .limit-badge {
+    color: #9a9a9a;         /* приглушенный серый */
+}
+
+
+body.dark-theme .group-title.clickable {
+    background-color: #292929; /* чуть светлее основного фона сайдбара */
+    color: #d0d0d0;            /* текст тоже чуть светлее, если нужно */
+}
+
+body.dark-theme .group-title.clickable:hover {
+    background-color: #3a3a3a; /* эффект при наведении */
 }
