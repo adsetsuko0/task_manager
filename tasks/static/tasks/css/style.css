@@ -60,10 +60,9 @@ body {
 
 
 .spaces-group {
-    margin-left: 4px;
-    margin-top: 0px;
-    padding: 6px 8px;
-    width: 100%;
+    margin-top: 0;      /* убираем внешний отступ */
+    padding-top: 2px;   /* уменьшаем внутренний padding сверху, если нужно */
+    padding-bottom: 2px;
 }   
 
 #spaces-body.hidden {
@@ -133,7 +132,7 @@ body {
 }
 
 .group-title.clickable:hover {
-    background-color: #818181; /* светлый эффект при наведении */
+    background-color: #cbcbcb; /* светлый эффект при наведении */
 }
 
 .group-title.clickable.active {
@@ -690,7 +689,7 @@ body.dark-theme .view-switch button:hover {
 .project-item:hover .project-actions {
     opacity: 1;
     pointer-events: auto;
-    background-color: #eef2ff;
+    background-color: transparent;
 }
 
 
@@ -1047,4 +1046,31 @@ body.dark-theme .group-title.clickable {
 
 body.dark-theme .group-title.clickable:hover {
     background-color: #3a3a3a; /* эффект при наведении */
+}
+
+body.dark-theme .project-menu-btn {
+    background: transparent; /* убираем белый фон */
+    color: #ccc;             /* сами точки делаем серыми */
+}
+
+body.dark-theme .project-menu-btn:hover {
+    background: rgba(255, 255, 255, 0.05); /* слегка подсветка при наведении */
+    color: #fff;                           /* точки становятся белее при наведении */
+}
+
+
+/* Темная тема — контейнер с действиями проекта */
+body.dark-theme .project-actions {
+    background: transparent; /* убираем белый фон */
+}
+
+
+#delete-project-modal .modal h3 {
+    letter-spacing: 0.5px;   /* чуть больше пространства между буквами */
+    line-height: 1.4;        /* чуть больше высоты строк */
+}
+
+#delete-project-modal .modal p {
+    letter-spacing: 0.3px;   /* чуть просторнее текст параграфа */
+    line-height: 1.6;        /* для удобного чтения */
 }
