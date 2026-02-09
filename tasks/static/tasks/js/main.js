@@ -32,7 +32,6 @@ function limitCards(sectionId, maxCards = 3) {
     lastCards.forEach(card => card.style.display = 'block');
 }
 
-// Ограничиваем на главной странице
 limitCards('recent', 3);
 limitCards('fav', 3);
 
@@ -44,14 +43,24 @@ function updateCards(sectionId, maxCards = 3) {
     const cardsContainer = section.querySelector('.cards');
     const cards = Array.from(cardsContainer.children);
 
-    // Скрываем все карточки
-    cards.forEach(card => card.style.display = 'none');
+    // Удаляем карточки, которых больше нет в базе (или помечены удалёнными)
+    cards.forEach(card => {
+        const projectId = card.dataset.projectId;
+        if (!document.querySelector(`.project-item[data-project-id="${projectId}"]`)) {
+            card.remove();
+        }
+    });
 
-    // Показываем последние maxCards карточек LIFO
-    const lastCards = cards.slice(-maxCards).reverse();
-    lastCards.forEach(card => card.style.display = 'block');
+    // Показываем только последние maxCards карточек LIFO
+    const updatedCards = Array.from(cardsContainer.children);
+    updatedCards.forEach((card, index) => {
+        if (index >= updatedCards.length - maxCards) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
 }
-
 
 
 function toggleSection(Id) {
@@ -754,6 +763,26 @@ function submitCreateProject() {
         }
 
         addProjectToGroupSidebar(project);
+
+        const cardsContainer = document.querySelector('#recent .cards'); // или '#fav .cards' если хотите в избранное
+        const cardEl = document.createElement('div');
+        cardEl.className = 'card';
+        cardEl.dataset.projectId = project.id; // чтобы потом можно было удалить
+        cardEl.id = `card-${project.id}`;
+        cardEl.innerHTML = `
+            <button class="card-menu-btn" onclick="openProjectMenu(event, '${project.id}', '${project.name}')"></button>
+            <div class="card-img"></div>
+            <div class="card-title">${project.name}</div>
+        `;
+
+        // Добавляем карточку в начало контейнера, чтобы соблюдался LIFO порядок
+        cardsContainer.prepend(cardEl);
+
+        // 3️⃣ Обновляем видимые карточки
+        updateCards('recent', 3);
+        updateCards('fav', 3);
+
+
         closeCreateProjectModal();
     })
     .catch(err => console.error('Error creating project', err));
@@ -774,6 +803,21 @@ function openProjectMenu(event, projectId, projectName) {
     dropdown.style.display = 'block';
     dropdown.style.top = (rect.bottom + window.scrollY) + "px";
     dropdown.style.left = rect.left + "px";
+
+    const favBtn = dropdown.querySelector('.project-fav-btn');
+    if (!favBtn) return;
+
+    // 2️⃣ Проверяем, есть ли проект в избранных
+    const cardEl = document.getElementById(`card-${projectId}`);
+    const isFavourite = cardEl ? cardEl.classList.contains('favourite') : false;
+
+    // 3️⃣ Меняем текст в дропдауне
+    favBtn.textContent = isFavourite ? 'Remove from favourites' : 'Add to favourites';
+
+    // 4️⃣ Навешиваем обработчик клика
+    favBtn.onclick = () => {
+        toggleFavourite(favBtn, projectId);
+    };
 }
 
 
@@ -890,13 +934,39 @@ function toggleFavourite(button, projectId) {
     .then(data => {
         if (!data.success) return;
 
-        button.classList.toggle('active', data.is_favourite);
+        const cardEl = document.getElementById(`card-${projectId}`);
+        if (cardEl) {
+            cardEl.classList.toggle('favourite', data.is_favourite);
+        }
+
+        // 2️⃣ Переключаем текст в дропдауне, если открыт
+        const dropdown = document.getElementById('project-dropdown');
+        const favBtn = dropdown.querySelector('.project-fav-btn');
+        if (favBtn) {
+            favBtn.textContent = data.is_favourite ? 'Remove from favourites' : 'Add to favourites';
+        }
+
+
 
         showToast(
             data.is_favourite
                 ? 'Successfully added to favourites'
                 : 'Removed from favourites'
         );
+
+        const favContainer = document.querySelector('#fav .cards');
+        if (data.is_favourite && cardEl) {
+            // Добавляем карточку в избранное
+            favContainer.prepend(cardEl.cloneNode(true));
+            updateCards('fav', 3);
+        } else if (!data.is_favourite) {
+            // Убираем карточку из избранного
+            const favCard = document.getElementById(`card-${projectId}`);
+            if (favCard && favCard.parentElement.id === 'fav') {
+                favCard.remove();
+                updateCards('fav', 3);
+            }
+        }
     });
 }
 
@@ -1009,11 +1079,10 @@ document.getElementById('confirm-delete-project')
             
             const cardEl = document.getElementById(`card-${currentProjectId}`);
             if (cardEl) cardEl.remove();
+            
 
-        // 🔥 Обновляем карточки (LIFO, максимум 3) для обеих секций
             updateCards('recent', 3);
             updateCards('fav', 3);
-
 
             closeDeleteProjectModal();
             currentProjectId = null;
