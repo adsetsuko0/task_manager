@@ -17,12 +17,51 @@ navItems.forEach(item => {
 
 
 
+function limitCards(sectionId, maxCards = 3) {
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+
+    const cardsContainer = section.querySelector('.cards');
+    const cards = Array.from(cardsContainer.children);
+
+    // Скрываем все карточки
+    cards.forEach(card => card.style.display = 'none');
+
+    // Показываем только последние maxCards карточек (LIFO)
+    const lastCards = cards.slice(-maxCards).reverse(); // переворачиваем для LIFO
+    lastCards.forEach(card => card.style.display = 'block');
+}
+
+// Ограничиваем на главной странице
+limitCards('recent', 3);
+limitCards('fav', 3);
+
+
+function updateCards(sectionId, maxCards = 3) {
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+
+    const cardsContainer = section.querySelector('.cards');
+    const cards = Array.from(cardsContainer.children);
+
+    // Скрываем все карточки
+    cards.forEach(card => card.style.display = 'none');
+
+    // Показываем последние maxCards карточек LIFO
+    const lastCards = cards.slice(-maxCards).reverse();
+    lastCards.forEach(card => card.style.display = 'block');
+}
+
+
+
 function toggleSection(Id) {
     const section = document.getElementById(Id);
     if (section) {
         section.classList.toggle('collapsed');
     }
 }
+
+
 
 
 function toggleSpaces(event) {
@@ -941,6 +980,9 @@ function closeDeleteProjectModal() {
     const modal = document.getElementById('delete-project-modal');
     if (modal) modal.style.display = 'none';
 }
+
+
+
 document.getElementById('confirm-delete-project')
     ?.addEventListener('click', () => {
 
@@ -964,6 +1006,14 @@ document.getElementById('confirm-delete-project')
                 `.project-item[data-project-id="${currentProjectId}"]`
             );
             if (projectEl) projectEl.remove();
+            
+            const cardEl = document.getElementById(`card-${currentProjectId}`);
+            if (cardEl) cardEl.remove();
+
+        // 🔥 Обновляем карточки (LIFO, максимум 3) для обеих секций
+            updateCards('recent', 3);
+            updateCards('fav', 3);
+
 
             closeDeleteProjectModal();
             currentProjectId = null;
