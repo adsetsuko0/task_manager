@@ -771,9 +771,15 @@ function submitCreateProject() {
         cardEl.id = `card-${project.id}`;
         cardEl.innerHTML = `
             <button class="card-menu-btn" onclick="openProjectMenu(event, '${project.id}', '${project.name}')"></button>
-            <div class="card-img"></div>
+            <div class="card-content">
+                    <div class="card-img">
+                        <img src="/static/tasks/icons/doc_light.png" alt="icon" class="card-icon"/>
+                        <span class="card-subtitle">example</span>
+                    </div>
             <div class="card-title">${project.name}</div>
+            </div>
         `;
+        
 
         // Добавляем карточку в начало контейнера, чтобы соблюдался LIFO порядок
         cardsContainer.prepend(cardEl);
