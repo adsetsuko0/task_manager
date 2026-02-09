@@ -1285,10 +1285,23 @@ body.dark-theme #project-dropdown button:last-child:hover {
     border-radius: 10px;
     background: #e5e7eb; /* светлый фон */
     display: flex;
+    flex-direction: column; 
     align-items: center;
     justify-content: center;
     font-size: 13px;
     opacity: 0.6;
+}
+
+.card-icon {
+    width: 32px;  /* маленькая иконка */
+    height: 32px;
+    object-fit: contain;
+}
+
+.card-subtitle {
+    font-size: 12px; /* маленький текст */
+    color: #555;
+    margin-top: 10px; /* отступ от иконки */
 }
 
 /* Заголовок карточки */
@@ -1332,6 +1345,12 @@ body.dark-theme #fav .card-img {
     color: #bbb;               /* текст внутри блока картинки */
     opacity: 0.6;
 }
+
+
+body.dark-theme .card-subtitle {
+    color: #959595; /* светло-серый для тёмной темы */
+}
+
 
 body.dark-theme #recent .card-title,
 body.dark-theme #fav .card-title {

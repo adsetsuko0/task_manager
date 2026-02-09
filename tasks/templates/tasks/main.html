@@ -192,7 +192,10 @@
                             onclick="openProjectMenu(event, '{{ p.id }}', '{{ p.name }}')">
                     </button>
                     
-                    <div class="card-img"></div>
+                    <div class="card-img">
+                        <img src="{% static 'tasks/icons/doc_light.png' %}" alt="icon" class="card-icon"/>
+                        <span class="card-subtitle">example</span>
+                    </div>
                     <div class="card-title">{{ p.name }}</div>
 
 
@@ -219,9 +222,15 @@
                     <button class="card-menu-btn"
                             onclick="openProjectMenu(event, '{{ p.id }}', '{{ p.name }}')">
                     </button>
+                    
 
-                    <div class="card-img"></div>
+                    <div class="card-content">
+                    <div class="card-img">
+                        <img src="/static/tasks/icons/doc_light.png" alt="icon" class="card-icon"/>
+                        <span class="card-subtitle">example</span>
+                    </div>
                     <div class="card-title">{{ p.name }}</div>
+                    </div>
 
                 </div>
                 {% endfor %}
