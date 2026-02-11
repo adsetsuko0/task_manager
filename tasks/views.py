@@ -22,6 +22,16 @@ def main_page(request):
     projects=Project.objects.all()
     groups=Projects_Group.objects.all()
 
+    recent_projects = projects[:4]
+    favourite_projects = projects[:4]
+
+    for p in recent_projects:
+        p.group_name = p.group.name if p.group else ''
+
+    # Добавляем атрибут group_name для favourite_projects
+    for p in favourite_projects:
+        p.group_name = p.group.name if p.group else ''
+
     context={
         'page_title':'Home',
         'projects':projects,

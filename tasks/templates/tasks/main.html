@@ -194,9 +194,17 @@
                     
                     <div class="card-img">
                         <img src="{% static 'tasks/icons/doc_light.png' %}" alt="icon" class="card-icon"/>
-                        <span class="card-subtitle">example</span>
+                        <span class="card-subtitle">No tasks added</span>
                     </div>
-                    <div class="card-title">{{ p.name }}</div>
+                    <div class="card-title">
+                        <img src="{% static 'tasks/icons/list_night.png' %}" class="title-icon" alt="icon">
+                        {{ p.name }}
+
+
+                        <span class="project-group-dot">
+                        • {{ p.group.name }}
+                        </span>
+                    </div>
 
 
                 </div>
@@ -227,11 +235,16 @@
                     <div class="card-content">
                     <div class="card-img">
                         <img src="/static/tasks/icons/doc_light.png" alt="icon" class="card-icon"/>
-                        <span class="card-subtitle">example</span>
+                        <span class="card-subtitle">No tasks added</span>
                     </div>
-                    <div class="card-title">{{ p.name }}</div>
+                    <div class="card-title">
+                        <img src="{% static 'tasks/icons/list_night.png' %}" class="title-icon" alt="icon">
+                        {{ p.name }}
+                        <span class="project-group-dot">
+                        • {{ p.group.name }}
+                        </span>
                     </div>
-
+                    </div>
                 </div>
                 {% endfor %}
 

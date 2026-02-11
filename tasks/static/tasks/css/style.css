@@ -1369,3 +1369,26 @@ body.dark-theme .card-menu-btn:hover {
 #fav .cards .card:nth-last-child(-n+3) {
     display: block; /* показываем последние 3 */
 }
+
+
+.card-title {
+    display: flex;
+    align-items: center;
+    gap: 6px; /* расстояние между иконкой и текстом */
+}
+
+.title-icon {
+    width: 1em;      /* размер равен размеру шрифта */
+    height: 1em;
+    object-fit: contain;
+}
+
+.project-group-dot {
+    margin-left: 0rem; /* расстояние до названия проекта */
+    font-size: 0.8rem;
+    color: rgba(132, 132, 132, 0.5); /* полупрозрачный */
+    display: inline-block;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    margin-top: 0.2rem; /* чуть выше базовой линии текста */
+}
