@@ -16,6 +16,32 @@ navItems.forEach(item => {
 
 
 
+let viewButtons = document.querySelectorAll('.view-switch .view-btn');
+const cardsContainer = document.querySelector('.content'); // или контейнер с карточками
+
+viewButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        // Убираем active со всех кнопок
+        viewButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Получаем выбранный вид
+        const view = btn.dataset.view;
+
+        // Находим все контейнеры с карточками
+        const cardsSections = document.querySelectorAll('.cards');
+
+        cardsSections.forEach(section => {
+            section.classList.remove('board-view', 'list-view', 'calendar-view');
+
+            if(view === 'board') section.classList.add('board-view');
+            else if(view === 'list') section.classList.add('list-view');
+            else if(view === 'calendar') section.classList.add('calendar-view');
+        });
+    });
+});
+
+
 
 function limitCards(sectionId, maxCards = 3) {
     const section = document.getElementById(sectionId);
@@ -318,6 +344,8 @@ function renderGroup(group) {
         e.stopPropagation(); 
         openGroupMenu(e, group.id);
     });
+
+    title.addEventListener('click', () => clearMainContent());
 }
 
 function renderProject(project) {
@@ -428,6 +456,13 @@ function submitRenameGroup() {
         if (data.success) {
             const titleEl = document.querySelector(`.spaces-group[data-group-id="${groupId}"] .group-name`);
             titleEl.textContent = newName;
+
+            const activeGroup = document.querySelector('.spaces-group .group-title.active');
+            if (activeGroup && activeGroup.closest('.spaces-group').dataset.groupId === groupId) {
+                updatePageTitle(newName); // обновляем сразу заголовок
+            }
+
+
             closeRenameGroupModal();
         } else {
             alert('Error renaming group');

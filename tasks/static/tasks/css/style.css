@@ -1392,3 +1392,30 @@ body.dark-theme .card-menu-btn:hover {
     letter-spacing: 0.05em;
     margin-top: 0.2rem; /* чуть выше базовой линии текста */
 }
+
+.cards.board-view {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.cards.board-view .card {
+    width: 200px;
+    height: 180px;
+}
+
+/* List view — вертикальные карточки на всю ширину */
+.cards.list-view {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.cards.list-view .card {
+    width: 100%;       /* на всю ширину контейнера */
+    height: 120px;     /* меньше по вертикали */
+    display: flex;     /* чтобы содержимое выровнять горизонтально, если нужно */
+    align-items: center;
+    padding: 12px;
+    box-sizing: border-box;
+}
