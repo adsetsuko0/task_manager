@@ -90,15 +90,6 @@ def create_project(request):
 
     
 
-@login_required
-def project_delete(request, project_id):
-    if request.method=='POST':
-        project_id=request.POST.get('project_id')
-        
-        project=get_object_or_404(Project, id=project_id)
-        project.delete()
-    return redirect('main')
-
 
 def project_get(request):
     projects=Project.objects.all().values(
@@ -198,8 +189,6 @@ def duplicate_project(request):
         return JsonResponse({"success": False, "error": "Project not found"})
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
-
-
 
 
 @csrf_exempt
