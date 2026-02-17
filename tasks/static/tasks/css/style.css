@@ -1428,3 +1428,40 @@ body.dark-theme .card-menu-btn:hover {
     font-weight: 600;
     letter-spacing: 0.05em;
 }
+
+.cards.table-view {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.project-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #ddd;
+}
+
+.project-table th,
+.project-table td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+/* Верхняя строка с названием проекта */
+.project-header-row th {
+    background: transparent;
+    font-weight: 600;
+    font-size: 15px;
+    border-bottom: rgb(255, 255, 255);
+}
+
+.project-name {
+    margin-right: 8px;
+}
+
+.project-group {
+    color: #888;
+    font-weight: 400;
+    font-size: 13px;
+}
