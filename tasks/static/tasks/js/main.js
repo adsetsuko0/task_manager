@@ -803,6 +803,12 @@ function submitCreateProject() {
         cardEl.className = 'card';
         cardEl.dataset.projectId = project.id; // чтобы потом можно было удалить
         cardEl.id = `card-${project.id}`;
+
+
+        const groupEl = document.querySelector(`.spaces-group[data-group-id="${project.group_id}"]`);
+        const groupName = groupEl ? groupEl.querySelector('.group-name').textContent : '';
+
+
         cardEl.innerHTML = `
             <button class="card-menu-btn" onclick="openProjectMenu(event, '${project.id}', '${project.name}')"></button>
             <div class="card-content">
