@@ -184,7 +184,7 @@
                 <span>▼</span> Recent projects
             </div>
 
-            <div class="cards">
+            <div class="cards board-view">
                 {% for p in recent_projects %}
                 <div class="card" data-project-id="{{ p.id }}">
 
@@ -222,7 +222,7 @@
                 <span>▼</span> Favourites
             </div>
 
-            <div class="cards">
+            <div class="cards board-view">
 
                 {% for p in favourite_projects %}
                 <div class="card" data-project-id="{{ p.id }}">
@@ -475,29 +475,34 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+
+
 <script>
-(function() {
+document.addEventListener('DOMContentLoaded', function() {
+
     const viewButtons = document.querySelectorAll('.view-switch .view-btn');
+    const cardsSections = document.querySelectorAll('.cards');
 
     viewButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            viewButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+        btn.addEventListener('click', function() {
 
-            const view = btn.dataset.view; // "board" или "list"
-            const cardsSections = document.querySelectorAll('.cards');
+            // переключаем активную кнопку
+            viewButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            const view = this.dataset.view; // board | list | table
 
             cardsSections.forEach(section => {
-                section.classList.remove('board-view', 'list-view', 'calendar-view');
-                if(view === 'board') section.classList.add('board-view');
-                else if(view === 'list') section.classList.add('list-view');
-                else if(view === 'calendar') section.classList.add('calendar-view');
+                section.classList.remove('board-view', 'list-view', 'table-view');
+                section.classList.add(view + '-view');
             });
+
+            console.log("View changed to:", view); // для проверки
         });
     });
-})();
-</script>
 
+});
+</script>
 
 </body>
 </html>

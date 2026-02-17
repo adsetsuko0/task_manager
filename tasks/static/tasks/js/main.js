@@ -345,7 +345,6 @@ function renderGroup(group) {
         openGroupMenu(e, group.id);
     });
 
-    title.addEventListener('click', () => clearMainContent());
 }
 
 function renderProject(project) {
@@ -811,7 +810,10 @@ function submitCreateProject() {
                         <img src="/static/tasks/icons/doc_light.png" alt="icon" class="card-icon"/>
                         <span class="card-subtitle">example</span>
                     </div>
-            <div class="card-title">${project.name}</div>
+            <div class="card-title">
+                    ${project.name}
+                    <span class="project-group-dot">• ${groupName}</span>
+                </div>
             </div>
         `;
         

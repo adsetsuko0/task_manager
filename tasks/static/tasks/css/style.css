@@ -1234,22 +1234,23 @@ body.dark-theme #project-dropdown button:last-child:hover {
 
 
 
+/* ================= BASE CARDS CONTAINER ================= */
+
 #recent .cards,
 #fav .cards {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); /* ровно 3 карточки */
     gap: 24px;
 }
 
+/* скрытие */
 .cards.hidden {
     display: none !important;
 }
 
-/* === CARD SIZE === */
+/* анимация раскрытия секций */
 .section .cards {
     transition: max-height 0.3s ease, opacity 0.3s ease;
     overflow: hidden;
-    max-height: 1000px; /* Достаточная высота для всех карточек */
+    max-height: 1000px;
     opacity: 1;
 }
 
@@ -1258,7 +1259,9 @@ body.dark-theme #project-dropdown button:last-child:hover {
     opacity: 0;
 }
 
-/* Размер и стиль карточки */
+
+/* ================= CARD BASE STYLE ================= */
+
 #recent .card,
 #fav .card {
     margin-top: 10px;
@@ -1266,26 +1269,27 @@ body.dark-theme #project-dropdown button:last-child:hover {
     padding: 18px;
     border-radius: 14px;
     position: relative;
-    background: #fff; /* или #1f1f1f для темной темы */
+    background: #fff;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Hover эффект */
 #recent .card:hover,
 #fav .card:hover {
     transform: translateY(-4px);
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
 }
 
-/* Блок картинки */
+
+/* ================= CARD CONTENT ================= */
+
 #recent .card-img,
 #fav .card-img {
     height: 100px;
     border-radius: 10px;
-    background: #e5e7eb; /* светлый фон */
+    background: #e5e7eb;
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     font-size: 13px;
@@ -1293,18 +1297,17 @@ body.dark-theme #project-dropdown button:last-child:hover {
 }
 
 .card-icon {
-    width: 32px;  /* маленькая иконка */
+    width: 32px;
     height: 32px;
     object-fit: contain;
 }
 
 .card-subtitle {
-    font-size: 12px; /* маленький текст */
+    font-size: 12px;
     color: #555;
-    margin-top: 10px; /* отступ от иконки */
+    margin-top: 10px;
 }
 
-/* Заголовок карточки */
 #recent .card-title,
 #fav .card-title {
     position: absolute;
@@ -1315,7 +1318,6 @@ body.dark-theme #project-dropdown button:last-child:hover {
     font-weight: 500;
 }
 
-/* Кнопка меню */
 .card-menu-btn {
     position: absolute;
     top: 6px;
@@ -1326,11 +1328,53 @@ body.dark-theme #project-dropdown button:last-child:hover {
     cursor: pointer;
 }
 
-/* ===== DARK THEME CARDS ===== */
+
+/* ================= VIEW SWITCH ================= */
+
+/* BOARD (по умолчанию) */
+.cards.board-view {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+/* LIST */
+.cards.list-view {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cards.list-view .card {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    padding: 10px 20px;
+}
+
+/* TABLE */
+.cards.table-view {
+    display: flex;
+    flex-direction: column;
+}
+
+.cards.table-view .card {
+    display: grid;
+    grid-template-columns: 1fr 150px 100px;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid #ccc;
+    border-radius: 0;
+}
+
+
+/* ================= DARK THEME ================= */
+
 body.dark-theme #recent .card,
 body.dark-theme #fav .card {
-    background-color: #1e1e1e; /* темный фон */
-    color: #e0e0e0;            /* светлый текст по умолчанию */
+    background-color: #1e1e1e;
+    color: #e0e0e0;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
 }
 
@@ -1341,81 +1385,46 @@ body.dark-theme #fav .card:hover {
 
 body.dark-theme #recent .card-img,
 body.dark-theme #fav .card-img {
-    background-color: #2a2a2a; /* темный блок картинки */
-    color: #bbb;               /* текст внутри блока картинки */
+    background-color: #2a2a2a;
+    color: #bbb;
     opacity: 0.6;
 }
 
-
 body.dark-theme .card-subtitle {
-    color: #959595; /* светло-серый для тёмной темы */
+    color: #959595;
 }
-
 
 body.dark-theme #recent .card-title,
 body.dark-theme #fav .card-title {
-    color: #cacaca;            /* светлый заголовок */
+    color: #cacaca;
 }
 
 body.dark-theme .card-menu-btn {
-    color: #aaa;               /* точки серые */
+    color: #aaa;
 }
 
 body.dark-theme .card-menu-btn:hover {
     color: #fff;
 }
 
-#recent .cards .card:nth-last-child(-n+3),
-#fav .cards .card:nth-last-child(-n+3) {
-    display: block; /* показываем последние 3 */
-}
 
+/* ================= EXTRA ================= */
 
 .card-title {
     display: flex;
     align-items: center;
-    gap: 6px; /* расстояние между иконкой и текстом */
+    gap: 6px;
 }
 
 .title-icon {
-    width: 1em;      /* размер равен размеру шрифта */
+    width: 1em;
     height: 1em;
     object-fit: contain;
 }
 
 .project-group-dot {
-    margin-left: 0rem; /* расстояние до названия проекта */
     font-size: 0.8rem;
-    color: rgba(132, 132, 132, 0.5); /* полупрозрачный */
-    display: inline-block;
+    color: rgba(132, 132, 132, 0.5);
     font-weight: 600;
     letter-spacing: 0.05em;
-    margin-top: 0.2rem; /* чуть выше базовой линии текста */
-}
-
-.cards.board-view {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-}
-
-.cards.board-view .card {
-    width: 200px;
-    height: 180px;
-}
-
-/* List view — вертикальные карточки на всю ширину */
-.cards.list-view {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.cards.list-view .card {
-    width: 100%;       /* на всю ширину контейнера */
-    height: 120px;     /* меньше по вертикали */
-    display: flex;     /* чтобы содержимое выровнять горизонтально, если нужно */
-    align-items: center;
-    padding: 12px;
-    box-sizing: border-box;
 }

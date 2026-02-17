@@ -1,30 +1,16 @@
+let lastClearedGroup = null;
+let clickCount = 0;
+
 function clearMainContent() {
-    const content = document.querySelector(".content"); // или #main, если так у тебя в html
+    console.trace("clearMainContent CALLED");
+
+    const content = document.querySelector(".content");
     if (content) {
-        content.innerHTML = ""; // полностью очищаем блок
-        console.log("Main content cleared"); // для проверки
+        content.innerHTML = "";
     }
 }
 
 
-function initGroupClickHandlers() {
-    const groups = document.querySelectorAll(".spaces-group .group-title");
-    groups.forEach(groupEl => {
-        groupEl.addEventListener("click", () => {
-            //очищаем main
-            clearMainContent();
-
-            //обновляем заголовок
-            const groupName = groupEl.querySelector(".group-name").textContent;
-            updatePageTitle(groupName);
-        });
-    });
-}
-
-// запускаем при загрузке страницы
-document.addEventListener("DOMContentLoaded", () => {
-    initGroupClickHandlers();
-});
 
 
 function updatePageTitle(newTitle) {
@@ -34,12 +20,34 @@ function updatePageTitle(newTitle) {
         console.log("Page title updated to:", newTitle);
     }
 }
-document.getElementById('spaces-body').addEventListener('click', (e) => {
+
+
+
+
+document.getElementById('spaces-body').addEventListener('click', function(e) {
+
     const groupTitle = e.target.closest('.group-title');
     if (!groupTitle) return;
 
+    const groupEl = groupTitle.closest('.spaces-group');
+    const projects = groupEl.querySelector('.projects');
     const groupName = groupTitle.querySelector('.group-name').textContent;
 
+    // проверяем, открыт ли контейнер проектов
+    const isOpen = projects.classList.contains('open');
+
+    if (!isOpen) {
+        // 1 клик: показываем проекты
+        projects.style.display = 'block';
+        projects.classList.add('open');
+        return; // выходим, Main не трогаем
+    }
+
+    // 2 клик: очищаем Main
     clearMainContent();
     updatePageTitle(groupName);
+
+    // при желании можно закрыть проекты после второго клика
+    // projects.style.display = 'none';
+    // projects.classList.remove('open');
 });
