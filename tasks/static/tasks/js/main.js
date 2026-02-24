@@ -32,19 +32,11 @@ viewButtons.forEach(btn => {
         const cardsSections = document.querySelectorAll('.cards');
 
         cardsSections.forEach(section => {
-            section.classList.remove('board-view', 'list-view', 'calendar-view', 'table-view');
+            section.classList.remove('board-view', 'list-view');
 
             if (view === 'board') section.classList.add('board-view');
             else if (view === 'list') section.classList.add('list-view');
             else if (view === 'calendar') section.classList.add('calendar-view');
-           if (view === 'table') {
-                section.classList.add('table-view');
-                    renderTableView(section);
-            } else {
-                    restoreCards(section);
-                section.classList.add(view + '-view');
-            }
-
         });
         localStorage.setItem('selectedView', view);
     });
@@ -377,9 +369,11 @@ function renderProject(project) {
     el.innerHTML = `
         <span class="project-name">${project.name}</span>
         <div class="project-actions">
+            <span class="project-fav">${project.is_favourite ? '♥︎' : '♡︎'}</span>
             <button class="project-menu-btn" onclick="openProjectMenu(event, ${project.id}, '${project.name}')">⋯</button>
         </div>
     `;
+
 
     projectContainer.appendChild(el);
 
@@ -739,11 +733,12 @@ function addProjectToGroupSidebar(project) {
     el.className = 'project-item';
     el.dataset.projectId = project.id;
     el.innerHTML = `
-        <span class="project-name">${project.name}</span>
-        <div class="project-actions">
-            <button class="project-menu-btn">⋯</button>
-        </div>
-    `;
+    <span class="project-name">${project.name}</span>
+    <div class="project-actions">
+        <span class="project-fav">♡</span>
+        <button class="project-menu-btn">⋯</button>
+    </div>
+`;
 
     projectContainer.appendChild(el);
 
@@ -838,7 +833,6 @@ function submitCreateProject() {
 
         // 3️⃣ Обновляем видимые карточки
         updateCards('recent', 3);
-        updateCards('fav', 3);
 
 
         closeCreateProjectModal();
@@ -850,7 +844,7 @@ function submitCreateProject() {
 
 
 function openProjectMenu(event, projectId, projectName) {
-    event.stopPropagation(); 
+    event.stopPropagation();
 
     currentProjectId = projectId;
     currentProjectName = projectName;
@@ -865,18 +859,13 @@ function openProjectMenu(event, projectId, projectName) {
     const favBtn = dropdown.querySelector('.project-fav-btn');
     if (!favBtn) return;
 
-    // 2️⃣ Проверяем, есть ли проект в избранных
-    const cardEl = document.getElementById(`card-${projectId}`);
-    const isFavourite = cardEl ? cardEl.classList.contains('favourite') : false;
+    // Проверяем is_favourite по карточке в #fav
+    const favCard = document.querySelector(`#fav .cards .card[data-project-id="${projectId}"]`);
+    const isFavourite = !!favCard;
 
-    // 3️⃣ Меняем текст в дропдауне
     favBtn.textContent = isFavourite ? 'Remove from favourites' : 'Add to favourites';
-
-    // 4️⃣ Навешиваем обработчик клика
-    favBtn.onclick = () => {
-        toggleFavourite(favBtn, projectId);
-    };
 }
+
 
 
 
@@ -978,8 +967,6 @@ function submitRenameProject() {
 
 
 function toggleFavourite(button, projectId) {
-    console.log('CLICKED, projectId =', projectId);
-
     fetch('/projects/favourite/', {
         method: 'POST',
         headers: {
@@ -992,41 +979,44 @@ function toggleFavourite(button, projectId) {
     .then(data => {
         if (!data.success) return;
 
-        const cardEl = document.getElementById(`card-${projectId}`);
-        if (cardEl) {
-            cardEl.classList.toggle('favourite', data.is_favourite);
+        const favContainer = document.querySelector('#fav .cards');
+        const recentCard = document.querySelector(`#recent .cards .card[data-project-id="${projectId}"]`);
+        const favCard = document.querySelector(`#fav .cards .card[data-project-id="${projectId}"]`);
+
+        if (data.is_favourite) {
+            // Добавляем в избранное
+            if (recentCard && !favCard) {
+                const clone = recentCard.cloneNode(true);
+                favContainer.prepend(clone);
+                updateCards('fav', 3);
+            }
+        } else {
+            // Убираем из избранного
+            if (favCard) {
+                favCard.remove();
+                updateCards('fav', 3);
+            }
         }
 
-        // 2️⃣ Переключаем текст в дропдауне, если открыт
+        const sidebarItem = document.querySelector(`.project-item[data-project-id="${projectId}"]`);
+        if (sidebarItem) {
+            const fav = sidebarItem.querySelector('.project-fav');
+        if (fav) fav.textContent = data.is_favourite ? '♥' : '♡';
+            }
+
+        // Меняем текст кнопки в дропдауне
         const dropdown = document.getElementById('project-dropdown');
         const favBtn = dropdown.querySelector('.project-fav-btn');
         if (favBtn) {
             favBtn.textContent = data.is_favourite ? 'Remove from favourites' : 'Add to favourites';
         }
 
-
-
-        showToast(
-            data.is_favourite
-                ? 'Successfully added to favourites'
-                : 'Removed from favourites'
-        );
-
-        const favContainer = document.querySelector('#fav .cards');
-        if (data.is_favourite && cardEl) {
-            // Добавляем карточку в избранное
-            favContainer.prepend(cardEl.cloneNode(true));
-            updateCards('fav', 3);
-        } else if (!data.is_favourite) {
-            // Убираем карточку из избранного
-            const favCard = document.getElementById(`card-${projectId}`);
-            if (favCard && favCard.parentElement.id === 'fav') {
-                favCard.remove();
-                updateCards('fav', 3);
-            }
-        }
+        showToast(data.is_favourite ? 'Added to favourites' : 'Removed from favourites');
     });
 }
+
+
+
 
 
 
@@ -1300,14 +1290,6 @@ document.addEventListener('click', (event) => {
     }
 });
 
-
-document.addEventListener('click', (e) => {
-    const fav = e.target.closest('.project-fav');
-    if (!fav) return;
-
-    e.stopPropagation();
-    fav.classList.toggle('filled');
-});
 
 
 

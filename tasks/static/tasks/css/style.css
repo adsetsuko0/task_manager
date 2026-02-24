@@ -700,21 +700,20 @@ body.dark-theme .view-switch button:hover {
 }
 
 
-
 .project-fav {
-    width: 16px;
-    height: 16px;
-    border: 1px solid #888;
-    border-radius: 4px;
-    cursor: pointer;
-    opacity: 1;          /* ← важно */
+    background: none;
+    box-shadow: none;
+    outline: none;
+    border: none;
+    font-size: 16px;      /* ← увеличь размер */
+    color: #888;
+    transition: color 0.2s;
+    margin-right: 6px;    /* ← отступ от ⋯ */
 }
 
-.project-fav.active {
-    background: #888;
+.project-fav:hover {
+    color: #e05c5c;
 }
-
-
 
 .toast {
     position: fixed;
@@ -1472,6 +1471,13 @@ body.dark-theme .card-menu-btn:hover {
     font-size: 13px;
 }
 
+
+.card-fav {
+    font-size: 24px;
+    color: #888;
+    pointer-events: none;
+    margin-left: auto;
+}
 
 #recent .cards.table-view,
 #fav .cards.table-view {
