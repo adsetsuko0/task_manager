@@ -32,11 +32,15 @@ viewButtons.forEach(btn => {
         const cardsSections = document.querySelectorAll('.cards');
 
         cardsSections.forEach(section => {
-            section.classList.remove('board-view', 'list-view', 'calendar-view');
+            section.classList.remove('board-view', 'list-view', 'calendar-view', 'table-view');
 
-            if(view === 'board') section.classList.add('board-view');
-            else if(view === 'list') section.classList.add('list-view');
-            else if(view === 'calendar') section.classList.add('calendar-view');
+            if (view === 'board') section.classList.add('board-view');
+            else if (view === 'list') section.classList.add('list-view');
+            else if (view === 'calendar') section.classList.add('calendar-view');
+            else if (view === 'table') {
+                section.classList.add('table-view');
+                renderTableView(section);
+            }
         });
     });
 });
@@ -1356,11 +1360,18 @@ viewButtons.forEach(btn => {
     });
 });
 
-// === TABLE VIEW RENDER ===
-function renderTableView(section) {
-    section.innerHTML = '';
 
-    const cards = document.querySelectorAll('.card');
+function renderTableView(section) {
+
+    const cards = section.querySelectorAll('.card');
+
+    // скрываем карточки
+    cards.forEach(card => {
+        card.style.display = 'none';
+    });
+
+    // если таблицы уже созданы — не создаём повторно
+    if (section.querySelector('.project-table-wrapper')) return;
 
     cards.forEach(card => {
         const titleEl = card.querySelector('.card-title');
@@ -1375,15 +1386,12 @@ function renderTableView(section) {
         tableWrapper.innerHTML = `
             <table class="project-table">
                 <thead>
-                    <!-- Строка с названием проекта + группой -->
                     <tr class="project-header-row">
                         <th colspan="5">
                             <span class="project-name">${projectName}</span>
                             ${groupName ? `<span class="project-group">${groupName}</span>` : ''}
                         </th>
                     </tr>
-
-                    <!-- Строка с колонками -->
                     <tr>
                         <th style="width:40px;">
                             <input type="checkbox">
@@ -1403,5 +1411,19 @@ function renderTableView(section) {
         `;
 
         section.appendChild(tableWrapper);
+    });
+}
+
+
+function removeTableView(section) {
+
+    // удаляем таблицы
+    const tables = section.querySelectorAll('.project-table-wrapper');
+    tables.forEach(t => t.remove());
+
+    // возвращаем карточки
+    const cards = section.querySelectorAll('.card');
+    cards.forEach(card => {
+        card.style.display = '';
     });
 }
