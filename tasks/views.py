@@ -23,7 +23,7 @@ def main_page(request):
     groups=Projects_Group.objects.all()
 
     recent_projects = projects[:4]
-    favourite_projects = projects[:4]
+    favourite_projects = projects.filter(is_favourite=True)[:4]
 
     for p in recent_projects:
         p.group_name = p.group.name if p.group else ''
@@ -35,8 +35,8 @@ def main_page(request):
     context={
         'page_title':'Home',
         'projects':projects,
-        'recent_projects':projects[:4],
-        'favourite_projects':projects[:4],
+        'recent_projects':recent_projects,
+        'favourite_projects':favourite_projects,
         'groups':groups,
     }
 
