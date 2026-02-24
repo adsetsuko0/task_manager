@@ -374,7 +374,8 @@ body.dark-theme .view-switch button:hover {
 /* ===== SECTIONS (PROJECT BLOCKS) ===== */
 
 .section {
-    margin-top: 18px;
+    margin-top: 24px;
+
 }
 
 .section-header {
@@ -1464,4 +1465,10 @@ body.dark-theme .card-menu-btn:hover {
     color: #888;
     font-weight: 400;
     font-size: 13px;
+}
+
+
+#recent .cards.table-view,
+#fav .cards.table-view {
+    margin-top: 20px; /* можешь поставить 24px если нужно больше воздуха */
 }
