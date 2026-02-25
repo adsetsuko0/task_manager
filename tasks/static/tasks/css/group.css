@@ -3,7 +3,7 @@
 }
 
 .group-page-header {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .group-page-meta {
@@ -80,4 +80,110 @@ body.dark-theme .group-page-project-card {
 
 body.dark-theme .group-page-limit {
     color: #666;
+}
+
+.content {
+    padding: 5px 20px;  /* уменьши верхний padding с 20px до 10px */
+}
+
+
+
+.filter-wrapper {
+    position: relative;
+}
+
+.filter-btn {
+    padding: 4px 14px;
+    margin-bottom: 10px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    background: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.filter-btn.filter-active {
+    background: #eef2ff;
+    border-color: #7c76f0;
+    color: #7c76f0;
+}
+
+.filter-btn:hover {
+    background: #f0f0f0;
+}
+
+.filter-dropdown {
+    position: absolute;
+    top: 36px;
+    left: 0;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    min-width: 200px;
+    z-index: 1000;
+    padding: 6px 0;
+}
+
+.filter-option {
+    padding: 8px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.filter-option:hover {
+    background: #f3f4f6;
+}
+
+.filter-option.active {
+    background: #eef2ff;
+    color: #7c76f0;
+    font-weight: 600;
+}
+
+/* dark theme */
+body.dark-theme .filter-btn {
+    background: #1e1e1e;
+    border-color: #444;
+    color: #ccc;
+}
+
+body.dark-theme .filter-btn:hover {
+    background: #2a2a2a;
+}
+
+body.dark-theme .filter-btn.filter-active {
+    background: #2a2a2a;
+    border-color: #7c76f0;
+    color: #7c76f0;
+}
+
+body.dark-theme .filter-dropdown {
+    background: #1e1e1e;
+    border-color: #333;
+}
+
+body.dark-theme .filter-option:hover {
+    background: #2a2a2a;
+}
+
+body.dark-theme .filter-option.active {
+    background: #2a2a2a;
+}
+
+
+.group-page .divider {
+    margin: 6px 0 16px;  /* меньше сверху, больше снизу */
+}
+
+.group-page .view-switch {
+    margin-bottom: 2px;  /* меньше под Board/List */
+}
+
+.group-page .filter-wrapper {
+    margin-top: 2px;
 }
