@@ -9,6 +9,7 @@
     <!--CSS-->
     <link rel="icon" type="image/png" href="{% static 'tasks/icons/task_manager_logo.png' %}">
     <link rel="stylesheet" href="{% static 'tasks/css/style.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'tasks/css/group.css' %}?v=3">
 </head>
 <body>
 <div class="app">
@@ -228,11 +229,11 @@
                     </div>
                     <div class="card-title">
                         <img src="{% static 'tasks/icons/list_night.png' %}" class="title-icon" alt="icon">
-                        {{ p.name }}
-                        <span class="project-group-dot">
-                        • {{ p.group.name }}
-                        </span>
+                                {{ p.name }}
+                        <span class="project-group-dot">• {{ p.group.name }}</span>
+                    </div>
                         <span class="card-fav">{% if p.is_favourite %}♥︎{% else %}♡︎{% endif %}</span>
+
                     </div>
                     </div>
                 </div>
