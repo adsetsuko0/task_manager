@@ -1300,6 +1300,7 @@ body.dark-theme #project-dropdown button:last-child:hover {
     width: 32px;
     height: 32px;
     object-fit: contain;
+    align-items: center;
 }
 
 .card-subtitle {
@@ -1310,12 +1311,16 @@ body.dark-theme #project-dropdown button:last-child:hover {
 
 #recent .card-title,
 #fav .card-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     position: absolute;
-    margin-left: 3px;
     bottom: 16px;
     left: 16px;
+    right: 16px;
     font-size: 16px;
     font-weight: 500;
+    width: calc(100% - 32px);
 }
 
 .card-menu-btn {
@@ -1425,6 +1430,7 @@ body.dark-theme .card-menu-btn:hover {
     width: 1em;
     height: 1em;
     object-fit: contain;
+    align-items: center;
 }
 
 .project-group-dot {
@@ -1432,6 +1438,7 @@ body.dark-theme .card-menu-btn:hover {
     color: rgba(132, 132, 132, 0.5);
     font-weight: 600;
     letter-spacing: 0.05em;
+    flex: 1;
 }
 
 .cards.table-view {
@@ -1472,14 +1479,15 @@ body.dark-theme .card-menu-btn:hover {
 }
 
 
+
+
 .card-fav {
     font-size: 24px;
     color: #888;
     pointer-events: none;
-    margin-left: auto;
-}
-
-#recent .cards.table-view,
-#fav .cards.table-view {
-    margin-top: 20px; /* можешь поставить 24px если нужно больше воздуха */
+    font-family: Arial, sans-serif;
+    position: absolute;
+    bottom: 14px;
+    right: 24px;
+    align-items: center;
 }
