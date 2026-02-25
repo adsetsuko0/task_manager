@@ -191,15 +191,10 @@
                     </div>
                     <div class="card-title">
                         <img src="{% static 'tasks/icons/list_night.png' %}" class="title-icon" alt="icon">
-                        {{ p.name }}
-
-
-                        <span class="project-group-dot">
-                        • {{ p.group.name }}
-                        </span>
-                        <span class="card-fav">{% if p.is_favourite %}♥︎{% else %}♡︎{% endif %}</span>
+                                {{ p.name }}
+                        <span class="project-group-dot">• {{ p.group.name }}</span>
                     </div>
-
+                <span class="card-fav">{% if p.is_favourite %}♥︎{% else %}♡︎{% endif %}</span>
 
                 </div>
                 {% endfor %}
