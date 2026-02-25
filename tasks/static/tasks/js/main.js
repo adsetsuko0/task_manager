@@ -339,7 +339,6 @@ function renderGroup(group) {
     const menuBtn = groupEl.querySelector('.group-menu-btn');
 
     title.addEventListener('click', () => activateGroup(title));
-    title.addEventListener('click', toggleGroupProjects);
 
     menuBtn.addEventListener('click', (e) => {
         e.stopPropagation(); 
