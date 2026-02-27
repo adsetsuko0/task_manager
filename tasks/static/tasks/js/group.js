@@ -4,7 +4,7 @@ let clickCount = 0;
 
 
 function updatePageTitle(newTitle) {
-    const titleEl = document.querySelector(".page-title");
+    const titleEl = document.querySelector(".sidebar-title");
     if (titleEl) {
         titleEl.textContent = newTitle;
         console.log("Page title updated to:", newTitle);
@@ -59,16 +59,42 @@ function renderGroupPage(groupEl) {
                          Filter
                 </button>
                 <div class="filter-dropdown" id="filter-dropdown" style="display:none">
-                    <div class="filter-option" data-filter="name-asc">Name (A-Z)</div>
-                    <div class="filter-option" data-filter="name-desc">Name (Z-A)</div>
-                    <div class="filter-option" data-filter="date-new">Date (Newest)</div>
-                    <div class="filter-option" data-filter="date-old">Date (Oldest)</div>
-                    <div class="filter-option" data-filter="fav-first">Favourites first</div>
-                    <div class="filter-option" data-filter="unfav-first">Non-favourites first</div>
-                    <div class="filter-option" data-filter="tasks-more">More tasks first</div>
-                    <div class="filter-option" data-filter="tasks-less">Less tasks first</div>
-                    <div class="filter-option" data-filter="group">${groupName} first</div>
-                </div>
+    <div class="filter-dropdown-header">
+        <span>Filters</span>
+    </div>
+    <div class="filter-dropdown-body">
+        <div class="filter-option" data-filter="name-asc">
+            <span class="filter-icon">↑</span> Name (A-Z)
+        </div>
+        <div class="filter-option" data-filter="name-desc">
+            <span class="filter-icon">↓</span> Name (Z-A)
+        </div>
+        <div class="filter-option" data-filter="date-new">
+            <span class="filter-icon">📅</span> Date (Newest)
+        </div>
+        <div class="filter-option" data-filter="date-old">
+            <span class="filter-icon">📅</span> Date (Oldest)
+        </div>
+        <div class="filter-option" data-filter="fav-first">
+            <span class="filter-icon">♥︎</span> Favourites first
+        </div>
+        <div class="filter-option" data-filter="unfav-first">
+            <span class="filter-icon">♡︎</span> Non-favourites first
+        </div>
+        <div class="filter-option" data-filter="tasks-more">
+            <span class="filter-icon">↑</span> More tasks first
+        </div>
+        <div class="filter-option" data-filter="tasks-less">
+            <span class="filter-icon">↓</span> Less tasks first
+        </div>
+        <div class="filter-option" data-filter="group">
+            <span class="filter-icon">⬡</span> ${groupName} first
+        </div>
+    </div>
+    <div class="filter-dropdown-footer">
+        <button class="filter-add-btn">+ Add filter</button>
+    </div>
+</div>
             </div>
 
 
@@ -77,6 +103,7 @@ function renderGroupPage(groupEl) {
                 <div class="group-info-left">
                     <span class="group-info-arrow" id="group-info-arrow">▼</span>
                     <span class="group-info-name">${groupName}</span>
+                    <button class="group-info-menu-btn" onclick="openGroupMenu(event, '${groupEl.dataset.groupId}')">⋯</button>
                     <span class="group-info-priority priority-badge-${priority}">${priority}</span>
                 </div>
                 <div class="group-info-right">
@@ -99,11 +126,17 @@ function renderGroupPage(groupEl) {
                         return `
                             <div class="group-page-project-card" data-project-id="${projectId}">
                                 <div class="group-page-project-top">
+                                    <img src="/static/tasks/icons/list_night.png" class="group-page-title-icon" alt="project-icon">
                                     <span class="group-page-project-name">${name}</span>
+                                    <span class="project-group-dot">• ${groupName}</span>
+                                    <div class="group-page-project-img">
+                                        <img src="/static/tasks/icons/doc_light.png" alt="icon" class="card-icon"/>
+                                        <span class="card-subtitle">No tasks added</span>
+                                    </div>
                                     <span class="group-page-project-fav">${isFav ? '♥︎' : '♡︎'}</span>
                                 </div>
                                 <div class="group-page-project-bottom">
-                                    <span class="group-page-project-group">${groupName}</span>
+                                    
                                 </div>
                             </div>
                         `;
