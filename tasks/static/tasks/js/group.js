@@ -24,7 +24,7 @@ function renderGroupPage(groupEl) {
     content.innerHTML = `
         <div class="group-page">
 
-            <div class="view-switch">
+            <div class="view-switch group-view-switch">
                 <button class="view-btn active" data-view="board">
                     <svg class="view-icon" viewBox="0 0 24 24">      
                         <rect x="4" y="4" width="7" height="7"/>
@@ -47,7 +47,17 @@ function renderGroupPage(groupEl) {
             <div class="divider"></div>
 
             <div class="filter-wrapper">
-                <button class="filter-btn" id="filter-btn">Filter</button>
+                <button class="filter-btn" id="filter-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="4" y1="6" x2="20" y2="6"/>
+                    <line x1="8" y1="12" x2="16" y2="12"/>
+                    <line x1="11" y1="18" x2="13" y2="18"/>
+                    <circle cx="7" cy="6" r="2" fill="currentColor" stroke="none"/>
+                    <circle cx="17" cy="12" r="2" fill="currentColor" stroke="none"/>
+                    <circle cx="12" cy="18" r="2" fill="currentColor" stroke="none"/>
+                </svg>
+                         Filter
+                </button>
                 <div class="filter-dropdown" id="filter-dropdown" style="display:none">
                     <div class="filter-option" data-filter="name-asc">Name (A-Z)</div>
                     <div class="filter-option" data-filter="name-desc">Name (Z-A)</div>
@@ -61,29 +71,59 @@ function renderGroupPage(groupEl) {
                 </div>
             </div>
 
-            <div class="group-page-projects board-view">
-                ${projectItems.length === 0 ? `
-                    <div class="group-page-empty">No projects yet</div>
-                ` : Array.from(projectItems).map(item => {
-                    const name = item.querySelector('.project-name')?.textContent || '';
-                    const projectId = item.dataset.projectId;
-                    const isFav = item.querySelector('.project-fav')?.textContent.includes('♥') || false;
-                    return `
-                        <div class="group-page-project-card" data-project-id="${projectId}">
-                            <div class="group-page-project-top">
-                                <span class="group-page-project-name">${name}</span>
-                                <span class="group-page-project-fav">${isFav ? '♥︎' : '♡︎'}</span>
-                            </div>
-                            <div class="group-page-project-bottom">
-                                <span class="group-page-project-group">${groupName}</span>
-                            </div>
-                        </div>
-                    `;
-                }).join('')}
+
+             <div class="group-info-card">
+            <div class="group-info-top">
+                <div class="group-info-left">
+                    <span class="group-info-arrow" id="group-info-arrow">▼</span>
+                    <span class="group-info-name">${groupName}</span>
+                    <span class="group-info-priority priority-badge-${priority}">${priority}</span>
+                </div>
+                <div class="group-info-right">
+                    <span class="group-info-limit">Project limit: ${limit}</span>
+                </div>
             </div>
 
+            <div class="group-info-subtitle">
+                    <span class="group-info-projects-count">${projectItems.length} projects</span>
+            </div>
+
+            <div class="group-info-body" id="group-info-body">
+                <div class="group-page-projects board-view">
+                    ${projectItems.length === 0 ? `
+                        <div class="group-page-empty">No projects yet</div>
+                    ` : Array.from(projectItems).map(item => {
+                        const name = item.querySelector('.project-name')?.textContent || '';
+                        const projectId = item.dataset.projectId;
+                        const isFav = item.querySelector('.project-fav')?.textContent.includes('♥') || false;
+                        return `
+                            <div class="group-page-project-card" data-project-id="${projectId}">
+                                <div class="group-page-project-top">
+                                    <span class="group-page-project-name">${name}</span>
+                                    <span class="group-page-project-fav">${isFav ? '♥︎' : '♡︎'}</span>
+                                </div>
+                                <div class="group-page-project-bottom">
+                                    <span class="group-page-project-group">${groupName}</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
         </div>
-    `;
+
+    </div>
+`;
+
+
+const arrow = content.querySelector('#group-info-arrow');
+const body = content.querySelector('#group-info-body');
+
+arrow.addEventListener('click', () => {
+    const isCollapsed = body.classList.contains('collapsed');
+    body.classList.toggle('collapsed');
+    arrow.textContent = isCollapsed ? '▼' : '▶';
+});
 
     // View switch
     const viewBtns = content.querySelectorAll('.view-btn');
@@ -167,3 +207,18 @@ document.addEventListener('DOMContentLoaded', function() {
         renderGroupPage(groupEl);
     });
 });
+
+
+function refreshGroupPageIfOpen() {
+    const groupPage = document.querySelector('.group-page');
+    if (!groupPage) return; // страница групп не открыта
+
+    // находим активную группу в сайдбаре
+    const activeGroup = document.querySelector('.spaces-group .group-title.active');
+    if (!activeGroup) return;
+
+    const groupEl = activeGroup.closest('.spaces-group');
+    renderGroupPage(groupEl);
+}
+
+window.refreshGroupPageIfOpen = refreshGroupPageIfOpen;

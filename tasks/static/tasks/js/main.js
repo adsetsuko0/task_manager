@@ -465,6 +465,7 @@ function submitRenameGroup() {
 
 
             closeRenameGroupModal();
+            refreshGroupPageIfOpen(); 
         } else {
             alert('Error renaming group');
         }
@@ -504,6 +505,7 @@ function changeGroupPriority() {
     document.getElementById('changePrioritySelect').value = currentPriority;
 
     document.getElementById('changePriorityModal').style.display = 'flex';
+    refreshGroupPageIfOpen();
 }
 
 function closeChangePriorityModal() {
@@ -535,6 +537,7 @@ function submitChangePriority() {
         }
     })
     .catch(err => console.error(err));
+    
 }
 
 // Делаем функции глобальными, чтобы их вызывал dropdown
@@ -662,6 +665,7 @@ function confirmDeleteGroup() {
 
         showToast('Group successfully deleted');
     });
+    refreshGroupPageIfOpen(); 
 }
 
 
@@ -794,47 +798,43 @@ function submitCreateProject() {
                 showToast('Project limit reached for this group!');
                 return;
             }
-
             showToast(project.error);
             return;
         }
 
         addProjectToGroupSidebar(project);
 
-        const cardsContainer = document.querySelector('#recent .cards'); // или '#fav .cards' если хотите в избранное
-        const cardEl = document.createElement('div');
-        cardEl.className = 'card';
-        cardEl.dataset.projectId = project.id; // чтобы потом можно было удалить
-        cardEl.id = `card-${project.id}`;
+        // добавляем карточку в recent только если секция существует
+        const cardsContainer = document.querySelector('#recent .cards');
+        if (cardsContainer) {
+            const cardEl = document.createElement('div');
+            cardEl.className = 'card';
+            cardEl.dataset.projectId = project.id;
+            cardEl.id = `card-${project.id}`;
 
+            const groupEl = document.querySelector(`.spaces-group[data-group-id="${project.group_id}"]`);
+            const groupName = groupEl ? groupEl.querySelector('.group-name').textContent : '';
 
-        const groupEl = document.querySelector(`.spaces-group[data-group-id="${project.group_id}"]`);
-        const groupName = groupEl ? groupEl.querySelector('.group-name').textContent : '';
-
-
-        cardEl.innerHTML = `
-            <button class="card-menu-btn" onclick="openProjectMenu(event, '${project.id}', '${project.name}')"></button>
-            <div class="card-content">
+            cardEl.innerHTML = `
+                <button class="card-menu-btn" onclick="openProjectMenu(event, '${project.id}', '${project.name}')"></button>
+                <div class="card-content">
                     <div class="card-img">
                         <img src="/static/tasks/icons/doc_light.png" alt="icon" class="card-icon"/>
                         <span class="card-subtitle">example</span>
                     </div>
-            <div class="card-title">
-                    ${project.name}
-                    <span class="project-group-dot">• ${groupName}</span>
+                    <div class="card-title">
+                        ${project.name}
+                        <span class="project-group-dot">• ${groupName}</span>
+                    </div>
                 </div>
-            </div>
-        `;
-        
+            `;
 
-        // Добавляем карточку в начало контейнера, чтобы соблюдался LIFO порядок
-        cardsContainer.prepend(cardEl);
-
-        // 3️⃣ Обновляем видимые карточки
-        updateCards('recent', 3);
-
+            cardsContainer.prepend(cardEl);
+            updateCards('recent', 3);
+        }
 
         closeCreateProjectModal();
+        refreshGroupPageIfOpen();  // ← обновляем страницу групп если открыта
     })
     .catch(err => console.error('Error creating project', err));
 }
