@@ -13,6 +13,7 @@ body {
 .app {  
     display: grid;
     grid-template-columns: 260px 1fr;
+    grid-template-rows: auto 1fr;
     height: 100vh;
 }
 
@@ -20,6 +21,7 @@ body {
 /*===SIDEBAR===*/
 .sidebar {
     background: #fff;
+    grid-row: 2; 
     /*background-color: #2c3e50;*/
     padding: 16px;
     display: flex;
@@ -27,17 +29,47 @@ body {
     gap: 14px;
 }   
 
+
+
+.sidebar-nav {
+    background: #f4f4f4;        /* чуть темнее в светлой теме */
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    padding: 0px;
+    margin: -4px;
+    margin-top: 2px;
+}
+
+body.dark-theme .sidebar-nav {
+    background: #262626;        /* чуть светлее в темной теме */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+
+
+
 .nav-item {
-    padding: 8px 12px;
+    padding: 12px 12px;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 15px;
+    font-size: 17px;
     font-weight: normal;
 }    
 
 .nav-item.active {
     background-color: #eef2ff;
     font-weight: bold;
+}
+
+.nav-item:hover {
+    background-color: rgba(0, 0, 0, 0.06);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+
+body.dark-theme .nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.06);
 }
 
 /*groups*/
@@ -47,7 +79,7 @@ body {
     cursor: pointer;
     gap: 100px;  /*расстояние от spaces до кнопки +*/
     margin-top: 0;
-    font-size: 15px;
+    font-size: 17px;
 }
 
 
@@ -65,8 +97,19 @@ body {
     padding-bottom: 2px;
 }   
 
+
+
+#spaces-body {
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    overflow: hidden;
+    max-height: 500px;
+    opacity: 1;
+}
+
 #spaces-body.hidden {
-    display: none;
+    max-height: 0 !important;
+    opacity: 0;
+    display: block !important;  /* ← переопределяем display:none */
 }
 
 
@@ -196,6 +239,7 @@ body {
 /*===MAIN===*/
 .main {
     display: flex;
+    grid-row: 2;
     flex-direction: column;
 }
 
@@ -210,6 +254,7 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
+    grid-column: 1 / -1;
 }
 
 .topbar.left {
@@ -386,6 +431,7 @@ body.dark-theme .view-switch button:hover {
     font-weight: 600;
     cursor: pointer;
     align-items: center;
+    color: #2b2b2b;
 }
 
 
@@ -560,11 +606,12 @@ body.dark-theme .view-switch button:hover {
 }
 
 
-.page-title {
-    font-size: 26px;
+.sidebar-title {
+    font-size: 25px;
     font-weight: 700;
-    white-space: nowrap;
-    margin-right: 20px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    padding-bottom: 12px;
 }
 
 #spaces-body.hidden {
@@ -644,12 +691,23 @@ body.dark-theme .view-switch button:hover {
 }
 
 
+
+.project-item:hover {
+    background-color: rgba(0, 0, 0, 0.06);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
 .project-item:hover .project-actions {
     opacity: 1;
     pointer-events: auto;
     background-color: transparent;
 }
 
+
+body.dark-theme .project-item:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+}
 
 
 .project-name {
@@ -693,6 +751,13 @@ body.dark-theme .view-switch button:hover {
     border-left: 2px solid #ccc; /* линия слева */
     margin-left: 12px;           /* отступ от названия группы */
     padding-left: 8px;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+
+.projects.open {
+    max-height: 500px;
+    opacity: 1;
 }
 
 
@@ -751,12 +816,12 @@ body.dark-theme {
 
 body.dark-theme .sidebar {
     background-color: #1e1e1e;
-    color: #bbb; /* базовый серый текст */
+    color: #b6b6b6; /* базовый серый текст */
 }
 
 
 body.dark-theme .sidebar * {
-    color: #bbb;
+    color: #a7a7a7;
 }
 
 body.dark-theme .sidebar .item:hover,
@@ -768,6 +833,9 @@ body.dark-theme .sidebar .active {
 body.dark-theme .topbar {
     background-color: #1e1e1e;
     color: #fff;
+    border-bottom: 1px solid #333;
+}
+body.dark-theme .sidebar-title {
     border-bottom: 1px solid #333;
 }
 
@@ -1237,8 +1305,11 @@ body.dark-theme #project-dropdown button:last-child:hover {
 
 /* ================= BASE CARDS CONTAINER ================= */
 
+
 #recent .cards,
 #fav .cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 24px;
 }
 
@@ -1407,7 +1478,7 @@ body.dark-theme .card-subtitle {
 
 body.dark-theme #recent .card-title,
 body.dark-theme #fav .card-title {
-    color: #cacaca;
+    color: #bebebe;
 }
 
 body.dark-theme .card-menu-btn {

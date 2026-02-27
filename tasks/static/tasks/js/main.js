@@ -1,4 +1,4 @@
-
+let homeContent = null;
 
 let currentProjectId = null;
 let currentGroupId = null;
@@ -6,6 +6,17 @@ let currentProjectName = null;
 
 const dropdown = document.getElementById('group-dropdown');
 const navItems = document.querySelectorAll('.nav-item');
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    homeContent = document.querySelector('.content').innerHTML;
+});
+
+document.getElementById('nav-home').addEventListener('click', () => {
+    document.querySelector('.content').innerHTML = homeContent;
+    updatePageTitle('Home');
+});
+
 
 navItems.forEach(item => {
     item.addEventListener('click', () => {
@@ -505,7 +516,6 @@ function changeGroupPriority() {
     document.getElementById('changePrioritySelect').value = currentPriority;
 
     document.getElementById('changePriorityModal').style.display = 'flex';
-    refreshGroupPageIfOpen();
 }
 
 function closeChangePriorityModal() {
@@ -532,12 +542,12 @@ function submitChangePriority() {
             groupEl.classList.remove('priority-low', 'priority-normal', 'priority-high');
             groupEl.classList.add(`priority-${newPriority}`);
             closeChangePriorityModal();
+            refreshGroupPageIfOpen();
         } else {
             alert(data.error || 'Error changing priority');
         }
     })
     .catch(err => console.error(err));
-    
 }
 
 // Делаем функции глобальными, чтобы их вызывал dropdown
@@ -924,6 +934,7 @@ function renameProject() {
 // закрыть модалку
 function closeRenameProjectModal() {
     document.getElementById('renameProjectModal').style.display = 'none';
+    refreshGroupPageIfOpen()
 }
 
 // отправка изменений на сервер
@@ -962,6 +973,7 @@ function submitRenameProject() {
         console.error(err);
         alert('Error renaming project');
     });
+    refreshGroupPageIfOpen()
 }
 
 
@@ -978,32 +990,43 @@ function toggleFavourite(button, projectId) {
     .then(data => {
         if (!data.success) return;
 
+        // обновляем сердечко в карточках home
+        const homeCard = document.querySelector(`#recent .cards .card[data-project-id="${projectId}"] .card-fav`);
+        if (homeCard) homeCard.textContent = data.is_favourite ? '♥︎' : '♡︎';
+
+        const favCard2 = document.querySelector(`#fav .cards .card[data-project-id="${projectId}"] .card-fav`);
+        if (favCard2) favCard2.textContent = data.is_favourite ? '♥︎' : '♡︎';
+
+        // обновляем сердечко в карточках режима групп
+        const groupCard = document.querySelector(`.group-page-project-card[data-project-id="${projectId}"] .group-page-project-fav`);
+        if (groupCard) groupCard.textContent = data.is_favourite ? '♥︎' : '♡︎';
+
+        // обновляем сердечко в сайдбаре
+        const sidebarItem = document.querySelector(`.project-item[data-project-id="${projectId}"]`);
+        if (sidebarItem) {
+            const fav = sidebarItem.querySelector('.project-fav');
+            if (fav) fav.textContent = data.is_favourite ? '♥︎' : '♡︎';
+        }
+
+        // добавляем/убираем из избранного
         const favContainer = document.querySelector('#fav .cards');
         const recentCard = document.querySelector(`#recent .cards .card[data-project-id="${projectId}"]`);
         const favCard = document.querySelector(`#fav .cards .card[data-project-id="${projectId}"]`);
 
         if (data.is_favourite) {
-            // Добавляем в избранное
             if (recentCard && !favCard) {
                 const clone = recentCard.cloneNode(true);
                 favContainer.prepend(clone);
                 updateCards('fav', 3);
             }
         } else {
-            // Убираем из избранного
             if (favCard) {
                 favCard.remove();
                 updateCards('fav', 3);
             }
         }
 
-        const sidebarItem = document.querySelector(`.project-item[data-project-id="${projectId}"]`);
-        if (sidebarItem) {
-            const fav = sidebarItem.querySelector('.project-fav');
-        if (fav) fav.textContent = data.is_favourite ? '♥' : '♡';
-            }
-
-        // Меняем текст кнопки в дропдауне
+        // меняем текст кнопки в дропдауне
         const dropdown = document.getElementById('project-dropdown');
         const favBtn = dropdown.querySelector('.project-fav-btn');
         if (favBtn) {
@@ -1013,7 +1036,6 @@ function toggleFavourite(button, projectId) {
         showToast(data.is_favourite ? 'Added to favourites' : 'Removed from favourites');
     });
 }
-
 
 
 
@@ -1083,6 +1105,8 @@ function duplicateProject() {
         });
     })
     .catch(err => console.error(err));
+
+    refreshGroupPageIfOpen()
 }
 
 
@@ -1090,12 +1114,14 @@ function deleteProject() {
     if (!currentProjectId) return;
 
     document.getElementById('delete-project-modal').style.display = 'flex';
+    refreshGroupPageIfOpen()
 }
 
 
 function closeDeleteProjectModal() {
     const modal = document.getElementById('delete-project-modal');
     if (modal) modal.style.display = 'none';
+    refreshGroupPageIfOpen()
 }
 
 
@@ -1136,6 +1162,7 @@ document.getElementById('confirm-delete-project')
 
             showToast('Project successfully deleted');
         });
+        refreshGroupPageIfOpen()
     });
 
 

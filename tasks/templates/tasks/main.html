@@ -19,9 +19,11 @@
 <!--SIDEBAR-->
 {% csrf_token %}
 <aside class="sidebar">
+    <div class="sidebar-title">{{ page_title }}</div>
 
 
-    <div class="nav-item">Home</div>
+    <div class="sidebar-nav">
+    <div class="nav-item" id="nav-home">Home</div>
     
     <div class="nav-item" id="spaces-nav" >
     <div class="spaces-section">
@@ -68,7 +70,7 @@
 
     <div class="nav-item">Favourites</div>
     <div class="nav-item">Dashboard</div>
-
+</div>
 </aside>
 
 
@@ -81,7 +83,6 @@
 
 
         <div class="topbar-left">
-            <div class="page-title">{{ page_title }}</div>
             <input class="search" placeholder="Search" id="global-search">
             <div id="search-suggestions" class="search-suggestions"></div>
         </div>
