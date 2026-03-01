@@ -15,7 +15,39 @@ document.addEventListener('DOMContentLoaded', () => {
 document.getElementById('nav-home').addEventListener('click', () => {
     document.querySelector('.content').innerHTML = homeContent;
     updatePageTitle('Home');
+
+    // переинициализируем view кнопки
+    viewButtons = document.querySelectorAll('.view-switch .view-btn');
+    viewButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            viewButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const view = btn.dataset.view;
+            const cardsSections = document.querySelectorAll('.cards');
+            cardsSections.forEach(section => {
+                section.classList.remove('board-view', 'list-view');
+                if (view === 'board') section.classList.add('board-view');
+                else if (view === 'list') section.classList.add('list-view');
+            });
+
+            localStorage.setItem('selectedView', view);
+        });
+    });
+
+    // восстанавливаем сохранённый вид
+    const savedView = localStorage.getItem('selectedView');
+    if (savedView) {
+        const btnToActivate = document.querySelector(`.view-btn[data-view="${savedView}"]`);
+        if (btnToActivate) btnToActivate.click();
+    }
+
+    // обновляем карточки
+    limitCards('recent', 3);
+    limitCards('fav', 3);
 });
+
+
 
 
 navItems.forEach(item => {
@@ -67,7 +99,7 @@ function limitCards(sectionId, maxCards = 3) {
 
     // Показываем только последние maxCards карточек (LIFO)
     const lastCards = cards.slice(-maxCards).reverse(); // переворачиваем для LIFO
-    lastCards.forEach(card => card.style.display = 'block');
+    lastCards.forEach(card => card.style.display = '');
 }
 
 limitCards('recent', 3);
@@ -93,7 +125,7 @@ function updateCards(sectionId, maxCards = 3) {
     const updatedCards = Array.from(cardsContainer.children);
     updatedCards.forEach((card, index) => {
         if (index >= updatedCards.length - maxCards) {
-            card.style.display = 'block';
+            card.style.display = '';
         } else {
             card.style.display = 'none';
         }
