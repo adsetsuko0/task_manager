@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework import viewsets, permissions
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import Task, Projects_Group, Project
+from .models import Task, Projects_Group, Project, UserProfile
 from .serializers import TaskSerializer, ProjectSerialier, ProjectsGroupSerialier
 from .permissions import IsAdminOrOwner, IsAssigneeOrOwner, IsOwnerOrReadOnly
 
@@ -14,6 +14,83 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 import json
+
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.get_or_create(user=instance)
+
+
+
+@login_required
+def update_user(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        user = request.user
+
+        username= data.get('username', '').strip()
+        email = data.get('email', '').strip()
+        password = data.get('password', '').strip()
+
+        if not username:
+            return JsonResponse({'success': False, 'error': 'Username cannot be empty'}, status=400)
+        if User.objects.filter(username=username).exclude(id=user.id).exists():
+            return JsonResponse({'success': False, 'error': 'Username already taken'}, status=400)
+        
+        user.username = username
+        user.email = email
+
+
+        if password:
+            user.set_password(password)
+            user.save()
+            update_session_auth_hash(request, user)  # сохраняем сессию после смены пароля
+        else:
+            user.save()
+
+
+
+
+        return JsonResponse({
+            'success': True,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email
+        })
+
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+
+@login_required
+def upload_avatar(request):
+    if request.method=='POST' and request.FILES.get('avatar'):
+        avatar=request.FILES['avatar']
+        profile, created = UserProfile.objects.get_or_create(user=request.user)
+        profile.avatar=avatar
+        profile.save()
+        return JsonResponse({'success': True, 'avatar_url': profile.avatar.url})
+    
+@login_required
+def delete_avatar(request):
+    if request.method == 'POST':
+        try:
+            profile = UserProfile.objects.get(user=request.user)
+            profile.avatar.delete()
+            profile.avatar = None
+            profile.save()
+        except UserProfile.DoesNotExist:
+            pass
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False})
+
 
 
 

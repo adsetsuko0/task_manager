@@ -3,6 +3,9 @@ from rest_framework.routers import DefaultRouter
 from .views import TaskViewSet, ProjectsGroupViewSet, ProjectViewSet, create_project, duplicate_project, main_page, project_rename, project_delete, create_group
 from tasks import views
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 router=DefaultRouter()
 router.register(r"projects_group", ProjectsGroupViewSet, basename='projects_group')
 router.register(r"projects", ProjectViewSet, basename='projects')
@@ -31,4 +34,7 @@ urlpatterns = [
     path('groups/delete/', views.delete_group, name='group_delete'),
 
     path('search_suggestions/', views.search_suggestions, name='search_suggestions'),
-]
+    path('user/update/', views.update_user, name='update_user'),
+    path('user/avatar/upload/', views.upload_avatar, name='upload_avatar'),
+    path('user/avatar/delete/', views.delete_avatar, name='delete_avatar'), 
+]   + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
