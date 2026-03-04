@@ -1598,3 +1598,221 @@ body.dark-theme .card-menu-btn:hover {
     right: 24px;
     align-items: center;
 }
+
+
+
+
+
+
+.settings-modal-content {
+    background: #fff;
+    border-radius: 16px;
+    width: 420px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.settings-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.settings-avatar-section {
+    display: flex;
+    justify-content: center;
+}
+
+.settings-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #ddd;
+    color: rgb(255, 255, 255);
+    font-size: 32px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.settings-avatar-wrapper {
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.settings-avatar-edit {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 22px;
+    height: 22px;
+    background: #252525;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: white;
+    cursor: pointer;
+    border: 2px solid #fff;
+}
+
+body.dark-theme .settings-avatar-edit {
+    border-color: #1e1e1e;
+}
+
+.avatar-edit-dropdown {
+    position: absolute;
+    top: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 100;
+    min-width: 200px;
+    overflow: hidden;
+}
+
+.avatar-edit-option {
+    padding: 10px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.avatar-edit-option:hover {
+    background: #f3f4f6;
+}
+
+body.dark-theme .avatar-edit-dropdown {
+    background: #1e1e1e;
+    border-color: #333;
+}
+
+body.dark-theme .avatar-edit-option:hover {
+    background: #2a2a2a;
+}
+
+.settings-field {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 12px;
+}
+
+.settings-field label {
+    font-size: 13px;
+    color: #888;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+.settings-field input {
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+}
+
+.settings-field input:focus {
+    border-color: #7c76f0;
+}
+
+.settings-save-btn {
+    width: 100%;
+    padding: 12px;
+    background: #7c76f0;
+    color: rgb(255, 255, 255);
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.settings-save-btn:hover {
+    background: #6a64d8;
+}
+
+body.dark-theme .settings-modal-content {
+    background: #1e1e1e;
+    color: #e0e0e0;
+}
+
+body.dark-theme .settings-field input {
+    background: #2a2a2a;
+    border-color: #444;
+    color: #e0e0e0;
+}
+
+body.dark-theme .settings-field label {
+    color: #666;
+}
+
+
+.confirm-modal-content {
+    background: #fff;
+    border-radius: 14px;
+    padding: 28px;
+    width: 340px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.confirm-modal-header {
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.confirm-modal-text {
+    font-size: 14px;
+    color: #888;
+}
+
+.confirm-modal-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.confirm-cancel-btn {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.confirm-delete-btn {
+    flex: 1;
+    padding: 10px;
+    background: #e53935;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+body.dark-theme .confirm-modal-content {
+    background: #1e1e1e;
+    color: #e0e0e0;
+}
+
+body.dark-theme .confirm-cancel-btn {
+    border-color: #444;
+    color: #e0e0e0;
+}

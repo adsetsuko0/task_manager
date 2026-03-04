@@ -1381,6 +1381,124 @@ document.addEventListener('click', function(e) {
 
 
 
+document.getElementById('settings-btn').addEventListener('click', () => {
+    document.getElementById('avatar-dropdown').style.display = 'none';
+    document.getElementById('settings-modal').style.display = 'flex';
+    initSettingsModal();  // ← добавь сюда
+});
+
+function closeSettingsModal() {
+    document.getElementById('settings-modal').style.display = 'none';
+}
+
+function saveSettings() {
+    const username = document.getElementById('settings-username').value.trim();
+    const email = document.getElementById('settings-email').value.trim();
+    const password = document.getElementById('settings-password').value;
+    const confirmPassword = document.getElementById('settings-password-confirm').value;
+
+    if (password && password !== confirmPassword) {
+        showToast('Passwords do not match', 'error');
+        return;
+    }   
+
+
+
+    fetch('/user/update/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({ username, email })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Settings saved!');
+            closeSettingsModal();
+        } else {
+            showToast(data.error || 'Error saving settings', 'error');
+        }
+    });
+}
+
+
+// открытие дропдауна аватара
+function initSettingsModal() {
+    document.getElementById('avatar-edit-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const dd = document.getElementById('avatar-edit-dropdown');
+        dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+    });
+
+    document.getElementById('settings-avatar-circle').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const dd = document.getElementById('avatar-edit-dropdown');
+        dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+    });
+
+    document.getElementById('avatar-choose').addEventListener('click', () => {
+        document.getElementById('avatar-file-input').click();
+    });
+
+    document.getElementById('avatar-file-input').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const formData = new FormData();
+        formData.append('avatar', file);
+        formData.append('csrfmiddlewaretoken', getCSRFToken());
+        fetch('/user/avatar/upload/', { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const imgHtml = `<img src="${data.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
+                // обновляем все аватары
+                document.getElementById('settings-avatar-circle').innerHTML = imgHtml;
+                document.getElementById('user-avatar').innerHTML = imgHtml + `<span class="avatar-status online"></span>`;
+                document.querySelector('.small-avatar').innerHTML = imgHtml + `<span class="avatar-status online"></span>`;
+                showToast('Avatar updated!');
+                }
+            });
+    });
+
+    document.getElementById('avatar-delete').addEventListener('click', () => {
+    document.getElementById('avatar-edit-dropdown').style.display = 'none';
+    document.getElementById('confirm-delete-avatar-modal').style.display = 'flex';
+});
+
+document.getElementById('confirm-avatar-delete-btn').addEventListener('click', () => {
+    fetch('/user/avatar/delete/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCSRFToken() }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const firstLetter = document.getElementById('settings-username').value.slice(0, 1).toUpperCase();
+            // обновляем все аватары
+            document.getElementById('settings-avatar-circle').innerHTML = firstLetter;
+            document.getElementById('user-avatar').innerHTML = firstLetter + `<span class="avatar-status online"></span>`;
+            document.querySelector('.small-avatar').innerHTML = firstLetter + `<span class="avatar-status online"></span>`;
+            document.getElementById('confirm-delete-avatar-modal').style.display = 'none';
+            showToast('Avatar deleted');
+        }
+    });
+});
+
+    document.getElementById('avatar-show').addEventListener('click', () => {
+        const img = document.querySelector('#settings-avatar-circle img');
+        if (img) {
+            window.open(img.src, '_blank');
+        } else {
+            showToast('No profile picture set');
+        }
+    });
+}
+
+
+
+
 document.addEventListener('DOMContentLoaded', () => {
 
     const savedView = localStorage.getItem('selectedView');
