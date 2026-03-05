@@ -1,0 +1,235 @@
+.project-info-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px 24px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+}
+
+.project-info-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.project-info-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.project-info-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: #484747;
+}
+
+.project-info-group {
+    font-size: 13px;
+    color: #aaa;
+    font-weight: 600;
+}
+
+.project-info-arrow {
+    cursor: pointer;
+    font-size: 12px;
+    color: #888;
+}
+
+.project-info-body {
+    margin-top: 16px;
+    overflow: hidden;
+    max-height: 2000px;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    opacity: 1;
+}
+
+.project-info-body.collapsed {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
+}
+
+.project-add-task-btn {
+    padding: 8px 16px;
+    background: #4b4b4b;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.project-add-task-btn:hover {
+    background: #414141;
+}
+
+.project-view-switch {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+
+
+body.dark-theme .project-add-task-btn {
+    background: #d6d6d6;
+    color: #2b2b2b;
+}
+
+body.dark-theme .project-add-task-btn:hover {
+    background: #bababa;
+    color: #272727;
+}
+
+
+
+.project-page .filter-wrapper {
+    margin-bottom: 20px;
+    margin-top: 12px;
+}
+
+body.dark-theme .project-info-card {
+    background: #1e1e1e;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-theme .project-info-name {
+    color: #b5b5b5;
+}
+
+
+.project-page .divider {
+    margin: 4px 0 6px;
+}
+
+.toolbar-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    background: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    color: #000000;
+    align-items: center;
+    transition: background 0.15s, border-color 0.15s;
+    height: 100%;
+}
+
+.toolbar-btn:hover {
+    background: #f0f0f0;
+}
+
+.toolbar-btn.active {
+    background: #eef2ff;
+    border-color: #7c76f0;
+    color: #7c76f0;
+}
+
+body.dark-theme .toolbar-btn {
+    background: transparent;
+    border-color: #444;
+    color: #aaa;
+}
+
+body.dark-theme .toolbar-btn:hover {
+    background: #2a2a2a;
+}
+
+
+.project-toolbar .filter-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 0;
+}
+
+.project-toolbar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    margin-top: 12px;
+    position: relative;
+}
+
+
+.project-info-menu-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #888;
+    padding: 0 4px;
+    box-shadow: none;
+    outline: none;
+}
+
+.project-info-fav {
+    font-size: 26px;
+    cursor: pointer;
+    color: #888;
+    margin-right: 5px;
+    margin-top: 5px;
+    padding: 4px 8px;
+}
+
+
+.groupby-dropdown {
+    position: absolute;
+    top: 36px;
+    left: 0;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    min-width: 280px;
+    z-index: 1000;
+    padding: 16px;
+}
+
+.groupby-dropdown-header {
+    font-size: 13px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+}
+
+.groupby-selects {
+    display: flex;
+    gap: 8px;
+}
+
+.groupby-select {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 13px;
+    background: #f8f8f8;
+    cursor: pointer;
+    outline: none;
+}
+
+.groupby-select:focus {
+    border-color: #7c76f0;
+}
+
+body.dark-theme .groupby-dropdown {
+    background: #1e1e1e;
+    border-color: #333;
+}
+
+body.dark-theme .groupby-select {
+    background: #2a2a2a;
+    border-color: #444;
+    color: #e0e0e0;
+}

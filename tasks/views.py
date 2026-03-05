@@ -539,10 +539,12 @@ class TaskViewSet(viewsets.ModelViewSet):
 def get_project_tasks(request, project_id):
     tasks = Task.objects.filter(project_id=project_id)
     data = [{
-        'id': t.id,
-        'title': t.title,
-        'status': t.status,
-        'assignee': t.assignee.username if t.assignee else None,
-        'created_at': t.created_at.strftime('%d.%m.%Y'),
+    'id': t.id,
+    'title': t.title,
+    'status': t.status,
+    'assignee': t.assignee.username if t.assignee else None,
+    'created_at': t.created_at.strftime('%d.%m.%Y'),
+    'updated_at': t.updated_at.strftime('%d.%m.%Y'),
+    'priority': getattr(t, 'priority', None),
     } for t in tasks]
     return JsonResponse(data, safe=False)
