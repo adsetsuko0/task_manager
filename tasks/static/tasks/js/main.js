@@ -419,10 +419,27 @@ function renderProject(project) {
 
     projectContainer.appendChild(el);
 
-    el.addEventListener('click', (e) => {
-    e.stopPropagation();
-    activateProject(el);
-    });
+    let projectClickCount = {};
+
+        el.addEventListener('click', (e) => {
+            e.stopPropagation();
+                if (e.target.closest('.project-menu-btn') || e.target.closest('.project-fav')) return;
+
+    const id = project.id;
+                if (!projectClickCount[id]) projectClickCount[id] = 0;
+                projectClickCount[id]++;
+
+    if (projectClickCount[id] === 1) {
+        document.querySelectorAll('.project-item').forEach(p => p.classList.remove('active'));
+        el.classList.add('active');
+        setTimeout(() => { projectClickCount[id] = 0; }, 500);
+    } else {
+        projectClickCount[id] = 0;
+        renderProjectPage(el);
+    }
+});
+
+
     const fav = el.querySelector('.project-fav');
     if (fav) {
         fav.addEventListener('click', (e) => {

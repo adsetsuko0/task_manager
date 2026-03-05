@@ -612,6 +612,7 @@ body.dark-theme .view-switch button:hover {
     padding: 8px 12px;
     margin-bottom: 8px;
     padding-bottom: 12px;
+    border-bottom: 1px solid #bdbdbd;
 }
 
 #spaces-body.hidden {
@@ -1360,7 +1361,7 @@ body.dark-theme #project-dropdown button:last-child:hover {
     height: 100px;
     width: 100%;
     border-radius: 10px;
-    background: #e5e7eb;
+    background: #f0f0f0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1389,10 +1390,10 @@ body.dark-theme #project-dropdown button:last-child:hover {
     justify-content: space-between;
     position: absolute;
     bottom: 16px;
+    font-weight: 500;
     left: 16px;
     right: 16px;
     font-size: 16px;
-    font-weight: 500;
     width: calc(100% - 32px);
 }
 
@@ -1438,6 +1439,7 @@ body.dark-theme #project-dropdown button:last-child:hover {
     display: flex;  /* ← показываем картинку */
     height: 100px;
     width: 100%;
+
 }
 
 #recent .cards.list-view .card-content,
@@ -1594,10 +1596,10 @@ body.dark-theme .card-menu-btn:hover {
     color: #888;
     pointer-events: none;
     font-family: Arial, sans-serif;
-    position: absolute;
-    bottom: 14px;
-    right: 24px;
+    display: flex;
     align-items: center;
+    line-height: 1;
+    bottom: 16px;
 }
 
 
@@ -1816,4 +1818,40 @@ body.dark-theme .confirm-modal-content {
 body.dark-theme .confirm-cancel-btn {
     border-color: #444;
     color: #e0e0e0;
+}
+
+
+.card-bottom-actions {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+.card-menu-btn-bottom {
+    background: none;
+    border: none;
+    margin-top: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #888;
+    padding: 2px 6px;
+    border-radius: 6px;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.card:hover .card-menu-btn-bottom {
+    opacity: 1;
+}
+
+.card-menu-btn-bottom:hover {
+    background: rgba(0,0,0,0.08);
+}
+
+body.dark-theme .card-menu-btn-bottom:hover {
+    background: rgba(255,255,255,0.08);
 }

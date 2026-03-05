@@ -180,23 +180,20 @@
             <div class="cards board-view">
                 {% for p in recent_projects %}
                 <div class="card" data-project-id="{{ p.id }}">
-
-                    <button class="card-menu-btn"
-                            onclick="openProjectMenu(event, '{{ p.id }}', '{{ p.name }}')">
-                    </button>
-                    
-                    <div class="card-img">
-                        <img src="{% static 'tasks/icons/doc_light.png' %}" alt="icon" class="card-icon"/>
-                        <span class="card-subtitle">No tasks added</span>
-                    </div>
-                    <div class="card-title">
-                        <img src="{% static 'tasks/icons/list_night.png' %}" class="title-icon" alt="icon">
-                                {{ p.name }}
-                        <span class="project-group-dot">• {{ p.group.name }}</span>
-                    </div>
-                <span class="card-fav">{% if p.is_favourite %}♥︎{% else %}♡︎{% endif %}</span>
-
-                </div>
+    <div class="card-img">
+        <img src="{% static 'tasks/icons/doc_light.png' %}" alt="icon" class="card-icon"/>
+        <span class="card-subtitle">No tasks added</span>
+    </div>
+    <div class="card-title">
+        <img src="{% static 'tasks/icons/list_night.png' %}" class="title-icon" alt="icon">
+        {{ p.name }}
+        <span class="project-group-dot">• {{ p.group.name }}</span>
+    </div>
+    <div class="card-bottom-actions">
+        <button class="card-menu-btn-bottom" onclick="openProjectMenu(event, '{{ p.id }}', '{{ p.name }}')">⋯</button>
+        <span class="card-fav">{% if p.is_favourite %}♥︎{% else %}♡︎{% endif %}</span>
+    </div>
+</div>
                 {% endfor %}
 
             </div>
@@ -215,26 +212,20 @@
 
                 {% for p in favourite_projects %}
                 <div class="card" data-project-id="{{ p.id }}">
-
-                    <button class="card-menu-btn"
-                            onclick="openProjectMenu(event, '{{ p.id }}', '{{ p.name }}')">
-                    </button>
-                    
-
-                    <div class="card-content">
-                    <div class="card-img">
-                        <img src="/static/tasks/icons/doc_light.png" alt="icon" class="card-icon"/>
-                        <span class="card-subtitle">No tasks added</span>
-                    </div>
-                    <div class="card-title">
-                        <img src="{% static 'tasks/icons/list_night.png' %}" class="title-icon" alt="icon">
-                                {{ p.name }}
-                        <span class="project-group-dot">• {{ p.group.name }}</span>
-                    </div>
-                        <span class="card-fav">{% if p.is_favourite %}♥︎{% else %}♡︎{% endif %}</span>
-
-                    </div>
-                </div>
+    <div class="card-img">
+        <img src="{% static 'tasks/icons/doc_light.png' %}" alt="icon" class="card-icon"/>
+        <span class="card-subtitle">No tasks added</span>
+    </div>
+    <div class="card-title">
+        <img src="{% static 'tasks/icons/list_night.png' %}" class="title-icon" alt="icon">
+        {{ p.name }}
+        <span class="project-group-dot">• {{ p.group.name }}</span>
+    </div>
+    <div class="card-bottom-actions">
+        <button class="card-menu-btn-bottom" onclick="openProjectMenu(event, '{{ p.id }}', '{{ p.name }}')">⋯</button>
+        <span class="card-fav">{% if p.is_favourite %}♥︎{% else %}♡︎{% endif %}</span>
+    </div>
+</div>
                 {% endfor %}
 
             </div>
