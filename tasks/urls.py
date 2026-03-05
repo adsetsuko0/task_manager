@@ -24,7 +24,9 @@ urlpatterns = [
     path('projects/favourite/', views.toggle_favourite_project, name='toggle_favourite_project'),
     path('projects/duplicate/', duplicate_project, name='duplicate_project'),
 
+    path('projects/<int:project_id>/tasks/', views.get_project_tasks, name='project_tasks'),
 
+    
 
     path('groups/', views.get_groups, name='get_groups'),
     path('groups/create/', views.create_group, name='group_create'),

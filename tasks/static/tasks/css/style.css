@@ -1423,6 +1423,7 @@ body.dark-theme #project-dropdown button:last-child:hover {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    margin-top: 10px;
 }
 
 #recent .cards.list-view .card,

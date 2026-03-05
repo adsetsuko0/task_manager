@@ -124,23 +124,25 @@ function renderGroupPage(groupEl) {
                         const projectId = item.dataset.projectId;
                         const isFav = item.querySelector('.project-fav')?.textContent.includes('♥') || false;
                         return `
-                            <div class="group-page-project-card" data-project-id="${projectId}">
+                                <div class="group-page-project-card" data-project-id="${projectId}">
                                 <div class="group-page-project-top">
-                                    <img src="/static/tasks/icons/list_night.png" class="group-page-title-icon" alt="project-icon">
-                                    <span class="group-page-project-name">${name}</span>
-                                    <span class="project-group-dot">• ${groupName}</span>
-                                    <div class="group-page-project-img">
-                                        <img src="/static/tasks/icons/doc_light.png" alt="icon" class="card-icon"/>
-                                        <span class="card-subtitle">No tasks added</span>
-                                    </div>
-                                    <span class="group-page-project-fav">${isFav ? '♥︎' : '♡︎'}</span>
-                                </div>
-                                <div class="group-page-project-bottom">
-                                    
-                                </div>
-                            </div>
-                        `;
+            <img src="/static/tasks/icons/list_night.png" class="group-page-title-icon" alt="project-icon">
+            <span class="group-page-project-name">${name}</span>
+            <span class="project-group-dot">• ${groupName}</span>
+        </div>
+        <button class="group-page-project-menu-btn" onclick="openProjectMenu(event, '${projectId}', '${name}')">⋯</button>
+        <div class="group-page-project-img">
+            <img src="/static/tasks/icons/doc_light.png" alt="icon" class="card-icon"/>
+            <span class="card-subtitle">No tasks added</span>
+        </div>
+        <span class="group-page-project-fav" onclick="toggleFavourite(this, '${projectId}')">${isFav ? '♥︎' : '♡︎'}</span>
+    </div>
+`;
                     }).join('')}
+                    <div class="group-page-add-card" onclick="openAddProjectFromGroup('${groupEl.dataset.groupId}')">
+                            <span class="group-page-add-plus">+</span>
+                            <span class="group-page-add-text">Add project</span>
+</div>
                 </div>
             </div>
         </div>
@@ -195,8 +197,26 @@ arrow.addEventListener('click', () => {
             filterBtn.classList.add('filter-active');
 
             const filter = option.dataset.filter;
-            const cards = Array.from(projectsGrid.querySelectorAll('.group-page-project-card'));
+const projectCards = content.querySelectorAll('.group-page-project-card');
+projectCards.forEach(card => {
+    card.addEventListener('click', (e) => {
+        if (e.target.closest('.group-page-project-menu-btn')) return;
+        if (e.target.closest('.group-page-project-fav')) return;
 
+        const projectId = card.dataset.projectId;
+        const projectEl = document.querySelector(`.project-item[data-project-id="${projectId}"]`);
+        if (!projectEl) return;
+
+        const isActive = card.classList.contains('active');
+        if (!isActive) {
+            projectCards.forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            return;
+        }
+
+        renderProjectPage(projectEl);
+    });
+});
             cards.sort((a, b) => {
                 const nameA = a.querySelector('.group-page-project-name').textContent.trim();
                 const nameB = b.querySelector('.group-page-project-name').textContent.trim();
@@ -222,6 +242,10 @@ arrow.addEventListener('click', () => {
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('spaces-body').addEventListener('click', function(e) {
         console.log('group.js loaded');
+
+        if (e.target.closest('.project-item')) return;
+
+
         const groupTitle = e.target.closest('.group-title');
         if (!groupTitle) return;
 
@@ -240,6 +264,15 @@ document.addEventListener('DOMContentLoaded', function() {
         renderGroupPage(groupEl);
     });
 });
+
+
+function openAddProjectFromGroup(groupId) {
+    document.getElementById('createProjectGroupId').value = groupId;
+    document.getElementById('createProjectName').value = '';
+    document.getElementById('createProjectLimit').value = 50;
+    document.getElementById('createProjectModal').style.display = 'flex';
+}
+window.openAddProjectFromGroup = openAddProjectFromGroup;
 
 
 function refreshGroupPageIfOpen() {

@@ -1427,9 +1427,9 @@ function saveSettings() {
 // открытие дропдауна аватара
 function initSettingsModal() {
     document.getElementById('avatar-edit-btn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        const dd = document.getElementById('avatar-edit-dropdown');
-        dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+    e.stopPropagation();
+    const dd = document.getElementById('avatar-edit-dropdown');
+    dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
     });
 
     document.getElementById('settings-avatar-circle').addEventListener('click', (e) => {
@@ -1497,6 +1497,18 @@ document.getElementById('confirm-avatar-delete-btn').addEventListener('click', (
 }
 
 
+
+// 2. клик вне — закрывает
+document.addEventListener('click', (e) => {
+    const dd = document.getElementById('avatar-edit-dropdown');
+    if (!dd) return;
+    const btn = document.getElementById('avatar-edit-btn');
+    const circle = document.getElementById('settings-avatar-circle');
+    if (!btn || !circle) return;
+    if (!btn.contains(e.target) && !circle.contains(e.target) && !dd.contains(e.target)) {
+        dd.style.display = 'none';
+    }
+});
 
 
 document.addEventListener('DOMContentLoaded', () => {
