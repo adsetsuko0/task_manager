@@ -26,6 +26,8 @@ urlpatterns = [
 
     path('projects/<int:project_id>/tasks/', views.get_project_tasks, name='project_tasks'),
 
+    path('tasks/create/', views.create_task, name='create_task'),
+    path('users/list/', views.list_users, name='list_users'),
     
 
     path('groups/', views.get_groups, name='get_groups'),

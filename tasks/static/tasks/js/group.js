@@ -12,6 +12,8 @@ function updatePageTitle(newTitle) {
 }
 
 function renderGroupPage(groupEl) {
+    saveAppState('group', groupEl.dataset.groupId); 
+       
     const groupName = groupEl.querySelector('.group-name').textContent;
     const priority = Array.from(groupEl.querySelector('.group-title').classList)
         .find(c => c.startsWith('priority-'))?.replace('priority-', '') || 'normal';

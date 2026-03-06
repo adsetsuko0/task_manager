@@ -3,6 +3,7 @@ let currentProjectTasks = [];
 
 
 function renderProjectPage(projectEl) {
+
     console.log('projectEl:', projectEl);
     console.log('projectId:', projectEl.dataset.projectId);
 
@@ -10,6 +11,8 @@ function renderProjectPage(projectEl) {
     const projectId = projectEl.dataset.projectId;
     const groupEl = projectEl.closest('.spaces-group');
     const groupName = groupEl ? groupEl.querySelector('.group-name').textContent : '';
+
+    saveAppState('project', projectId);
 
     updatePageTitle('Projects');
 
@@ -269,7 +272,7 @@ function loadProjectTasks(tasks, projectId) {
 }
 
 
-function renderProjectTasks(tasks, projectId) {
+function renderProjectTasks(projectId) {
     const container = document.getElementById('project-tasks-container');
     if (!container) return;
 
@@ -334,5 +337,117 @@ function refreshProjectPageIfOpen() {
 
     renderProjectPage(projectEl);
 }
+
+
+
+function openCreateTaskModal(projectId) {
+    // заполняем список проектов
+    const select = document.getElementById('createTaskProjectId');
+    select.innerHTML = '';
+    document.querySelectorAll('.project-item').forEach(el => {
+        const opt = document.createElement('option');
+        opt.value = el.dataset.projectId;
+        opt.textContent = el.querySelector('.project-name').textContent;
+        if (el.dataset.projectId == projectId) opt.selected = true;
+        select.appendChild(opt);
+    });
+
+    // заполняем assignee
+    fetch('/users/list/')
+        .then(res => res.json())
+        .then(users => {
+            const assigneeSelect = document.getElementById('createTaskAssignee');
+            assigneeSelect.innerHTML = '<option value="">Unassigned</option>';
+            users.forEach(u => {
+            assigneeSelect.innerHTML += `<option value="${u.id}">👤 ${u.username}</option>`;
+            });
+        });
+
+    document.getElementById('createTaskTitle').value = '';
+    document.getElementById('createTaskDescription').value = '';
+    document.getElementById('createTaskStatus').value = 'todo';
+    document.getElementById('createTaskPriority').value = 'normal';
+    document.getElementById('createTaskDueDate').value = '';
+
+    document.getElementById('createTaskModal').style.display = 'flex';
+}
+
+function closeCreateTaskModal() {
+    document.getElementById('createTaskModal').style.display = 'none';
+}
+
+window.closeCreateTaskModal = closeCreateTaskModal;
+
+function openCreateTaskModal(projectId) {
+    // заполняем список проектов
+    const select = document.getElementById('createTaskProjectId');
+    select.innerHTML = '';
+    document.querySelectorAll('.project-item').forEach(el => {
+        const opt = document.createElement('option');
+        opt.value = el.dataset.projectId;
+        opt.textContent = el.querySelector('.project-name').textContent;
+        if (el.dataset.projectId == projectId) opt.selected = true;
+        select.appendChild(opt);
+    });
+
+    // заполняем assignee
+    fetch('/users/list/')
+        .then(res => res.json())
+        .then(users => {
+            const assigneeSelect = document.getElementById('createTaskAssignee');
+            assigneeSelect.innerHTML = '<option value="">Unassigned</option>';
+            users.forEach(u => {
+                assigneeSelect.innerHTML += `<option value="${u.id}">${u.username}</option>`;
+            });
+        });
+
+    document.getElementById('createTaskTitle').value = '';
+    document.getElementById('createTaskDescription').value = '';
+    document.getElementById('createTaskStatus').value = 'todo';
+    document.getElementById('createTaskPriority').value = 'normal';
+    document.getElementById('createTaskDueDate').value = '';
+
+    document.getElementById('createTaskModal').style.display = 'flex';
+}
+
+function closeCreateTaskModal() {
+    document.getElementById('createTaskModal').style.display = 'none';
+}
+
+function submitCreateTask() {
+    const projectId = document.getElementById('createTaskProjectId').value;
+    const title = document.getElementById('createTaskTitle').value.trim();
+    const description = document.getElementById('createTaskDescription').value.trim();
+    const status = document.getElementById('createTaskStatus').value;
+    const priority = document.getElementById('createTaskPriority').value;
+    const assignee = document.getElementById('createTaskAssignee').value;
+    const dueDate = document.getElementById('createTaskDueDate').value;
+
+    if (!title) {
+        showToast('Task name cannot be empty');
+        return;
+    }
+
+    fetch('/tasks/create/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({ project_id: projectId, title, description, status, priority, assignee_id: assignee, due_date: dueDate })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            closeCreateTaskModal();
+            showToast('Task created!');
+            refreshProjectPageIfOpen();
+        } else {
+            showToast(data.error || 'Error creating task');
+        }
+    });
+}
+
+
 
 window.refreshProjectPageIfOpen = refreshProjectPageIfOpen;
