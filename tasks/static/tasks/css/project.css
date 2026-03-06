@@ -288,6 +288,7 @@ body.dark-theme .groupby-select {
     outline: none;
     width: 100%;
     margin-top: 5px;
+    padding-left: 8px;
 }
 
 .create-task-input-title:focus {
@@ -419,3 +420,107 @@ body.dark-theme .modal-close-btn:hover {
 #createTaskDueDate {
     font-family: Arial, sans-serif;
 }
+
+
+
+.tasks-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+}
+
+.tasks-th {
+    text-align: left;
+    font-size: 12px;
+    color: #aaa;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.task-row {
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.15s;
+}
+
+.task-row:hover {
+    background: #f8f8ff;
+}
+
+.task-td {
+    padding: 10px 12px;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+.task-title-td {
+    font-weight: 500;
+    color: #333;
+}
+
+.task-muted {
+    color: #888;
+    font-size: 13px;
+}
+
+.task-status-badge {
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-todo { background: #e8f0fe; color: #3b5bdb; }
+.status-in_progress { background: #fff9db; color: #e67700; }
+.status-done { background: #d3f9d8; color: #2f9e44; }
+
+.task-priority-badge {
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.priority-low { background: #f1f3f5; color: #868e96; }
+.priority-normal { background: #fff9db; color: #e67700; }
+.priority-high { background: #ffe3e3; color: #e03131; }
+
+.project-task-menu-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #aaa;
+    opacity: 0;
+    transition: opacity 0.15s;
+    padding: 2px 6px;
+    border-radius: 6px;
+}
+
+.task-row:hover .project-task-menu-btn {
+    opacity: 1;
+}
+
+body.dark-theme .tasks-th {
+    border-bottom-color: #333;
+    color: #666;
+}
+
+body.dark-theme .task-row {
+    border-bottom-color: #2a2a2a;
+}
+
+body.dark-theme .task-row:hover {
+    background: #252525;
+}
+
+body.dark-theme .task-title-td {
+    color: #e0e0e0;
+}
+
+body.dark-theme .status-todo { background: #1e2a4a; color: #74a0f5; }
+body.dark-theme .status-in_progress { background: #3a2e00; color: #ffd43b; }
+body.dark-theme .status-done { background: #1a3a1f; color: #69db7c; }

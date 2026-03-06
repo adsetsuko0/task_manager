@@ -260,8 +260,7 @@ function renderProjectPage(projectEl) {
 
 
 
-function loadProjectTasks(tasks, projectId) {
-    currentProjectTasks = tasks;
+function loadProjectTasks(projectId) {
 
     fetch(`/projects/${projectId}/tasks/`)
         .then(res => res.json())
@@ -272,7 +271,8 @@ function loadProjectTasks(tasks, projectId) {
 }
 
 
-function renderProjectTasks(projectId) {
+function renderProjectTasks(tasks, projectId) {
+    currentProjectTasks = tasks;
     const container = document.getElementById('project-tasks-container');
     if (!container) return;
 
@@ -286,18 +286,42 @@ function renderProjectTasks(projectId) {
         return;
     }
 
-    container.innerHTML = tasks.map(task => `
-        <div class="project-task-card" data-task-id="${task.id}">
-            <div class="project-task-top">
-                <span class="project-task-status status-${task.status}">${task.status}</span>
-                <button class="project-task-menu-btn" onclick="openTaskMenu(event, '${task.id}')">⋯</button>
-            </div>
-            <div class="project-task-title">${task.title}</div>
-            <div class="project-task-bottom">
-                <span class="project-task-assignee">${task.assignee || 'Unassigned'}</span>
-            </div>
-        </div>
-    `).join('');
+    container.innerHTML = `
+        <table class="tasks-table">
+            <thead>
+                <tr>
+                    <th class="tasks-th">Status</th>
+                    <th class="tasks-th">Name</th>
+                    <th class="tasks-th">Assignee</th>
+                    <th class="tasks-th">Due date</th>
+                    <th class="tasks-th">Priority</th>
+                    <th class="tasks-th"></th>
+                </tr>
+            </thead>
+            <tbody>
+                ${tasks.map(task => `
+                    <tr class="task-row" data-task-id="${task.id}" data-status="${task.status}">
+                        <td class="task-td">
+                            <span class="task-status-badge status-${task.status}" onclick="cycleTaskStatus(this, '${task.id}')">
+                                ${task.status === 'todo' ? '🔵 To Do' : task.status === 'in_progress' ? '🟡 In Progress' : '🟢 Done'}
+                            </span>
+                        </td>
+                        <td class="task-td task-title-td">${task.title}</td>
+                        <td class="task-td task-muted">${task.assignee ? '👤 ' + task.assignee : '—'}</td>
+                        <td class="task-td task-muted">${task.due_date || '—'}</td>
+                        <td class="task-td">
+                            <span class="task-priority-badge priority-${task.priority}">
+                                🏳 ${task.priority || '—'}
+                            </span>
+                        </td>
+                        <td class="task-td">
+                            <button class="project-task-menu-btn" onclick="openTaskMenu(event, '${task.id}')">⋯</button>
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
 }
 
 
@@ -447,6 +471,10 @@ function submitCreateTask() {
         }
     });
 }
+
+
+
+
 
 
 
