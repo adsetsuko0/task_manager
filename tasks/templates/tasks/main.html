@@ -397,6 +397,83 @@
 </div>
 
 
+<!-- CREATE TASK MODAL -->
+<div id="createTaskModal" class="modal-overlay" style="display:none">
+    <div class="create-task-modal-content">
+        <div class="create-task-modal-header">
+            <span>New Task</span>
+            <button class="modal-close-btn" onclick="closeCreateTaskModal()">✕</button>
+        </div>
+
+        <div class="create-task-modal-body">
+            <div class="create-task-field">
+                <label>Project</label>
+                <select id="createTaskProjectId" class="create-task-select">
+                </select>
+            </div>
+
+            <div class="create-task-field">
+                <input type="text" id="createTaskTitle" class="create-task-input-title" placeholder="Task name">
+            </div>
+
+            <div class="create-task-field">
+                <textarea id="createTaskDescription" class="create-task-textarea" placeholder="Description"></textarea>
+            </div>
+
+            <div class="create-task-fields-row">
+                <div class="create-task-field">
+                    <label>Status</label>
+                    <select id="createTaskStatus" class="create-task-select">
+                        <option value="todo">To Do</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="done">Done</option>
+                    </select>
+                </div>
+
+                <div class="create-task-field">
+                    <label>Priority</label>
+                    <select id="createTaskPriority" class="create-task-select">
+                        <option value="low">Low</option>
+                        <option value="normal">Normal</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="create-task-fields-row">
+                <div class="create-task-field">
+                    <label>Assignee</label>
+                    <select id="createTaskAssignee" class="create-task-select">
+                        <option value="">Unassigned</option>
+                    </select>
+                </div>
+
+                <div class="create-task-field">
+                    <label>Due date</label>
+                    <input type="date" id="createTaskDueDate" class="create-task-select">
+                </div>
+            </div>
+
+            <div class="create-task-fields-row create-task-readonly-row">
+                <div class="create-task-field">
+                    <label>Created at</label>
+                    <span class="create-task-readonly">—</span>
+                </div>
+                <div class="create-task-field">
+                    <label>Updated at</label>
+                    <span class="create-task-readonly">—</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="create-task-modal-footer">
+            <button class="create-task-cancel-btn" onclick="closeCreateTaskModal()">Cancel</button>
+            <button class="create-task-save-btn" onclick="submitCreateTask()">Create task</button>
+        </div>
+    </div>
+</div>
+
+
 
 <!--JS-->
 <script src="{% static 'tasks/js/main.js' %}"></script>
@@ -548,6 +625,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 </div>
+
 
 </body>
 </html>

@@ -545,6 +545,30 @@ def get_project_tasks(request, project_id):
     'assignee': t.assignee.username if t.assignee else None,
     'created_at': t.created_at.strftime('%d.%m.%Y'),
     'updated_at': t.updated_at.strftime('%d.%m.%Y'),
+    'due_date': t.due_date.strftime('%d.%m.%Y') if t.due_date else None,
     'priority': getattr(t, 'priority', None),
     } for t in tasks]
     return JsonResponse(data, safe=False)
+
+
+@login_required
+def create_task(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        task = Task.objects.create(
+            title=data['title'],
+            description=data.get('description', ''),
+            status=data.get('status', 'todo'),
+            priority=data.get('priority', 'normal'),
+            project_id=data['project_id'],
+            owner=request.user,
+            due_date=data.get('due_date') or None,
+            assignee_id=data.get('assignee_id') or None,
+        )
+        return JsonResponse({'success': True, 'task_id': task.id})
+    return JsonResponse({'success': False})
+
+@login_required
+def list_users(request):
+    users = User.objects.all().values('id', 'username')
+    return JsonResponse(list(users), safe=False)

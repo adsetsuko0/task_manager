@@ -13,7 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 document.getElementById('nav-home').addEventListener('click', () => {
+    localStorage.removeItem('appState');
     document.querySelector('.content').innerHTML = homeContent;
+
     updatePageTitle('Home');
 
     // переинициализируем view кнопки
@@ -84,6 +86,38 @@ viewButtons.forEach(btn => {
         localStorage.setItem('selectedView', view);
     });
 });
+
+
+
+// сохраняем состояние при открытии страниц
+function saveAppState(type, id) {
+    localStorage.setItem('appState', JSON.stringify({ type, id }));
+}
+
+// восстанавливаем состояние при загрузке
+function restoreAppState() {
+    const state = JSON.parse(localStorage.getItem('appState'));
+    if (!state) return;
+
+    if (state.type === 'project') {
+        const projectEl = document.querySelector(`.project-item[data-project-id="${state.id}"]`);
+        if (projectEl) {
+            projectEl.classList.add('active');
+            renderProjectPage(projectEl);
+        }
+    } else if (state.type === 'group') {
+        const groupEl = document.querySelector(`.spaces-group[data-group-id="${state.id}"]`);
+        if (groupEl) {
+            const projects = groupEl.querySelector('.projects');
+            if (projects) {
+                projects.style.display = 'block';
+                projects.classList.add('open');
+            }
+            renderGroupPage(groupEl);
+        }
+    }
+}
+
 
 
 
@@ -937,6 +971,8 @@ function loadProjects() {
             projects.forEach(project => {
                 renderProject(project);
             });
+            restoreAppState();
+
         })
         .catch(err => {
             console.error('Error loading projects', err);
@@ -1007,13 +1043,43 @@ function submitRenameProject() {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            // Обновляем имя на странице
+            // сайдбар
             const projectEl = document.querySelector(`.project-item[data-project-id="${projectId}"]`);
-            if (projectEl) {
-                projectEl.querySelector('.project-name').textContent = newName;
+            if (projectEl) projectEl.querySelector('.project-name').textContent = newName;
+
+            // карточки #recent
+            const recentCard = document.querySelector(`#recent .card[data-project-id="${projectId}"] .card-title`);
+            if (recentCard) {
+                const icon = recentCard.querySelector('.title-icon');
+                const dot = recentCard.querySelector('.project-group-dot');
+                const iconHtml = icon ? icon.outerHTML : '';
+                const dotHtml = dot ? dot.outerHTML : '';
+                recentCard.innerHTML = `${iconHtml} ${newName} ${dotHtml}`;
             }
-            // Закрываем модалку
+
+            // карточки #fav
+            const favCard = document.querySelector(`#fav .card[data-project-id="${projectId}"] .card-title`);
+            if (favCard) {
+                const icon = favCard.querySelector('.title-icon');
+                const dot = favCard.querySelector('.project-group-dot');
+                const iconHtml = icon ? icon.outerHTML : '';
+                const dotHtml = dot ? dot.outerHTML : '';
+                favCard.innerHTML = `${iconHtml} ${newName} ${dotHtml}`;
+            }
+
+            // страница проекта если открыта
+            const projectPage = document.querySelector(`.project-page[data-project-id="${projectId}"]`);
+            if (projectPage) {
+                const nameEl = projectPage.querySelector('.project-info-name');
+                if (nameEl) nameEl.textContent = newName;
+            }
+
+            // карточки группы
+            const groupCard = document.querySelector(`.group-page-project-card[data-project-id="${projectId}"] .group-page-project-name`);
+            if (groupCard) groupCard.textContent = newName;
+
             closeRenameProjectModal();
+            refreshGroupPageIfOpen();
         } else {
             alert('Ошибка: ' + data.error);
         }
@@ -1022,8 +1088,8 @@ function submitRenameProject() {
         console.error(err);
         alert('Error renaming project');
     });
-    refreshGroupPageIfOpen()
 }
+
 
 
 function toggleFavourite(button, projectId) {
@@ -1057,6 +1123,10 @@ function toggleFavourite(button, projectId) {
             if (fav) fav.textContent = data.is_favourite ? '♥︎' : '♡︎';
         }
 
+        // обновляем сердечко на странице проекта
+        const projectPageFav = document.querySelector(`#project-info-fav[data-project-id="${projectId}"]`);
+        if (projectPageFav) projectPageFav.textContent = data.is_favourite ? '♥︎' : '♡︎';
+
         // добавляем/убираем из избранного
         const favContainer = document.querySelector('#fav .cards');
         const recentCard = document.querySelector(`#recent .cards .card[data-project-id="${projectId}"]`);
@@ -1076,7 +1146,7 @@ function toggleFavourite(button, projectId) {
         }
 
         // меняем текст кнопки в дропдауне
-        const dropdown = document.getElementById('project-dropdown');
+        const dropdown =Document.getElementById('project-dropdown');
         const favBtn = dropdown.querySelector('.project-fav-btn');
         if (favBtn) {
             favBtn.textContent = data.is_favourite ? 'Remove from favourites' : 'Add to favourites';
@@ -1085,7 +1155,6 @@ function toggleFavourite(button, projectId) {
         showToast(data.is_favourite ? 'Added to favourites' : 'Removed from favourites');
     });
 }
-
 
 
 
