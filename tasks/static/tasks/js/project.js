@@ -1,7 +1,275 @@
 let currentProjectTasks = [];
 let currentTaskId = null;
 
+let selectedTaskIds = new Set();
 
+function toggleSelectTask(el, taskId) {
+    const isSelected = el.classList.contains('selected');
+    if (isSelected) {
+        el.classList.remove('selected');
+        selectedTaskIds.delete(taskId);
+    } else {
+        el.classList.add('selected');
+        selectedTaskIds.add(taskId);
+    }
+    updateSelectAll();
+    updateBulkBar();
+}
+
+function toggleSelectAll(el) {
+    const circles = document.querySelectorAll('.task-select-circle');
+    const allSelected = el.classList.contains('selected');
+    if (allSelected) {
+        el.classList.remove('selected');
+        circles.forEach(c => {
+            c.classList.remove('selected');
+            selectedTaskIds.delete(c.closest('.task-row').dataset.taskId);
+        });
+    } else {
+        el.classList.add('selected');
+        circles.forEach(c => {
+            c.classList.add('selected');
+            selectedTaskIds.add(c.closest('.task-row').dataset.taskId);
+        });
+    }
+    updateBulkBar();
+}
+
+
+function updateBulkBar() {
+    const bar = document.getElementById('task-bulk-bar');
+    const count = selectedTaskIds.size;
+    if (count > 0) {
+        bar.style.display = 'flex';
+        document.getElementById('bulk-bar-count').textContent = `${count} Task${count > 1 ? 's' : ''} selected`;
+    } else {
+        bar.style.display = 'none';
+    }
+}
+
+
+function clearSelection() {
+    selectedTaskIds.clear();
+    document.querySelectorAll('.task-select-circle.selected').forEach(c => c.classList.remove('selected'));
+    const selectAll = document.querySelector('.task-select-all');
+    if (selectAll) selectAll.classList.remove('selected');
+    updateBulkBar();
+}
+
+
+function bulkDelete() {
+    if (!confirm(`Delete ${selectedTaskIds.size} tasks?`)) return;
+    const ids = Array.from(selectedTaskIds);
+    Promise.all(ids.map(id =>
+        fetch('/tasks/delete/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+            body: JSON.stringify({ task_id: id })
+        })
+    )).then(() => {
+        ids.forEach(id => {
+            document.querySelector(`.task-row[data-task-id="${id}"]`)?.remove();
+        });
+        clearSelection();
+        showToast('Tasks deleted');
+    });
+}
+
+function bulkChangeStatus() {
+    const existing = document.getElementById('bulk-status-picker');
+    if (existing) { existing.remove(); return; }
+
+    const picker = document.createElement('div');
+    picker.id = 'bulk-status-picker';
+    picker.className = 'inline-picker';
+    picker.style.position = 'fixed';
+    picker.style.bottom = '80px';
+    picker.style.left = '50%';
+    picker.style.transform = 'translateX(-50%)';
+    picker.innerHTML = `
+        <div class="inline-picker-item" onclick="bulkSetStatus('todo')">🔵 TO DO</div>
+        <div class="inline-picker-item" onclick="bulkSetStatus('in_progress')">🟡 IN PROGRESS</div>
+        <div class="inline-picker-item" onclick="bulkSetStatus('done')">🟢 DONE</div>
+    `;
+    document.body.appendChild(picker);
+}
+
+function bulkSetStatus(status) {
+    const ids = Array.from(selectedTaskIds);
+    Promise.all(ids.map(id =>
+        fetch('/tasks/update_status/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+            body: JSON.stringify({ task_id: id, status })
+        })
+    )).then(() => {
+        ids.forEach(id => {
+            const row = document.querySelector(`.task-row[data-task-id="${id}"]`);
+            if (row) {
+                row.dataset.status = status;
+                const badge = row.querySelector('.task-status-badge');
+                const svgMap = {
+                    todo: `<circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/>`,
+                    in_progress: `<circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M7 4v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>`,
+                    done: `<circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 7l2 2 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`
+                };
+                const labelMap = { todo: 'TO DO', in_progress: 'IN PROGRESS', done: 'DONE' };
+                badge.className = `task-status-badge status-${status}`;
+                badge.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none">${svgMap[status]}</svg> ${labelMap[status]}`;
+            }
+        });
+        document.getElementById('bulk-status-picker')?.remove();
+        showToast('Status updated');
+    });
+}
+
+function bulkChangeAssignee() {
+    const existing = document.getElementById('bulk-assignee-picker');
+    if (existing) { existing.remove(); return; }
+
+    fetch('/users/list/')
+        .then(res => res.json())
+        .then(users => {
+            const picker = document.createElement('div');
+            picker.id = 'bulk-assignee-picker';
+            picker.className = 'inline-picker';
+            picker.style.position = 'fixed';
+            picker.style.bottom = '80px';
+            picker.style.left = '50%';
+            picker.style.transform = 'translateX(-50%)';
+            picker.innerHTML = `
+                <div class="inline-picker-item" onclick="bulkSetAssignee('', '—')">— Unassigned</div>
+                ${users.map(u => `
+                    <div class="inline-picker-item" onclick="bulkSetAssignee('${u.id}', '${u.username}')">👤 ${u.username}</div>
+                `).join('')}
+            `;
+            document.body.appendChild(picker);
+        });
+}
+
+function bulkSetAssignee(userId, username) {
+    const ids = Array.from(selectedTaskIds);
+    Promise.all(ids.map(id =>
+        fetch('/tasks/update_assignee/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+            body: JSON.stringify({ task_id: id, assignee_id: userId || null })
+        })
+    )).then(() => {
+        ids.forEach(id => {
+            const row = document.querySelector(`.task-row[data-task-id="${id}"]`);
+            if (row) {
+                const td = row.querySelectorAll('.task-td.task-muted')[0];
+                if (td) td.textContent = userId ? '👤 ' + username : '—';
+            }
+        });
+        document.getElementById('bulk-assignee-picker')?.remove();
+        showToast('Assignee updated');
+    });
+}
+
+function bulkMoveTo() {
+    const existing = document.getElementById('bulk-move-picker');
+    if (existing) { existing.remove(); return; }
+
+    const picker = document.createElement('div');
+    picker.id = 'bulk-move-picker';
+    picker.className = 'inline-picker';
+    picker.style.position = 'fixed';
+    picker.style.bottom = '80px';
+    picker.style.left = '50%';
+    picker.style.transform = 'translateX(-50%)';
+    picker.innerHTML = `
+        <div class="move-task-popup-title">Move to project</div>
+        ${Array.from(document.querySelectorAll('.project-item')).map(el => `
+            <div class="inline-picker-item" onclick="bulkMoveToProject('${el.dataset.projectId}')">
+                ${el.querySelector('.project-name').textContent}
+            </div>
+        `).join('')}
+    `;
+    document.body.appendChild(picker);
+}
+
+function bulkMoveToProject(projectId) {
+    const ids = Array.from(selectedTaskIds);
+    Promise.all(ids.map(id =>
+        fetch('/tasks/move/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+            body: JSON.stringify({ task_id: id, project_id: projectId })
+        })
+    )).then(() => {
+        ids.forEach(id => {
+            document.querySelector(`.task-row[data-task-id="${id}"]`)?.remove();
+        });
+        document.getElementById('bulk-move-picker')?.remove();
+        clearSelection();
+        showToast('Tasks moved');
+    });
+}
+
+function bulkChangeDates() {
+    const existing = document.getElementById('bulk-date-picker');
+    if (existing) { existing.remove(); return; }
+
+    const picker = document.createElement('div');
+    picker.id = 'bulk-date-picker';
+    picker.className = 'inline-picker';
+    picker.style.position = 'fixed';
+    picker.style.bottom = '80px';
+    picker.style.left = '50%';
+    picker.style.transform = 'translateX(-50%)';
+    picker.innerHTML = `<input type="date" class="inline-date-input">`;
+    document.body.appendChild(picker);
+
+    const input = picker.querySelector('input');
+    setTimeout(() => { input.focus(); try { input.showPicker(); } catch(e) {} }, 50);
+
+    input.addEventListener('change', () => {
+        const ids = Array.from(selectedTaskIds);
+        Promise.all(ids.map(id =>
+            fetch('/tasks/update_due_date/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                body: JSON.stringify({ task_id: id, due_date: input.value })
+            })
+        )).then(() => {
+            const [y, m, d] = input.value.split('-');
+            ids.forEach(id => {
+                const row = document.querySelector(`.task-row[data-task-id="${id}"]`);
+                if (row) {
+                    const td = row.querySelectorAll('.task-td.task-muted')[1];
+                    if (td) td.textContent = `${d}.${m}.${y}`;
+                }
+            });
+            picker.remove();
+            showToast('Dates updated');
+        });
+    });
+}
+
+window.clearSelection = clearSelection;
+window.bulkDelete = bulkDelete;
+window.bulkChangeStatus = bulkChangeStatus;
+window.bulkSetStatus = bulkSetStatus;
+window.bulkChangeAssignee = bulkChangeAssignee;
+window.bulkSetAssignee = bulkSetAssignee;
+window.bulkMoveTo = bulkMoveTo;
+window.bulkMoveToProject = bulkMoveToProject;
+window.bulkChangeDates = bulkChangeDates;
+
+
+function updateSelectAll() {
+    const circles = document.querySelectorAll('.task-select-circle');
+    const allSelected = Array.from(circles).every(c => c.classList.contains('selected'));
+    const selectAll = document.querySelector('.task-select-all');
+    if (!selectAll) return;
+    selectAll.classList.toggle('selected', allSelected);
+    selectAll.textContent = allSelected ? '●' : '○';
+}
+
+window.toggleSelectTask = toggleSelectTask;
+window.toggleSelectAll = toggleSelectAll;
 
 function renderProjectPage(projectEl) {
 
@@ -284,6 +552,7 @@ function renderProjectTasks(tasks, projectId) {
                 <img src="/static/tasks/icons/doc_light.png" class="card-icon" style="opacity:0.4">
                 <span>No tasks yet</span>
             </div>
+            <button class="tasks-add-btn" onclick="openCreateTaskModal('${projectId}')">+ Add task</button>
         `;
         return;
     }
@@ -292,6 +561,9 @@ function renderProjectTasks(tasks, projectId) {
         <table class="tasks-table">
             <thead>
                 <tr>
+                    <th class="tasks-th" style="width:32px">
+                        <span class="task-select-all" onclick="toggleSelectAll(this)"></span>
+                    </th>
                     <th class="tasks-th">Status</th>
                     <th class="tasks-th">Name</th>
                     <th class="tasks-th">Assignee</th>
@@ -303,6 +575,9 @@ function renderProjectTasks(tasks, projectId) {
             <tbody>
                 ${tasks.map(task => `
                     <tr class="task-row" data-task-id="${task.id}" data-status="${task.status}">
+                       <td class="task-td" style="width:32px">
+                        <span class="task-select-circle" onclick="toggleSelectTask(this, '${task.id}')"></span>
+                    </td>
                         <td class="task-td">
                             <span class="task-status-badge status-${task.status}" onclick="openStatusPicker(event, '${task.id}', this)">
                                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" class="task-status-icon">
@@ -343,18 +618,18 @@ function renderProjectTasks(tasks, projectId) {
                             `}
                         </td>
                         <td class="task-td task-priority-td" data-priority="${task.priority}" style="cursor:pointer" onclick="openPriorityPicker(event, this.closest('.task-row').dataset.taskId, this.closest('.task-priority-td'))">
-    ${task.priority === 'high' ? `
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="task-priority-inline">
-            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
-            <line x1="4" y1="22" x2="4" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-    ` : `
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="task-priority-inline">
-            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <line x1="4" y1="22" x2="4" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-    `}
-</td>
+                            ${task.priority === 'high' ? `
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="task-priority-inline">
+                                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                                    <line x1="4" y1="22" x2="4" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            ` : `
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="task-priority-inline">
+                                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <line x1="4" y1="22" x2="4" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            `}
+                        </td>
                         <td class="task-td">
                             <button class="project-task-menu-btn" onclick="openTaskMenu(event, '${task.id}')">⋯</button>
                         </td>
@@ -362,8 +637,11 @@ function renderProjectTasks(tasks, projectId) {
                 `).join('')}
             </tbody>
         </table>
+        <button class="tasks-add-btn" onclick="openCreateTaskModal('${projectId}')">+ Add task</button>
     `;
 }
+
+
 
 // двойной клик в сайдбаре
 document.addEventListener('DOMContentLoaded', function() {
@@ -644,31 +922,23 @@ function submitTaskDescription(textarea, taskId) {
 }
 
 function moveTaskTo() {
-    const existing = document.getElementById('move-task-popup');
-    if (existing) existing.remove();
+    document.getElementById('task-dropdown').style.display = 'none';
 
-    const popup = document.createElement('div');
-    popup.id = 'move-task-popup';
-    popup.className = 'move-task-popup';
-    popup.innerHTML = `
-        <div class="move-task-popup-title">Move to project</div>
-        ${Array.from(document.querySelectorAll('.project-item')).map(el => `
-            <div class="move-task-popup-item" onclick="submitMoveTask('${el.dataset.projectId}')">
-                ${el.querySelector('.project-name').textContent}
-            </div>
-        `).join('')}
-    `;
+    const select = document.getElementById('moveTaskProjectSelect');
+    select.innerHTML = '';
+    document.querySelectorAll('.project-item').forEach(el => {
+        const opt = document.createElement('option');
+        opt.value = el.dataset.projectId;
+        opt.textContent = el.querySelector('.project-name').textContent;
+        select.appendChild(opt);
+    });
 
-    const btn = document.querySelector(`.task-row[data-task-id="${currentTaskId}"] .project-task-menu-btn`);
-    const rect = btn?.getBoundingClientRect();
-    if (rect) {
-        popup.style.top = (rect.bottom + window.scrollY) + 'px';
-        popup.style.left = rect.left + 'px';
-    }
-    document.body.appendChild(popup);
+    document.getElementById('moveTaskModal').style.display = 'flex';
 }
 
-function submitMoveTask(projectId) {
+function confirmMoveTask() {
+    const projectId = document.getElementById('moveTaskProjectSelect').value;
+
     fetch('/tasks/move/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
@@ -679,11 +949,14 @@ function submitMoveTask(projectId) {
         if (data.success) {
             const row = document.querySelector(`.task-row[data-task-id="${currentTaskId}"]`);
             if (row) row.remove();
-            document.getElementById('move-task-popup')?.remove();
+            document.getElementById('moveTaskModal').style.display = 'none';
             showToast('Task moved');
         }
     });
 }
+
+window.confirmMoveTask = confirmMoveTask;
+window.moveTaskTo = moveTaskTo;
 
 
 function openStatusPicker(event, taskId, el) {
