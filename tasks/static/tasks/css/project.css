@@ -714,3 +714,164 @@ body.dark-theme .task-priority-inline {
 }
 
 
+.tasks-add-btn {
+    margin-top: 8px;
+    padding: 8px 16px;
+    background: none;
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    color: #aaa;
+    font-size: 14px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: all 0.15s;
+}
+
+.tasks-add-btn:hover {
+    border-color: #7c76f0;
+    color: #7c76f0;
+    background: #f5f4ff;
+}
+
+body.dark-theme .tasks-add-btn {
+    border-color: #444;
+    color: #666;
+}
+
+body.dark-theme .tasks-add-btn:hover {
+    border-color: #7c76f0;
+    color: #7c76f0;
+    background: #1a1a2e;
+}
+
+
+.task-select-circle,
+.task-select-all {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0;
+    transition: all 0.15s;
+    background: transparent;
+    box-sizing: border-box;
+}
+
+.task-select-circle:hover,
+.task-select-all:hover {
+    border-color: #7c76f0;
+}
+
+.task-select-circle.selected,
+.task-select-all.selected {
+    background: #7c76f0;
+    border-color: #7c76f0;
+    font-size: 11px;
+    color: white;
+}
+
+.task-select-circle.selected::after,
+.task-select-all.selected::after {
+    content: '✓';
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+body.dark-theme .task-select-circle,
+body.dark-theme .task-select-all {
+    border-color: #444;
+}
+
+
+.task-bulk-bar {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    z-index: 2000;
+    white-space: nowrap;
+}
+
+.bulk-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #e0e0e0;
+    font-size: 14px;
+    font-weight: 600;
+    padding-right: 16px;
+    border-right: 1px solid #333;
+}
+
+.bulk-bar-clear {
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.bulk-bar-clear:hover { color: #fff; }
+
+.bulk-bar-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.bulk-bar-btn {
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: background 0.15s;
+}
+
+.bulk-bar-btn:hover {
+    background: #2a2a2a;
+    color: #fff;
+}
+
+.bulk-bar-delete {
+    color: #ef4444;
+}
+
+.bulk-bar-delete:hover {
+    background: rgba(239,68,68,0.15);
+}
+
+.bulk-bar-divider {
+    width: 1px;
+    height: 20px;
+    background: #333;
+    margin: 0 4px;
+}
+
+.task-select-all::before,
+.task-select-circle::before {
+    display: none;
+}
+
+.tasks-th:first-child,
+.task-td:first-child {
+    background: none;
+}

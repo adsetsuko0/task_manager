@@ -656,6 +656,21 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
+<div id="task-bulk-bar" class="task-bulk-bar" style="display:none">
+    <div class="bulk-bar-left">
+        <span id="bulk-bar-count">0 Tasks selected</span>
+        <button class="bulk-bar-clear" onclick="clearSelection()">✕</button>
+    </div>
+    <div class="bulk-bar-actions">
+        <button class="bulk-bar-btn" onclick="bulkChangeStatus()">⊙ Status</button>
+        <button class="bulk-bar-btn" onclick="bulkChangeAssignee()">👤 Assignees</button>
+        <button class="bulk-bar-btn" onclick="bulkChangeDates()">📅 Dates</button>
+        <button class="bulk-bar-btn" onclick="bulkMoveTo()">➜ Move/Add</button>
+        <div class="bulk-bar-divider"></div>
+        <button class="bulk-bar-btn bulk-bar-delete" onclick="bulkDelete()">🗑</button>
+    </div>
+</div>
+
 
 </body>
 </html>
