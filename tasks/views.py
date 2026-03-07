@@ -572,3 +572,77 @@ def create_task(request):
 def list_users(request):
     users = User.objects.all().values('id', 'username')
     return JsonResponse(list(users), safe=False)
+
+
+@login_required
+def rename_task(request):
+    data = json.loads(request.body)
+    task = Task.objects.get(id=data['task_id'], project__owner=request.user)
+    task.title = data['new_name']
+    task.save()
+    return JsonResponse({'success': True})
+
+@login_required
+def delete_task(request):
+    data = json.loads(request.body)
+    task = Task.objects.get(id=data['task_id'], project__owner=request.user)
+    task.delete()
+    return JsonResponse({'success': True})
+
+@login_required
+def duplicate_task(request):
+    data = json.loads(request.body)
+    task = Task.objects.get(id=data['task_id'])
+    task.pk = None
+    task.title = task.title + ' (copy)'
+    task.save()
+    return JsonResponse({'success': True})
+
+@login_required
+def update_task_status(request):
+    data = json.loads(request.body)
+    task = Task.objects.get(id=data['task_id'])
+    task.status = data['status']
+    task.save()
+    return JsonResponse({'success': True})
+
+@login_required
+def update_task_description(request):
+    data = json.loads(request.body)
+    task = Task.objects.get(id=data['task_id'])
+    task.description = data['description']
+    task.save()
+    return JsonResponse({'success': True})
+
+@login_required
+def update_task_due_date(request):
+    data = json.loads(request.body)
+    task = Task.objects.get(id=data['task_id'])
+    task.due_date = data['due_date'] or None
+    task.save()
+    return JsonResponse({'success': True})
+
+@login_required
+def update_task_assignee(request):
+    data = json.loads(request.body)
+    task = Task.objects.get(id=data['task_id'])
+    task.assignee_id = data['assignee_id']
+    task.save()
+    return JsonResponse({'success': True})
+
+@login_required
+def move_task(request):
+    data = json.loads(request.body)
+    task = Task.objects.get(id=data['task_id'])
+    task.project_id = data['project_id']
+    task.save()
+    return JsonResponse({'success': True})
+
+
+@login_required
+def update_task_priority(request):
+    data = json.loads(request.body)
+    task = Task.objects.get(id=data['task_id'])
+    task.priority = data['priority']
+    task.save()
+    return JsonResponse({'success': True})
