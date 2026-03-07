@@ -273,6 +273,7 @@ function loadProjectTasks(projectId) {
 
 
 function renderProjectTasks(tasks, projectId) {
+    console.log('tasks from server:', tasks);
     currentProjectTasks = tasks;
     const container = document.getElementById('project-tasks-container');
     if (!container) return;
@@ -304,23 +305,23 @@ function renderProjectTasks(tasks, projectId) {
                     <tr class="task-row" data-task-id="${task.id}" data-status="${task.status}">
                         <td class="task-td">
                             <span class="task-status-badge status-${task.status}" onclick="openStatusPicker(event, '${task.id}', this)">
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" class="task-status-icon">
-                        ${task.status === 'todo' ? `
-                <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/>
-            ` : task.status === 'in_progress' ? `
-                <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/>
-                <path d="M7 4v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            ` : `
-                <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/>
-                <path d="M4.5 7l2 2 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            `}
-        </svg>
-        ${task.status === 'todo' ? 'TO DO' : task.status === 'in_progress' ? 'IN PROGRESS' : 'DONE'}
-    </span>
-</td>
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" class="task-status-icon">
+                                    ${task.status === 'todo' ? `
+                                        <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/>
+                                    ` : task.status === 'in_progress' ? `
+                                        <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/>
+                                        <path d="M7 4v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                    ` : `
+                                        <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/>
+                                        <path d="M4.5 7l2 2 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    `}
+                                </svg>
+                                ${task.status === 'todo' ? 'TO DO' : task.status === 'in_progress' ? 'IN PROGRESS' : 'DONE'}
+                            </span>
+                        </td>
                         <td class="task-td task-title-td">${task.title}</td>
-                                <td class="task-td task-muted" style="cursor:pointer" onclick="openAssigneePicker(event, '${task.id}', this)">
-                                    ${task.assignee ? '👤 ' + task.assignee : `
+                        <td class="task-td task-muted" style="cursor:pointer" onclick="openAssigneePicker(event, '${task.id}', this)">
+                            ${task.assignee ? '👤 ' + task.assignee : `
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="assignee-add-icon">
                                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                                     <circle cx="12" cy="7" r="4"/>
@@ -331,21 +332,28 @@ function renderProjectTasks(tasks, projectId) {
                         </td>
                         <td class="task-td task-muted" style="cursor:pointer" onclick="openDatePicker(event, '${task.id}', this)" data-due="${task.due_date || ''}">
                             ${task.due_date ? task.due_date : `
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="date-add-icon">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                                <line x1="16" y1="2" x2="16" y2="6"/>
-                                <line x1="8" y1="2" x2="8" y2="6"/>
-                                <line x1="3" y1="10" x2="21" y2="10"/>
-                                <line x1="12" y1="14" x2="12" y2="20"/>
-                                <line x1="9" y1="17" x2="15" y2="17"/>
-                            </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="date-add-icon">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                    <line x1="12" y1="14" x2="12" y2="20"/>
+                                    <line x1="9" y1="17" x2="15" y2="17"/>
+                                </svg>
                             `}
                         </td>
-                        <td class="task-td" onclick="openPriorityPicker(event, '${task.id}', this)" style="cursor:pointer">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="task-priority-inline">
-        <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
-        <line x1="4" y1="22" x2="4" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    </svg>
+                        <td class="task-td task-priority-td" data-priority="${task.priority}" style="cursor:pointer" onclick="openPriorityPicker(event, this.closest('.task-row').dataset.taskId, this.closest('.task-priority-td'))">
+    ${task.priority === 'high' ? `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="task-priority-inline">
+            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+            <line x1="4" y1="22" x2="4" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+    ` : `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="task-priority-inline">
+            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="4" y1="22" x2="4" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+    `}
 </td>
                         <td class="task-td">
                             <button class="project-task-menu-btn" onclick="openTaskMenu(event, '${task.id}')">⋯</button>
@@ -356,7 +364,6 @@ function renderProjectTasks(tasks, projectId) {
         </table>
     `;
 }
-
 
 // двойной клик в сайдбаре
 document.addEventListener('DOMContentLoaded', function() {
@@ -507,7 +514,8 @@ function submitCreateTask() {
 
 function openTaskMenu(event, taskId) {
     event.stopPropagation();
-    currentTaskId = taskId;
+    const row = event.target.closest('.task-row');
+    currentTaskId = row ? row.dataset.taskId : taskId;
 
     const dropdown = document.getElementById('task-dropdown');
     const rect = event.target.getBoundingClientRect();
@@ -525,11 +533,16 @@ function renameTask() {
     const row = document.querySelector(`.task-row[data-task-id="${currentTaskId}"]`);
     if (!row) return;
     const titleTd = row.querySelector('.task-title-td');
-    const oldName = titleTd.textContent;
+    const oldName = titleTd.textContent.trim();
+    const realTaskId = row.dataset.taskId;
 
-    titleTd.innerHTML = `<input class="task-inline-input" value="${oldName}" onblur="submitRenameTask(this, '${currentTaskId}')" onkeydown="if(event.key==='Enter') this.blur()">`;
+    titleTd.innerHTML = `<input class="task-inline-input" value="${oldName}" 
+        onblur="submitRenameTask(this, '${realTaskId}')" 
+        onkeydown="if(event.key==='Enter') this.blur()">`;
     titleTd.querySelector('input').focus();
 }
+
+
 
 function submitRenameTask(input, taskId) {
     const newName = input.value.trim();
@@ -552,8 +565,11 @@ function submitRenameTask(input, taskId) {
 
 function deleteTask() {
     if (!currentTaskId) return;
-    if (!confirm('Delete this task?')) return;
+    document.getElementById('deleteTaskModal').style.display = 'flex';
+    document.getElementById('task-dropdown').style.display = 'none';
+}
 
+function confirmDeleteTask() {
     fetch('/tasks/delete/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
@@ -564,10 +580,16 @@ function deleteTask() {
         if (data.success) {
             const row = document.querySelector(`.task-row[data-task-id="${currentTaskId}"]`);
             if (row) row.remove();
+            document.getElementById('deleteTaskModal').style.display = 'none';
             showToast('Task deleted');
         }
     });
 }
+
+window.confirmDeleteTask = confirmDeleteTask;
+window.deleteTask = deleteTask;
+
+
 
 function duplicateTask() {
     fetch('/tasks/duplicate/', {
@@ -830,6 +852,9 @@ document.addEventListener('click', () => {
 
 function openPriorityPicker(event, taskId, el) {
     event.stopPropagation();
+    const row = el.closest('.task-row');
+    const realTaskId = row ? row.dataset.taskId : taskId;
+
     const existing = document.getElementById('priority-picker');
     if (existing) existing.remove();
 
@@ -837,8 +862,8 @@ function openPriorityPicker(event, taskId, el) {
     picker.id = 'priority-picker';
     picker.className = 'inline-picker';
     picker.innerHTML = `
-        <div class="inline-picker-item" onclick="setTaskPriority('${taskId}', 'low', this.closest('#priority-picker'))">⚐ Low</div>
-        <div class="inline-picker-item" onclick="setTaskPriority('${taskId}', 'high', this.closest('#priority-picker'))">⚑ High</div>
+        <div class="inline-picker-item" onclick="setTaskPriority('${realTaskId}', 'low', this.closest('#priority-picker'))">⚐ Low</div>
+        <div class="inline-picker-item" onclick="setTaskPriority('${realTaskId}', 'high', this.closest('#priority-picker'))">⚑ High</div>
     `;
 
     const rect = el.getBoundingClientRect();
@@ -847,6 +872,9 @@ function openPriorityPicker(event, taskId, el) {
     picker.style.left = rect.left + 'px';
     document.body.appendChild(picker);
 }
+
+
+
 
 function setTaskPriority(taskId, priority, picker) {
     fetch('/tasks/update_priority/', {
@@ -859,15 +887,28 @@ function setTaskPriority(taskId, priority, picker) {
         if (data.success) {
             const row = document.querySelector(`.task-row[data-task-id="${taskId}"]`);
             if (row) {
-                const span = row.querySelector('.task-priority-inline');
-                span.className = `task-priority-inline priority-${priority}`;
-                span.textContent = `${priority === 'high' ? '⚑' : '⚐'}`;
+                const td = row.querySelector('.task-priority-td');
+                if (td) {
+                    td.dataset.priority = priority;
+                    td.innerHTML = priority === 'high' ? `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="task-priority-inline">
+                            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                            <line x1="4" y1="22" x2="4" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    ` : `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="task-priority-inline">
+                            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="4" y1="22" x2="4" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    `;
+                }
             }
             picker?.remove();
             showToast('Priority updated');
         }
     });
 }
+
 
 
 

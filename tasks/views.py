@@ -539,14 +539,16 @@ class TaskViewSet(viewsets.ModelViewSet):
 def get_project_tasks(request, project_id):
     tasks = Task.objects.filter(project_id=project_id)
     data = [{
-    'id': t.id,
-    'title': t.title,
-    'status': t.status,
-    'assignee': t.assignee.username if t.assignee else None,
-    'created_at': t.created_at.strftime('%d.%m.%Y'),
-    'updated_at': t.updated_at.strftime('%d.%m.%Y'),
-    'due_date': t.due_date.strftime('%d.%m.%Y') if t.due_date else None,
-    'priority': getattr(t, 'priority', None),
+        'id': t.id,
+        'title': t.title,
+        'description': t.description,
+        'status': t.status,
+        'priority': t.priority,
+        'assignee': t.assignee.username if t.assignee else None,
+        'assignee_id': t.assignee.id if t.assignee else None,
+        'created_at': t.created_at.strftime('%d.%m.%Y'),
+        'updated_at': t.updated_at.strftime('%d.%m.%Y'),
+        'due_date': t.due_date.strftime('%d.%m.%Y') if t.due_date else None,
     } for t in tasks]
     return JsonResponse(data, safe=False)
 
@@ -559,7 +561,7 @@ def create_task(request):
             title=data['title'],
             description=data.get('description', ''),
             status=data.get('status', 'todo'),
-            priority=data.get('priority', 'normal'),
+            priority=data.get('priority', 'low'),
             project_id=data['project_id'],
             owner=request.user,
             due_date=data.get('due_date') or None,
@@ -577,17 +579,22 @@ def list_users(request):
 @login_required
 def rename_task(request):
     data = json.loads(request.body)
-    task = Task.objects.get(id=data['task_id'], project__owner=request.user)
+    print(f"Renaming task {data['task_id']} to {data['new_name']}")
+    task = Task.objects.get(id=data['task_id'])
     task.title = data['new_name']
     task.save()
+    task.refresh_from_db()
+    print(f"After save: {task.title}")
     return JsonResponse({'success': True})
 
 @login_required
 def delete_task(request):
     data = json.loads(request.body)
-    task = Task.objects.get(id=data['task_id'], project__owner=request.user)
+    task = Task.objects.get(id=data['task_id'])
     task.delete()
     return JsonResponse({'success': True})
+
+
 
 @login_required
 def duplicate_task(request):
@@ -643,6 +650,10 @@ def move_task(request):
 def update_task_priority(request):
     data = json.loads(request.body)
     task = Task.objects.get(id=data['task_id'])
+    print(f"Updating task {task.id} priority from {task.priority} to {data['priority']}")
     task.priority = data['priority']
     task.save()
+    task.refresh_from_db()
+    print(f"After save: {task.priority}")
     return JsonResponse({'success': True})
+
