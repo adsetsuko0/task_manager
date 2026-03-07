@@ -46,7 +46,6 @@ class Project(models.Model):
 class Task(models.Model):
     PRIORITY_CHOICES = [
         ('low', 'Low'),
-        ('normal', 'Normal'),
         ('high', 'High'),
     ]
     
@@ -59,7 +58,7 @@ class Task(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     status = models.CharField(max_length=12, choices=STATUS_CHOICES, default='todo')
-    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='normal')  # ← новое
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='low')  # ← новое
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks')
     assignee = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='assigned_tasks', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

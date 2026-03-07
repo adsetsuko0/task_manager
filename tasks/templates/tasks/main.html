@@ -424,34 +424,32 @@
                 <div class="create-task-field">
                     <label>Status</label>
                     <select id="createTaskStatus" class="create-task-select">
-                        <option value="todo">To Do</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="done">Done</option>
+                        <option value="todo">🔵 To Do</option>
+                        <option value="in_progress">⚫ In Progress</option>
+                        <option value="done">🟢 Done</option>
                     </select>
                 </div>
 
                 <div class="create-task-field">
                     <label>Priority</label>
-                    <select id="createTaskPriority" class="create-task-select">
-                        <option value="low">Low</option>
-                        <option value="normal">Normal</option>
-                        <option value="high">High</option>
-                    </select>
-                </div>
+                        <select id="createTaskPriority" class="create-task-select">
+                            <option value="low">⚐ Low</option>
+                            <option value="high">⚑ High</option>
+                        </select>
+                    </div>
             </div>
 
             <div class="create-task-fields-row">
                 <div class="create-task-field">
                     <label>Assignee</label>
-                    <select id="createTaskAssignee" class="create-task-select">
-                        <option value="">Unassigned</option>
-                    </select>
-                </div>
-
+                <select id="createTaskAssignee" class="create-task-select">
+                        <option value="">👤 Unassigned</option>
+                </select>
+            </div>
                 <div class="create-task-field">
                     <label>Due date</label>
                     <input type="date" id="createTaskDueDate" class="create-task-select">
-                </div>
+            </div>
             </div>
 
             <div class="create-task-fields-row create-task-readonly-row">
@@ -473,6 +471,14 @@
     </div>
 </div>
 
+<div id="task-dropdown" class="task-dropdown" style="display:none">
+    <div class="task-dropdown-item" onclick="renameTask()">✎ Rename</div>
+    <div class="task-dropdown-item" onclick="duplicateTask()">⧉ Duplicate</div>
+    <div class="task-dropdown-item" onclick="changeTaskDescription()">☰ Change description</div>
+    <div class="task-dropdown-item" onclick="moveTaskTo()">➜ Move to</div>
+    <div class="task-dropdown-divider"></div>
+    <div class="task-dropdown-item task-dropdown-delete" onclick="deleteTask()">🗑 Delete</div>
+</div>
 
 
 <!--JS-->
