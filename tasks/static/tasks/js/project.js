@@ -424,33 +424,37 @@ function renderProjectPage(projectEl) {
     });
 
     // filter logic
-    const filterOptions = contentEl.querySelectorAll('.filter-option[data-filter]');
-    filterOptions.forEach(option => {
-        option.addEventListener('click', () => {
-            filterOptions.forEach(o => o.classList.remove('active'));
-            option.classList.add('active');
-            filterBtn.classList.add('filter-active');
+    // filter logic
+const filterOptions = contentEl.querySelectorAll('.filter-option[data-filter]');
+filterOptions.forEach(option => {
+    option.addEventListener('click', () => {
+        filterOptions.forEach(o => o.classList.remove('active'));
+        option.classList.add('active');
+        filterBtn.classList.add('filter-active');
 
-            const filter = option.dataset.filter;
-            const cards = Array.from(tasksContainer.querySelectorAll('.project-task-card'));
+        const filter = option.dataset.filter;
+        const tbody = tasksContainer.querySelector('tbody');
+        if (!tbody) return;
 
-            cards.sort((a, b) => {
-                const nameA = a.querySelector('.project-task-title')?.textContent.trim() || '';
-                const nameB = b.querySelector('.project-task-title')?.textContent.trim() || '';
-                const statusA = a.dataset.status || '';
-                const statusB = b.dataset.status || '';
+        const rows = Array.from(tbody.querySelectorAll('.task-row'));
 
-                if (filter === 'name-asc') return nameA.localeCompare(nameB);
-                if (filter === 'name-desc') return nameB.localeCompare(nameA);
-                if (filter === 'status-todo') return statusA === 'todo' ? -1 : 1;
-                if (filter === 'status-done') return statusA === 'done' ? -1 : 1;
-                return 0;
-            });
+        rows.sort((a, b) => {
+            const nameA = a.querySelector('.task-title-td')?.textContent.trim() || '';
+            const nameB = b.querySelector('.task-title-td')?.textContent.trim() || '';
+            const statusA = a.dataset.status || '';
+            const statusB = b.dataset.status || '';
 
-            cards.forEach(card => tasksContainer.appendChild(card));
-            filterDropdown.style.display = 'none';
+            if (filter === 'name-asc') return nameA.localeCompare(nameB);
+            if (filter === 'name-desc') return nameB.localeCompare(nameA);
+            if (filter === 'status-todo') return statusA === 'todo' ? -1 : 1;
+            if (filter === 'status-done') return statusA === 'done' ? -1 : 1;
+            return 0;
         });
+
+        rows.forEach(row => tbody.appendChild(row));
+        filterDropdown.style.display = 'none';
     });
+});
 
     // group by
     const groupByBtn = contentEl.querySelector('#project-groupby-btn');
@@ -494,17 +498,20 @@ function renderProjectPage(projectEl) {
 });
 
     // show done
-    let showDone = true;
-    const showDoneBtn = contentEl.querySelector('#project-showdone-btn');
-    showDoneBtn.addEventListener('click', () => {
-        showDone = !showDone;
-        showDoneBtn.classList.toggle('active', !showDone);
-        const doneCards = tasksContainer.querySelectorAll('.project-task-card[data-status="done"]');
-        doneCards.forEach(card => {
-            card.style.display = showDone ? '' : 'none';
-        });
+    let showDone = false;
+const showDoneBtn = contentEl.querySelector('#project-showdone-btn');
+showDoneBtn.addEventListener('click', () => {
+    showDone = !showDone;
+    showDoneBtn.classList.toggle('active', showDone);
+    const allRows = tasksContainer.querySelectorAll('.task-row');
+    allRows.forEach(row => {
+        if (showDone) {
+            row.style.display = row.dataset.status === 'done' ? '' : 'none';
+        } else {
+            row.style.display = '';
+        }
     });
-
+});
     // сердечко
     const favBtn = contentEl.querySelector('#project-info-fav');
     const isFav = projectEl.querySelector('.project-fav')?.textContent.includes('♥') || false;

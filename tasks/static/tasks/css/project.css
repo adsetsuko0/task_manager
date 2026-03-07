@@ -131,6 +131,12 @@ body.dark-theme .project-info-name {
     color: #7c76f0;
 }
 
+body.dark-theme .toolbar-btn.active {
+    background: #1a1a2e;
+    color: #7c76f0;
+    border-color: #7c76f0;
+}
+
 body.dark-theme .toolbar-btn {
     background: transparent;
     border-color: #444;
