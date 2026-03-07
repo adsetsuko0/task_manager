@@ -551,7 +551,7 @@ body.dark-theme .status-todo {
 
 body.dark-theme .status-in_progress {
     color: #bea54a;
-    border-color: #f1d56e;
+    border-color: #bea54a;
 }
 
 body.dark-theme .status-done {
@@ -710,7 +710,7 @@ body.dark-theme .move-task-popup-item:hover {
 }
 
 body.dark-theme .task-priority-inline {
-    color: #555;
+    color: #7d7d7d;
 }
 
 
