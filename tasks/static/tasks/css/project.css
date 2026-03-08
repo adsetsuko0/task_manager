@@ -780,7 +780,6 @@ body.dark-theme .tasks-add-btn:hover {
 .task-select-circle.selected,
 .task-select-all.selected {
     background: #7c76f0;
-    border-color: #7c76f0;
     font-size: 11px;
     color: white;
 }
@@ -1004,4 +1003,56 @@ body.dark-theme .task-group-count {
 body.dark-theme .custom-status-option {
     border-color: #333;
     color: #666;
+}
+
+
+.status-select-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border: 1px solid #444;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #2a2a2a;
+    font-size: 13px;
+    color: #ccc;
+    user-select: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.status-select-selected {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-select-options {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.status-select-opt {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #ccc;
+    transition: background 0.15s;
+}
+
+.status-select-opt:hover {
+    background: #2a2a2a;
 }
