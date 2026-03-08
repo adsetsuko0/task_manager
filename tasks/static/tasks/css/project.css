@@ -881,3 +881,124 @@ body.dark-theme .task-select-all {
 .task-td:first-child {
     background: none;
 }
+
+
+.groupby-dropdown-footer {
+    display: flex;
+    gap: 8px;
+    padding: 8px 12px;
+    border-top: 1px solid #eee;
+}
+
+.groupby-apply-btn {
+    flex: 1;
+    padding: 8px;
+    background: #7c76f0;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.groupby-apply-btn:hover { background: #6a64d8; }
+
+.groupby-reset-btn {
+    flex: 1;
+    padding: 8px;
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.groupby-reset-btn:hover { background: #f5f5f5; }
+
+.task-group-separator td {
+    padding: 6px 12px;
+    background: transparent;
+}
+
+.task-group-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #eee;
+}
+
+.task-group-count {
+    background: #eee;
+    color: #555;
+    border-radius: 10px;
+    padding: 1px 7px;
+    font-size: 11px;
+    margin-left: 6px;
+}
+
+body.dark-theme .groupby-dropdown-footer {
+    border-top-color: #333;
+}
+
+body.dark-theme .groupby-reset-btn {
+    border-color: #444;
+    color: #ccc;
+}
+
+body.dark-theme .groupby-reset-btn:hover {
+    background: #2a2a2a;
+}
+
+body.dark-theme .task-group-label {
+    color: #666;
+    border-bottom-color: #333;
+}
+
+body.dark-theme .task-group-count {
+    background: #333;
+    color: #aaa;
+}
+
+
+.custom-status-select {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.custom-status-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #888;
+    border-color: #ddd;
+    transition: all 0.15s;
+}
+
+.custom-status-option:hover {
+    border-color: #7c76f0;
+}
+
+.custom-status-option.selected {
+    border-color: currentColor;
+    background: rgba(124, 118, 240, 0.08);
+}
+
+.custom-status-option[data-value="todo"].selected { color: #888; border-color: #888; }
+.custom-status-option[data-value="in_progress"].selected { color: #e67700; border-color: #e67700; }
+.custom-status-option[data-value="done"].selected { color: #2f9e44; border-color: #2f9e44; }
+
+body.dark-theme .custom-status-option {
+    border-color: #333;
+    color: #666;
+}

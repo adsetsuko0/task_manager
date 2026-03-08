@@ -58,7 +58,14 @@ function clearSelection() {
 
 
 function bulkDelete() {
-    if (!confirm(`Delete ${selectedTaskIds.size} tasks?`)) return;
+    const count = selectedTaskIds.size;
+    document.getElementById('bulk-delete-modal-text').textContent = 
+        `Are you sure you want to delete ${count} task${count > 1 ? 's' : ''}?`;
+    document.getElementById('bulkDeleteModal').style.display = 'flex';
+    document.getElementById('task-bulk-bar').style.display = 'none';
+}
+
+function confirmBulkDelete() {
     const ids = Array.from(selectedTaskIds);
     Promise.all(ids.map(id =>
         fetch('/tasks/delete/', {
@@ -70,10 +77,22 @@ function bulkDelete() {
         ids.forEach(id => {
             document.querySelector(`.task-row[data-task-id="${id}"]`)?.remove();
         });
+        document.getElementById('bulkDeleteModal').style.display = 'none';
         clearSelection();
         showToast('Tasks deleted');
     });
 }
+
+window.confirmBulkDelete = confirmBulkDelete;
+
+
+function selectTaskStatus(el) {
+    document.querySelectorAll('.custom-status-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('createTaskStatus').value = el.dataset.value;
+}
+window.selectTaskStatus = selectTaskStatus;
+
 
 function bulkChangeStatus() {
     const existing = document.getElementById('bulk-status-picker');
@@ -87,9 +106,23 @@ function bulkChangeStatus() {
     picker.style.left = '50%';
     picker.style.transform = 'translateX(-50%)';
     picker.innerHTML = `
-        <div class="inline-picker-item" onclick="bulkSetStatus('todo')">🔵 TO DO</div>
-        <div class="inline-picker-item" onclick="bulkSetStatus('in_progress')">🟡 IN PROGRESS</div>
-        <div class="inline-picker-item" onclick="bulkSetStatus('done')">🟢 DONE</div>
+        <div class="inline-picker-item" onclick="bulkSetStatus('todo')">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="margin-right:8px;vertical-align:middle;color:#888">
+                <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/>
+            </svg>TO DO
+        </div>
+        <div class="inline-picker-item" onclick="bulkSetStatus('in_progress')">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="margin-right:8px;vertical-align:middle;color:#e67700">
+                <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M7 4v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>IN PROGRESS
+        </div>
+        <div class="inline-picker-item" onclick="bulkSetStatus('done')">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="margin-right:8px;vertical-align:middle;color:#2f9e44">
+                <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M4.5 7l2 2 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>DONE
+        </div>
     `;
     document.body.appendChild(picker);
 }
@@ -342,8 +375,8 @@ function renderProjectPage(projectEl) {
 
                 <button class="toolbar-btn" id="project-groupby-btn">⊞ Group by</button>
                     <div class="groupby-dropdown" id="project-groupby-dropdown" style="display:none">
-                    <div class="groupby-dropdown-header">Group by</div>
-                    <div class="groupby-selects">
+    <div class="groupby-dropdown-header">Group by</div>
+    <div class="groupby-selects">
         <select id="groupby-field-select" class="groupby-select">
             <option value="none">— None —</option>
             <option value="status">Status</option>
@@ -351,8 +384,10 @@ function renderProjectPage(projectEl) {
             <option value="updated_at">Updated at</option>
             <option value="priority">Priority</option>
         </select>
-        <select id="groupby-value-select" class="groupby-select" style="display:none">
-        </select>
+    </div>
+    <div class="groupby-dropdown-footer">
+        <button class="groupby-apply-btn" onclick="applyGroupBy()">Group</button>
+        <button class="groupby-reset-btn" onclick="resetGroupBy()">Reset</button>
     </div>
 </div>
 
@@ -554,15 +589,11 @@ function renderProjectTasks(tasks, projectId) {
     if (!container) return;
 
     if (tasks.length === 0) {
-        container.innerHTML = `
-            <div class="project-tasks-empty">
-                <img src="/static/tasks/icons/doc_light.png" class="card-icon" style="opacity:0.4">
-                <span>No tasks yet</span>
-            </div>
-            <button class="tasks-add-btn" onclick="openCreateTaskModal('${projectId}')">+ Add task</button>
-        `;
-        return;
-    }
+    container.innerHTML = `
+        <button class="tasks-add-btn" onclick="openCreateTaskModal('${projectId}')">+ Add task</button>
+    `;
+    return;
+}
 
     container.innerHTML = `
         <table class="tasks-table">
@@ -1189,6 +1220,80 @@ function setTaskPriority(taskId, priority, picker) {
     });
 }
 
+function applyGroupBy() {
+    const field = document.getElementById('groupby-field-select').value;
+    const tbody = document.querySelector('#project-tasks-container tbody');
+    if (!tbody || field === 'none') {
+        resetGroupBy();
+        return;
+    }
+
+    const rows = Array.from(tbody.querySelectorAll('.task-row'));
+
+    // группируем по полю
+    const groups = {};
+    rows.forEach(row => {
+        const taskId = row.dataset.taskId;
+        const task = currentProjectTasks.find(t => String(t.id) === String(taskId));
+        if (!task) return;
+        const val = task[field] || '—';
+        if (!groups[val]) groups[val] = [];
+        groups[val].push(row);
+    });
+
+    // скрываем все строки
+    rows.forEach(row => row.style.display = 'none');
+
+    // показываем только нужные с разделителями
+    tbody.innerHTML = '';
+    Object.entries(groups).forEach(([val, groupRows]) => {
+        const separator = document.createElement('tr');
+        separator.className = 'task-group-separator';
+        separator.innerHTML = `<td colspan="7" class="task-group-label">${field}: ${val} <span class="task-group-count">${groupRows.length}</span></td>`;
+        tbody.appendChild(separator);
+        groupRows.forEach(row => {
+            row.style.display = '';
+            tbody.appendChild(row);
+        });
+    });
+
+    document.getElementById('project-groupby-value').textContent = field;
+    document.getElementById('project-groupby-btn').classList.add('active');
+    document.getElementById('project-groupby-dropdown').style.display = 'none';
+}
+
+function resetGroupBy() {
+    const tbody = document.querySelector('#project-tasks-container tbody');
+    if (!tbody) return;
+
+    // убираем разделители
+    tbody.querySelectorAll('.task-group-separator').forEach(s => s.remove());
+
+    // показываем все строки
+    tbody.querySelectorAll('.task-row').forEach(row => row.style.display = '');
+
+    document.getElementById('groupby-field-select').value = 'none';
+    document.getElementById('project-groupby-value').textContent = 'None';
+    document.getElementById('project-groupby-btn').classList.remove('active');
+    document.getElementById('project-groupby-dropdown').style.display = 'none';
+}
+
+
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('#bulk-status-picker')) document.getElementById('bulk-status-picker')?.remove();
+    if (!e.target.closest('#bulk-assignee-picker')) document.getElementById('bulk-assignee-picker')?.remove();
+    if (!e.target.closest('#bulk-move-picker')) document.getElementById('bulk-move-picker')?.remove();
+    if (!e.target.closest('#bulk-date-picker')) document.getElementById('bulk-date-picker')?.remove();
+    if (!e.target.closest('#status-picker')) document.getElementById('status-picker')?.remove();
+    if (!e.target.closest('#date-picker-inline')) document.getElementById('date-picker-inline')?.remove();
+    if (!e.target.closest('#assignee-picker')) document.getElementById('assignee-picker')?.remove();
+    if (!e.target.closest('#priority-picker')) document.getElementById('priority-picker')?.remove();
+    if (!e.target.closest('#move-task-popup')) document.getElementById('move-task-popup')?.remove();
+});
+
+
+window.applyGroupBy = applyGroupBy;
+window.resetGroupBy = resetGroupBy;
 
 
 
