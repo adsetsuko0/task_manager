@@ -421,63 +421,71 @@
             </div>
 
             <div class="create-task-fields-row">
-                <div class="create-task-field">
+    <div class="create-task-field">
     <label>Status</label>
-    <div class="inline-picker" style="position:static;box-shadow:none;border:1px solid #333;border-radius:8px;">
-        <div class="inline-picker-item" onclick="pickStatus('todo', this)">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="margin-right:8px;vertical-align:middle;color:#888">
-                <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/>
-            </svg>TO DO
+    <div class="status-select-wrapper" id="statusSelectWrapper" onclick="toggleStatusDropdown(event)">
+        <div class="status-select-selected" id="statusSelectSelected">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <circle cx="7" cy="7" r="6" stroke="#888" stroke-width="1.5" stroke-dasharray="3 2"/>
+            </svg>
+            <span>TO DO</span>
         </div>
-        <div class="inline-picker-item" onclick="pickStatus('in_progress', this)">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="margin-right:8px;vertical-align:middle;color:#e67700">
-                <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/>
-                <path d="M7 4v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>IN PROGRESS
-        </div>
-        <div class="inline-picker-item" onclick="pickStatus('done', this)">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="margin-right:8px;vertical-align:middle;color:#2f9e44">
-                <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/>
-                <path d="M4.5 7l2 2 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>DONE
+        <span style="color:#888;font-size:11px">▾</span>
+        <div class="status-select-options" id="statusSelectOptions" style="display:none">
+            <div class="status-select-opt" onclick="pickStatus('todo')">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <circle cx="7" cy="7" r="6" stroke="#888" stroke-width="1.5" stroke-dasharray="3 2"/>
+                </svg>TO DO
+            </div>
+            <div class="status-select-opt" onclick="pickStatus('in_progress')">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <circle cx="7" cy="7" r="6" stroke="#e67700" stroke-width="1.5"/>
+                    <path d="M7 4v3l2 2" stroke="#e67700" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>IN PROGRESS
+            </div>
+            <div class="status-select-opt" onclick="pickStatus('done')">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <circle cx="7" cy="7" r="6" stroke="#2f9e44" stroke-width="1.5"/>
+                    <path d="M4.5 7l2 2 3-3" stroke="#2f9e44" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>DONE
+            </div>
         </div>
     </div>
     <input type="hidden" id="createTaskStatus" value="todo">
 </div>
+
+    <div class="create-task-field">
+        <label>Priority</label>
+        <select id="createTaskPriority" class="create-task-select">
+            <option value="low">⚐ Low</option>
+            <option value="high">⚑ High</option>
+        </select>
+    </div>
 </div>
 
-                <div class="create-task-field">
-                    <label>Priority</label>
-                        <select id="createTaskPriority" class="create-task-select">
-                            <option value="low">⚐ Low</option>
-                            <option value="high">⚑ High</option>
-                        </select>
-                    </div>
-            </div>
+<div class="create-task-fields-row">
+    <div class="create-task-field">
+        <label>Assignee</label>
+        <select id="createTaskAssignee" class="create-task-select">
+            <option value="">👤 Unassigned</option>
+        </select>
+    </div>
+    <div class="create-task-field">
+        <label>Due date</label>
+        <input type="date" id="createTaskDueDate" class="create-task-select">
+    </div>
+</div>
 
-            <div class="create-task-fields-row">
-                <div class="create-task-field">
-                    <label>Assignee</label>
-                <select id="createTaskAssignee" class="create-task-select">
-                        <option value="">👤 Unassigned</option>
-                </select>
-            </div>
-                <div class="create-task-field">
-                    <label>Due date</label>
-                    <input type="date" id="createTaskDueDate" class="create-task-select">
-            </div>
-            </div>
-
-            <div class="create-task-fields-row create-task-readonly-row">
-                <div class="create-task-field">
-                    <label>Created at</label>
-                    <span class="create-task-readonly">—</span>
-                </div>
-                <div class="create-task-field">
-                    <label>Updated at</label>
-                    <span class="create-task-readonly">—</span>
-                </div>
-            </div>
+<div class="create-task-fields-row">
+    <div class="create-task-field">
+        <label>Created at</label>
+        <span class="create-task-readonly">—</span>
+    </div>
+    <div class="create-task-field">
+        <label>Updated at</label>
+        <span class="create-task-readonly">—</span>
+    </div>
+</div>
         </div>
 
         <div class="create-task-modal-footer">
@@ -680,7 +688,17 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="bulk-bar-actions">
     <button class="bulk-bar-btn" onclick="bulkChangeStatus(event)">⊙ Status</button>
     <button class="bulk-bar-btn" onclick="bulkChangeAssignee(event)">👤 Assignees</button>
-    <button class="bulk-bar-btn" onclick="bulkChangeDates(event)">📅 Dates</button>
+    <button class="bulk-bar-btn" onclick="bulkChangeDates(event)">
+    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+        <line x1="12" y1="14" x2="12" y2="20"/>
+        <line x1="9" y1="17" x2="15" y2="17"/>
+    </svg>
+    Dates
+</button>
     <button class="bulk-bar-btn" onclick="bulkMoveTo(event)">➜ Move/Add</button>
     <div class="bulk-bar-divider"></div>
     <button class="bulk-bar-btn bulk-bar-delete" onclick="bulkDelete()">🗑</button>

@@ -37,8 +37,10 @@ function toggleSelectAll(el) {
 
 function toggleStatusDropdown(event) {
     event.stopPropagation();
-    const opts = document.getElementById('customStatusOptions');
+    const opts = document.getElementById('statusSelectOptions');
+    if (!opts) return;
     opts.style.display = opts.style.display === 'none' ? 'block' : 'none';
+    
 }
 
 
@@ -71,12 +73,21 @@ function bulkDelete() {
     document.getElementById('task-bulk-bar').style.display = 'none';
 }
 
-function pickStatus(value, el) {
-    document.querySelectorAll('.create-task-field .inline-picker-item').forEach(i => i.classList.remove('selected'));
-    el.classList.add('selected');
+function pickStatus(value) {
+    const svgMap = {
+        todo: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#888" stroke-width="1.5" stroke-dasharray="3 2"/></svg>`,
+        in_progress: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#bea54a" stroke-width="1.5"/><path d="M7 4v3l2 2" stroke="#bea54a" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+        done: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#2f9e44" stroke-width="1.5"/><path d="M4.5 7l2 2 3-3" stroke="#2f9e44" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+    };
+    const labelMap = { todo: 'TO DO', in_progress: 'IN PROGRESS', done: 'DONE' };
+    document.getElementById('statusSelectSelected').innerHTML = `${svgMap[value]} <span>${labelMap[value]}</span>`;
     document.getElementById('createTaskStatus').value = value;
+    document.getElementById('statusSelectOptions').style.display = 'none';
 }
+
+window.toggleStatusDropdown = toggleStatusDropdown;
 window.pickStatus = pickStatus;
+
 
 
 // закрывать при клике вне
@@ -137,7 +148,7 @@ function bulkChangeStatus(event) {
             </svg>TO DO
         </div>
         <div class="inline-picker-item" onclick="bulkSetStatus('in_progress')">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="margin-right:8px;vertical-align:middle;color:#e67700">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="margin-right:8px;vertical-align:middle;color:#bea54a">
                 <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/>
                 <path d="M7 4v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>IN PROGRESS
@@ -1353,6 +1364,8 @@ document.addEventListener('click', (e) => {
     if (!e.target.closest('#assignee-picker')) document.getElementById('assignee-picker')?.remove();
     if (!e.target.closest('#priority-picker')) document.getElementById('priority-picker')?.remove();
     if (!e.target.closest('#move-task-popup')) document.getElementById('move-task-popup')?.remove();
+    if (!e.target.closest('#statusSelectWrapper')) {document.getElementById('statusSelectOptions')?.style && (document.getElementById('statusSelectOptions').style.display = 'none');
+}
 });
 
 
