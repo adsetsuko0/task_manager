@@ -240,6 +240,10 @@ body.dark-theme .groupby-select {
     color: #e0e0e0;
 }
 
+.inline-picker-item.selected {
+    background: rgba(124, 118, 240, 0.12);
+    color: #7c76f0;
+}
 
 .create-task-modal-content {
     background: #fff;
@@ -498,8 +502,8 @@ body.dark-theme .modal-close-btn:hover {
 
 .status-in_progress {
     background: transparent;
-    color: #e67700;
-    border-color: #e67700;
+    color: #bea54a;
+    border-color: #bea54a;
 }
 
 .status-done {
@@ -784,7 +788,6 @@ body.dark-theme .tasks-add-btn:hover {
 .task-select-circle.selected::after,
 .task-select-all.selected::after {
     content: '✓';
-    color: white;
     font-size: 11px;
     font-weight: 700;
 }
@@ -995,7 +998,7 @@ body.dark-theme .task-group-count {
 }
 
 .custom-status-option[data-value="todo"].selected { color: #888; border-color: #888; }
-.custom-status-option[data-value="in_progress"].selected { color: #e67700; border-color: #e67700; }
+.custom-status-option[data-value="in_progress"].selected { color: #bea54a; border-color: #bea54a; }
 .custom-status-option[data-value="done"].selected { color: #2f9e44; border-color: #2f9e44; }
 
 body.dark-theme .custom-status-option {

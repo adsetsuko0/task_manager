@@ -35,6 +35,12 @@ function toggleSelectAll(el) {
     updateBulkBar();
 }
 
+function toggleStatusDropdown(event) {
+    event.stopPropagation();
+    const opts = document.getElementById('customStatusOptions');
+    opts.style.display = opts.style.display === 'none' ? 'block' : 'none';
+}
+
 
 function updateBulkBar() {
     const bar = document.getElementById('task-bulk-bar');
@@ -65,6 +71,25 @@ function bulkDelete() {
     document.getElementById('task-bulk-bar').style.display = 'none';
 }
 
+function pickStatus(value, el) {
+    document.querySelectorAll('.create-task-field .inline-picker-item').forEach(i => i.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('createTaskStatus').value = value;
+}
+window.pickStatus = pickStatus;
+
+
+// закрывать при клике вне
+document.addEventListener('click', () => {
+    const opts = document.getElementById('customStatusOptions');
+    if (opts) opts.style.display = 'none';
+});
+
+window.toggleStatusDropdown = toggleStatusDropdown;
+window.pickStatus = pickStatus;
+
+
+
 function confirmBulkDelete() {
     const ids = Array.from(selectedTaskIds);
     Promise.all(ids.map(id =>
@@ -94,17 +119,17 @@ function selectTaskStatus(el) {
 window.selectTaskStatus = selectTaskStatus;
 
 
-function bulkChangeStatus() {
+function bulkChangeStatus(event) {
+    event.stopPropagation();
+    console.log('bulkChangeStatus called', event);
+
     const existing = document.getElementById('bulk-status-picker');
     if (existing) { existing.remove(); return; }
 
+    const btn = document.querySelector('.bulk-bar-btn');
     const picker = document.createElement('div');
     picker.id = 'bulk-status-picker';
     picker.className = 'inline-picker';
-    picker.style.position = 'fixed';
-    picker.style.bottom = '80px';
-    picker.style.left = '50%';
-    picker.style.transform = 'translateX(-50%)';
     picker.innerHTML = `
         <div class="inline-picker-item" onclick="bulkSetStatus('todo')">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="margin-right:8px;vertical-align:middle;color:#888">
@@ -124,8 +149,116 @@ function bulkChangeStatus() {
             </svg>DONE
         </div>
     `;
-    document.body.appendChild(picker);
+    console.log('picker created', picker);
+    positionBulkPicker(picker, event);
+    console.log('picker in DOM?', document.getElementById('bulk-status-picker'));
 }
+
+function bulkChangeAssignee(event) {
+    event.stopPropagation();
+    const existing = document.getElementById('bulk-assignee-picker');
+    if (existing) { existing.remove(); return; }
+
+    fetch('/users/list/')
+        .then(res => res.json())
+        .then(users => {
+            const picker = document.createElement('div');
+            picker.id = 'bulk-assignee-picker';
+            picker.className = 'inline-picker';
+            picker.innerHTML = `
+                <div class="inline-picker-item" onclick="bulkSetAssignee('', '—')">— Unassigned</div>
+                ${users.map(u => `
+                    <div class="inline-picker-item" onclick="bulkSetAssignee('${u.id}', '${u.username}')">👤 ${u.username}</div>
+                `).join('')}
+            `;
+            positionBulkPicker(picker, event);
+        });
+}
+
+function bulkChangeDates(event) {
+    event.stopPropagation();
+    const existing = document.getElementById('bulk-date-picker');
+    if (existing) { existing.remove(); return; }
+
+    const picker = document.createElement('div');
+    picker.id = 'bulk-date-picker';
+    picker.className = 'inline-picker';
+    picker.innerHTML = `<input type="date" class="inline-date-input">`;
+    positionBulkPicker(picker, event);
+
+    const input = picker.querySelector('input');
+    setTimeout(() => { input.focus(); try { input.showPicker(); } catch(e) {} }, 50);
+
+    input.addEventListener('change', () => {
+        const ids = Array.from(selectedTaskIds);
+        Promise.all(ids.map(id =>
+            fetch('/tasks/update_due_date/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                body: JSON.stringify({ task_id: id, due_date: input.value })
+            })
+        )).then(() => {
+            const [y, m, d] = input.value.split('-');
+            ids.forEach(id => {
+                const row = document.querySelector(`.task-row[data-task-id="${id}"]`);
+                if (row) {
+                    const td = row.querySelectorAll('.task-td.task-muted')[1];
+                    if (td) td.textContent = `${d}.${m}.${y}`;
+                }
+            });
+            picker.remove();
+            showToast('Dates updated');
+        });
+    });
+}
+
+function bulkMoveTo(event) {
+    event.stopPropagation();
+    console.log('bulkMoveTo called', event);
+    const existing = document.getElementById('bulk-move-picker');
+    if (existing) { existing.remove(); return; }
+
+    const picker = document.createElement('div');
+    picker.id = 'bulk-move-picker';
+    picker.className = 'inline-picker';
+    picker.innerHTML = `
+        <div class="move-task-popup-title">Move to project</div>
+        ${Array.from(document.querySelectorAll('.project-item')).map(el => `
+            <div class="inline-picker-item" onclick="bulkMoveToProject('${el.dataset.projectId}')">
+                ${el.querySelector('.project-name').textContent}
+            </div>
+        `).join('')}
+    `;
+    positionBulkPicker(picker, event);
+}
+
+function positionBulkPicker(picker, e) {
+    console.log('positionBulkPicker called', event);
+    picker.style.position = 'fixed';
+    picker.style.visibility = 'hidden';
+
+    document.body.appendChild(picker);
+
+    const pickerHeight = picker.offsetHeight || 150;
+    const pickerWidth = picker.offsetWidth || 160;
+
+    const bar = document.getElementById('task-bulk-bar');
+    const barRect = bar.getBoundingClientRect();
+
+    let top = barRect.top - pickerHeight - 8;
+    let left = e?.clientX ? e.clientX - pickerWidth / 2 : barRect.left + barRect.width / 2 - pickerWidth / 2;
+
+    if (left < 8) left = 8;
+    if (left + pickerWidth > window.innerWidth - 8) left = window.innerWidth - pickerWidth - 8;
+    if (top < 8) top = barRect.bottom + 8;
+
+    picker.style.top = top + 'px';
+    picker.style.left = left + 'px';
+    picker.style.visibility = 'visible';
+}
+
+
+
 
 function bulkSetStatus(status) {
     const ids = Array.from(selectedTaskIds);
@@ -156,29 +289,7 @@ function bulkSetStatus(status) {
     });
 }
 
-function bulkChangeAssignee() {
-    const existing = document.getElementById('bulk-assignee-picker');
-    if (existing) { existing.remove(); return; }
 
-    fetch('/users/list/')
-        .then(res => res.json())
-        .then(users => {
-            const picker = document.createElement('div');
-            picker.id = 'bulk-assignee-picker';
-            picker.className = 'inline-picker';
-            picker.style.position = 'fixed';
-            picker.style.bottom = '80px';
-            picker.style.left = '50%';
-            picker.style.transform = 'translateX(-50%)';
-            picker.innerHTML = `
-                <div class="inline-picker-item" onclick="bulkSetAssignee('', '—')">— Unassigned</div>
-                ${users.map(u => `
-                    <div class="inline-picker-item" onclick="bulkSetAssignee('${u.id}', '${u.username}')">👤 ${u.username}</div>
-                `).join('')}
-            `;
-            document.body.appendChild(picker);
-        });
-}
 
 function bulkSetAssignee(userId, username) {
     const ids = Array.from(selectedTaskIds);
@@ -201,27 +312,6 @@ function bulkSetAssignee(userId, username) {
     });
 }
 
-function bulkMoveTo() {
-    const existing = document.getElementById('bulk-move-picker');
-    if (existing) { existing.remove(); return; }
-
-    const picker = document.createElement('div');
-    picker.id = 'bulk-move-picker';
-    picker.className = 'inline-picker';
-    picker.style.position = 'fixed';
-    picker.style.bottom = '80px';
-    picker.style.left = '50%';
-    picker.style.transform = 'translateX(-50%)';
-    picker.innerHTML = `
-        <div class="move-task-popup-title">Move to project</div>
-        ${Array.from(document.querySelectorAll('.project-item')).map(el => `
-            <div class="inline-picker-item" onclick="bulkMoveToProject('${el.dataset.projectId}')">
-                ${el.querySelector('.project-name').textContent}
-            </div>
-        `).join('')}
-    `;
-    document.body.appendChild(picker);
-}
 
 function bulkMoveToProject(projectId) {
     const ids = Array.from(selectedTaskIds);
@@ -241,45 +331,7 @@ function bulkMoveToProject(projectId) {
     });
 }
 
-function bulkChangeDates() {
-    const existing = document.getElementById('bulk-date-picker');
-    if (existing) { existing.remove(); return; }
 
-    const picker = document.createElement('div');
-    picker.id = 'bulk-date-picker';
-    picker.className = 'inline-picker';
-    picker.style.position = 'fixed';
-    picker.style.bottom = '80px';
-    picker.style.left = '50%';
-    picker.style.transform = 'translateX(-50%)';
-    picker.innerHTML = `<input type="date" class="inline-date-input">`;
-    document.body.appendChild(picker);
-
-    const input = picker.querySelector('input');
-    setTimeout(() => { input.focus(); try { input.showPicker(); } catch(e) {} }, 50);
-
-    input.addEventListener('change', () => {
-        const ids = Array.from(selectedTaskIds);
-        Promise.all(ids.map(id =>
-            fetch('/tasks/update_due_date/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
-                body: JSON.stringify({ task_id: id, due_date: input.value })
-            })
-        )).then(() => {
-            const [y, m, d] = input.value.split('-');
-            ids.forEach(id => {
-                const row = document.querySelector(`.task-row[data-task-id="${id}"]`);
-                if (row) {
-                    const td = row.querySelectorAll('.task-td.task-muted')[1];
-                    if (td) td.textContent = `${d}.${m}.${y}`;
-                }
-            });
-            picker.remove();
-            showToast('Dates updated');
-        });
-    });
-}
 
 window.clearSelection = clearSelection;
 window.bulkDelete = bulkDelete;
@@ -835,9 +887,21 @@ function openTaskMenu(event, taskId) {
 
     const dropdown = document.getElementById('task-dropdown');
     const rect = event.target.getBoundingClientRect();
+    
     dropdown.style.display = 'block';
-    dropdown.style.top = (rect.bottom + window.scrollY) + 'px';
-    dropdown.style.left = rect.left + 'px';
+    dropdown.style.position = 'fixed';
+    
+    const dropdownWidth = 180;
+    const dropdownHeight = 180;
+    
+    let top = rect.bottom + 4;
+    let left = rect.left;
+    
+    if (left + dropdownWidth > window.innerWidth) left = window.innerWidth - dropdownWidth - 8;
+    if (top + dropdownHeight > window.innerHeight) top = rect.top - dropdownHeight - 4;
+    
+    dropdown.style.top = top + 'px';
+    dropdown.style.left = left + 'px';
 }
 
 document.addEventListener('click', () => {
