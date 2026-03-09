@@ -192,6 +192,7 @@ body.dark-theme .toolbar-btn:hover {
     gap: 8px;
     padding: 8px 12px;
     border-top: 1px solid #333;
+    margin-top: 10px;
 }
 
 .groupby-apply-btn,
@@ -1244,4 +1245,8 @@ body:not(.dark-theme) .groupby-reset-btn {
 
 body:not(.dark-theme) .groupby-reset-btn:hover {
     background: #f0f0f0;
+}
+
+#project-showdone-btn svg {
+    margin-right: 0px;
 }
