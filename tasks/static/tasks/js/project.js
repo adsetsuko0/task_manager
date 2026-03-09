@@ -385,27 +385,6 @@ function renderProjectPage(projectEl) {
     contentEl.innerHTML = `
         <div class="project-page" data-project-id="${projectId}">
 
-            <div class="view-switch project-view-switch">
-      
-            <button class="view-btn active" data-view="board">
-                    <svg class="view-icon" viewBox="0 0 24 24">
-                        <rect x="4" y="4" width="7" height="7"/>
-                        <rect x="13" y="4" width="7" height="7"/>
-                        <rect x="4" y="13" width="7" height="7"/>
-                        <rect x="13" y="13" width="7" height="7"/>
-                    </svg>
-                    <span>Board</span>
-                </button>
-                <button class="view-btn" data-view="list">
-                    <svg class="view-icon" viewBox="0 0 24 24">
-                        <rect x="4" y="5" width="16" height="2"/>
-                        <rect x="4" y="11" width="16" height="2"/>
-                        <rect x="4" y="17" width="16" height="2"/>
-                    </svg>
-                    <span>List</span>
-                </button>
-            </div>
-
             <div class="divider"></div>
 
             <div class="project-toolbar">

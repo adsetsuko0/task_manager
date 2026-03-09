@@ -1321,56 +1321,61 @@ function renderSearchSuggestions(results) {
     results.forEach(item => {
         const div = document.createElement('div');
         div.className = 'search-suggestion-item';
-        div.textContent = item.name + ` (${item.type})`; // type: project/group/task
+
+        const typeIcon = item.type === 'project' 
+            ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`
+            : item.type === 'group'
+            ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5"><path d="M3 7h18M3 12h18M3 17h18"/></svg>`
+            : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+
+        const namePart = `<span class="suggestion-name">${item.name}</span>`;
+        const groupPart = item.group ? `<span class="suggestion-dot">•</span><span class="suggestion-group">${item.group}</span>` : '';
+
+        div.innerHTML = `
+            <span class="suggestion-icon">${typeIcon}</span>
+            <span class="suggestion-text">${namePart}${groupPart}</span>
+            <span class="suggestion-type">${item.type}</span>
+        `;
+
         div.addEventListener('click', () => {
             searchInput.value = item.name;
             suggestionsBox.style.display = 'none';
-            // Дополнительно: можешь добавить переход к элементу
             highlightItem(item);
         });
         suggestionsBox.appendChild(div);
     });
 
-    if (results.length) {
-            // 🔹 растягиваем подсказки по ширине input
-            const rect = searchInput.getBoundingClientRect();
-            suggestionsBox.style.width = rect.width + 'px';
-            suggestionsBox.style.top = (rect.bottom + window.scrollY) + 'px';
-            suggestionsBox.style.left = rect.left + 'px';
-            suggestionsBox.style.display = 'block';
-        } else {
-            suggestionsBox.style.display = 'none';
-        }
-
+    const rect = searchInput.getBoundingClientRect();
+    suggestionsBox.style.width = rect.width + 'px';
+    suggestionsBox.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+    suggestionsBox.style.left = rect.left + 'px';
     suggestionsBox.style.display = 'block';
 }
 
+
+
 // пример подсветки выбранного элемента
 function highlightItem(item) {
-    // project: {id: ..., type: 'project'}
-    if(item.type === 'project') {
+    if (item.type === 'project') {
         const el = document.querySelector(`.project-item[data-project-id="${item.id}"]`);
-        if(el) {
-            el.scrollIntoView({behavior: 'smooth', block: 'center'});
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
             el.classList.add('highlight');
             setTimeout(() => el.classList.remove('highlight'), 2000);
+            renderProjectPage(el);
         }
     }
 
-    if(item.type === 'group') {
+    if (item.type === 'group') {
         const el = document.querySelector(`.spaces-group[data-group-id="${item.id}"]`);
-        if(el) {
-            el.scrollIntoView({behavior: 'smooth', block: 'center'});
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
             el.classList.add('highlight');
             setTimeout(() => el.classList.remove('highlight'), 2000);
+            renderGroupPage(el);
         }
     }
 }
-document.addEventListener('click', (e) => {
-    if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
-        suggestionsBox.style.display = 'none';
-    }
-});
 
 
 
