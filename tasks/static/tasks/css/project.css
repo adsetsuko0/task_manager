@@ -199,6 +199,38 @@ body.dark-theme .toolbar-btn:hover {
     flex: 1;
 }
 
+.project-info-groupby-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #888;
+    background: #2a2a2a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-weight: 500;
+}
+
+#project-groupby-value {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #7c76f0;
+    font-size: 11px;
+}
+
+body:not(.dark-theme) .project-info-groupby-label {
+    background: #f5f5f5;
+    border-color: #e0e0e0;
+    color: #555;
+}
+
+.project-info-subtitle {
+    margin-top: 5px;
+    margin-bottom: -5px;
+}
+
 .groupby-dropdown {
     position: absolute;
     top: 36px;
