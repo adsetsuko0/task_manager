@@ -120,7 +120,6 @@ function renderGroupPage(groupEl) {
             <div class="group-info-body" id="group-info-body">
                 <div class="group-page-projects board-view">
                     ${projectItems.length === 0 ? `
-                        <div class="group-page-empty">No projects yet</div>
                     ` : Array.from(projectItems).map(item => {
                         const name = item.querySelector('.project-name')?.textContent || '';
                         const projectId = item.dataset.projectId;
