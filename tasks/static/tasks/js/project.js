@@ -455,8 +455,13 @@ function renderProjectPage(projectEl) {
     </div>
 </div>
 
-                <button class="toolbar-btn" id="project-showdone-btn">✓ Show done</button>
-            </div>
+<button class="toolbar-btn" id="project-showdone-btn">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="vertical-align:middle;margin-right:2px">
+        <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M4.5 7l2 2 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Show done
+</button>           </div>
 
             <div class="project-info-card">
                 <div class="project-info-top">
