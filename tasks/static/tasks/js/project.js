@@ -1454,6 +1454,10 @@ function taskRowHTML(task, projectId) {
 
 
 document.addEventListener('click', (e) => {
+    if (!e.target.closest('#project-groupby-dropdown') && !e.target.closest('#project-groupby-btn')) {
+    const dd = document.getElementById('project-groupby-dropdown');
+    if (dd) dd.style.display = 'none';
+}
     if (!e.target.closest('#bulk-status-picker')) document.getElementById('bulk-status-picker')?.remove();
     if (!e.target.closest('#bulk-assignee-picker')) document.getElementById('bulk-assignee-picker')?.remove();
     if (!e.target.closest('#bulk-move-picker')) document.getElementById('bulk-move-picker')?.remove();
