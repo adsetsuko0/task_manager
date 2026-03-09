@@ -386,7 +386,8 @@ function renderProjectPage(projectEl) {
         <div class="project-page" data-project-id="${projectId}">
 
             <div class="view-switch project-view-switch">
-                <button class="view-btn active" data-view="board">
+      
+            <button class="view-btn active" data-view="board">
                     <svg class="view-icon" viewBox="0 0 24 24">
                         <rect x="4" y="4" width="7" height="7"/>
                         <rect x="13" y="4" width="7" height="7"/>
@@ -443,10 +444,10 @@ function renderProjectPage(projectEl) {
         <select id="groupby-field-select" class="groupby-select">
             <option value="none">— None —</option>
             <option value="status">Status</option>
-            <option value="created_at">Created at</option>
-            <option value="updated_at">Updated at</option>
             <option value="priority">Priority</option>
+            <option value="assignee">Assignee</option>
         </select>
+        <div id="groupby-value-select" class="groupby-select groupby-value-custom" style="display:none"></div>
     </div>
     <div class="groupby-dropdown-footer">
         <button class="groupby-apply-btn" onclick="applyGroupBy()">Group</button>
@@ -540,7 +541,6 @@ filterOptions.forEach(option => {
             const nameA = a.querySelector('.task-title-td')?.textContent.trim() || '';
             const nameB = b.querySelector('.task-title-td')?.textContent.trim() || '';
             const statusA = a.dataset.status || '';
-            const statusB = b.dataset.status || '';
 
             if (filter === 'name-asc') return nameA.localeCompare(nameB);
             if (filter === 'name-desc') return nameB.localeCompare(nameA);
@@ -567,30 +567,65 @@ filterOptions.forEach(option => {
 
     groupByFieldSelect.addEventListener('change', () => {
     const field = groupByFieldSelect.value;
+    const valueSelect = document.getElementById('groupby-value-select');
 
     if (field === 'none') {
-        groupByValueSelect.style.display = 'none';
-        groupByBtn.classList.remove('active');
-        document.getElementById('project-groupby-value').textContent = 'None';
+        valueSelect.style.display = 'none';
         return;
     }
 
-    // собираем уникальные значения из задач
-    let values = [];
     if (field === 'status') {
-        values = [...new Set(currentProjectTasks.map(t => t.status))];
-    } else if (field === 'created_at') {
-        values = [...new Set(currentProjectTasks.map(t => t.created_at))];
-    } else if (field === 'updated_at') {
-        values = [...new Set(currentProjectTasks.map(t => t.updated_at))];
+        const opts = [
+            { value: 'todo', svg: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#888" stroke-width="1.5" stroke-dasharray="3 2"/></svg>`, label: 'TO DO' },
+            { value: 'in_progress', svg: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#bea54a" stroke-width="1.5"/><path d="M7 4v3l2 2" stroke="#bea54a" stroke-width="1.5" stroke-linecap="round"/></svg>`, label: 'IN PROGRESS' },
+            { value: 'done', svg: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#2f9e44" stroke-width="1.5"/><path d="M4.5 7l2 2 3-3" stroke="#2f9e44" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`, label: 'DONE' },
+        ];
+        valueSelect.innerHTML = `
+            <div class="groupby-custom-selected" onclick="toggleGroupByValueDropdown(event)">
+                <span id="groupby-custom-label">— All —</span>
+                <span style="color:#888;font-size:11px">▾</span>
+            </div>
+            <div class="groupby-custom-options" id="groupby-custom-options" style="display:none">
+                <div class="groupby-custom-opt" data-value="__all__" onclick="selectGroupByValue('__all__', '— All —', null)">— All —</div>
+                ${opts.map(o => `
+                    <div class="groupby-custom-opt" data-value="${o.value}" onclick="selectGroupByValue('${o.value}', '${o.label}', this)">
+                        ${o.svg} ${o.label}
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        valueSelect.dataset.value = '__all__';
     } else if (field === 'priority') {
-        values = [...new Set(currentProjectTasks.map(t => t.priority).filter(Boolean))];
+        valueSelect.innerHTML = `
+            <div class="groupby-custom-selected" onclick="toggleGroupByValueDropdown(event)">
+                <span id="groupby-custom-label">— All —</span>
+                <span style="color:#888;font-size:11px">▾</span>
+            </div>
+            <div class="groupby-custom-options" id="groupby-custom-options" style="display:none">
+                <div class="groupby-custom-opt" data-value="__all__" onclick="selectGroupByValue('__all__', '— All —', null)">— All —</div>
+                <div class="groupby-custom-opt" data-value="low" onclick="selectGroupByValue('low', 'Low', this)">⚐ Low</div>
+                <div class="groupby-custom-opt" data-value="high" onclick="selectGroupByValue('high', 'High', this)">⚑ High</div>
+            </div>
+        `;
+        valueSelect.dataset.value = '__all__';
+    } else if (field === 'assignee') {
+        const values = [...new Set(currentProjectTasks.map(t => t.assignee).filter(Boolean))];
+        valueSelect.innerHTML = `
+            <div class="groupby-custom-selected" onclick="toggleGroupByValueDropdown(event)">
+                <span id="groupby-custom-label">— All —</span>
+                <span style="color:#888;font-size:11px">▾</span>
+            </div>
+            <div class="groupby-custom-options" id="groupby-custom-options" style="display:none">
+                <div class="groupby-custom-opt" data-value="__all__" onclick="selectGroupByValue('__all__', '— All —', null)">— All —</div>
+                ${values.map(v => `
+                    <div class="groupby-custom-opt" data-value="${v}" onclick="selectGroupByValue('${v}', '${v}', this)">👤 ${v}</div>
+                `).join('')}
+            </div>
+        `;
+        valueSelect.dataset.value = '__all__';
     }
 
-    // заполняем второй select
-    groupByValueSelect.innerHTML = values.map(v => `<option value="${v}">${v}</option>`).join('');
-    groupByValueSelect.style.display = values.length > 0 ? 'block' : 'none';
-
+    valueSelect.style.display = 'block';
     groupByBtn.classList.add('active');
     document.getElementById('project-groupby-value').textContent = field;
 });
@@ -631,6 +666,22 @@ showDoneBtn.addEventListener('click', () => {
     });
 }
 
+
+
+function toggleGroupByValueDropdown(event) {
+    event.stopPropagation();
+    const opts = document.getElementById('groupby-custom-options');
+    if (opts) opts.style.display = opts.style.display === 'none' ? 'block' : 'none';
+}
+
+function selectGroupByValue(value, label, el) {
+    document.getElementById('groupby-custom-label').textContent = label;
+    document.getElementById('groupby-value-select').dataset.value = value;
+    document.getElementById('groupby-custom-options').style.display = 'none';
+}
+
+window.toggleGroupByValueDropdown = toggleGroupByValueDropdown;
+window.selectGroupByValue = selectGroupByValue;
 
 
 
@@ -1297,61 +1348,109 @@ function setTaskPriority(taskId, priority, picker) {
 
 function applyGroupBy() {
     const field = document.getElementById('groupby-field-select').value;
+    const valueEl = document.getElementById('groupby-value-select');
+    const filterValue = valueEl?.dataset?.value || '__all__';
     const tbody = document.querySelector('#project-tasks-container tbody');
+
     if (!tbody || field === 'none') {
         resetGroupBy();
         return;
     }
 
-    const rows = Array.from(tbody.querySelectorAll('.task-row'));
+    // всегда берём из currentProjectTasks — не из DOM
+    const filteredTasks = currentProjectTasks.filter(task => {
+        if (filterValue === '__all__') return true;
+        const taskVal = task[field] || '—';
+        return taskVal === filterValue;
+    });
 
-    // группируем по полю
+    // группируем
     const groups = {};
-    rows.forEach(row => {
-        const taskId = row.dataset.taskId;
-        const task = currentProjectTasks.find(t => String(t.id) === String(taskId));
-        if (!task) return;
+    filteredTasks.forEach(task => {
         const val = task[field] || '—';
         if (!groups[val]) groups[val] = [];
-        groups[val].push(row);
+        groups[val].push(task);
     });
 
-    // скрываем все строки
-    rows.forEach(row => row.style.display = 'none');
-
-    // показываем только нужные с разделителями
+    // перерисовываем tbody
+    const projectId = document.querySelector('.project-page')?.dataset.projectId;
     tbody.innerHTML = '';
-    Object.entries(groups).forEach(([val, groupRows]) => {
-        const separator = document.createElement('tr');
-        separator.className = 'task-group-separator';
-        separator.innerHTML = `<td colspan="7" class="task-group-label">${field}: ${val} <span class="task-group-count">${groupRows.length}</span></td>`;
-        tbody.appendChild(separator);
-        groupRows.forEach(row => {
-            row.style.display = '';
-            tbody.appendChild(row);
-        });
+Object.entries(groups).forEach(([val, groupTasks]) => {
+    groupTasks.forEach(task => {
+        const tempDiv = document.createElement('tbody');
+        tempDiv.innerHTML = taskRowHTML(task, projectId);
+        tbody.appendChild(tempDiv.firstElementChild);
     });
+});
 
-    document.getElementById('project-groupby-value').textContent = field;
+    const labelEl = document.getElementById('project-groupby-value');
+labelEl.textContent = filterValue === '__all__' ? field : `${field}: ${filterValue}`;
+labelEl.style.fontWeight = '700';
+labelEl.style.textTransform = 'uppercase';
+labelEl.style.letterSpacing = '0.05em';
+labelEl.style.color = '#888';
+labelEl.style.fontSize = '12px';
+document.getElementById('project-groupby-btn').classList.add('active');
+document.getElementById('project-groupby-dropdown').style.display = 'none';
     document.getElementById('project-groupby-btn').classList.add('active');
     document.getElementById('project-groupby-dropdown').style.display = 'none';
 }
 
+
+
+
+
 function resetGroupBy() {
-    const tbody = document.querySelector('#project-tasks-container tbody');
-    if (!tbody) return;
+    const projectId = document.querySelector('.project-page')?.dataset.projectId;
+    if (!projectId) return;
 
-    // убираем разделители
-    tbody.querySelectorAll('.task-group-separator').forEach(s => s.remove());
-
-    // показываем все строки
-    tbody.querySelectorAll('.task-row').forEach(row => row.style.display = '');
+    const labelEl = document.getElementById('project-groupby-value');
+    labelEl.textContent = 'None';
+    labelEl.style = '';
 
     document.getElementById('groupby-field-select').value = 'none';
-    document.getElementById('project-groupby-value').textContent = 'None';
-    document.getElementById('project-groupby-btn').classList.remove('active');
+    document.getElementById('groupby-value-select').style.display = 'none';
+    document.getElementById('project-groupby-value').textContent = filterValue === '__all__' ? field : `${field}: ${filterValue}`;    document.getElementById('project-groupby-btn').classList.remove('active');
     document.getElementById('project-groupby-dropdown').style.display = 'none';
+
+    renderProjectTasks(currentProjectTasks, projectId);
 }
+
+function taskRowHTML(task, projectId) {
+    return `
+        <tr class="task-row" data-task-id="${task.id}" data-status="${task.status}">
+            <td class="task-td" style="width:32px">
+                <span class="task-select-circle" onclick="toggleSelectTask(this, '${task.id}')"></span>
+            </td>
+            <td class="task-td">
+                <span class="task-status-badge status-${task.status}" onclick="openStatusPicker(event, '${task.id}', this)">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="task-status-icon">
+                        ${task.status === 'todo' ? `<circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/>` 
+                        : task.status === 'in_progress' ? `<circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M7 4v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>` 
+                        : `<circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 7l2 2 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`}
+                    </svg>
+                    ${task.status === 'todo' ? 'TO DO' : task.status === 'in_progress' ? 'IN PROGRESS' : 'DONE'}
+                </span>
+            </td>
+            <td class="task-td task-title-td">${task.title}</td>
+            <td class="task-td task-muted" style="cursor:pointer" onclick="openAssigneePicker(event, '${task.id}', this)">
+                ${task.assignee ? '👤 ' + task.assignee : `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="assignee-add-icon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg>`}
+            </td>
+            <td class="task-td task-muted" style="cursor:pointer" onclick="openDatePicker(event, '${task.id}', this)" data-due="${task.due_date || ''}">
+                ${task.due_date ? task.due_date : `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="date-add-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="20"/><line x1="9" y1="17" x2="15" y2="17"/></svg>`}
+            </td>
+            <td class="task-td task-priority-td" data-priority="${task.priority}" style="cursor:pointer" onclick="openPriorityPicker(event, this.closest('.task-row').dataset.taskId, this.closest('.task-priority-td'))">
+                ${task.priority === 'high' ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="task-priority-inline"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>` 
+                : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="task-priority-inline"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="4" y1="22" x2="4" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`}
+            </td>
+            <td class="task-td">
+                <button class="project-task-menu-btn" onclick="openTaskMenu(event, '${task.id}')">⋯</button>
+            </td>
+        </tr>
+    `;
+}
+
+
 
 
 document.addEventListener('click', (e) => {
@@ -1364,6 +1463,8 @@ document.addEventListener('click', (e) => {
     if (!e.target.closest('#assignee-picker')) document.getElementById('assignee-picker')?.remove();
     if (!e.target.closest('#priority-picker')) document.getElementById('priority-picker')?.remove();
     if (!e.target.closest('#move-task-popup')) document.getElementById('move-task-popup')?.remove();
+    if (!e.target.closest('#groupby-value-select')) {
+    document.getElementById('groupby-custom-options')?.style && (document.getElementById('groupby-custom-options').style.display = 'none');}
     if (!e.target.closest('#statusSelectWrapper')) {document.getElementById('statusSelectOptions')?.style && (document.getElementById('statusSelectOptions').style.display = 'none');
 }
 });
