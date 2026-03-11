@@ -61,110 +61,111 @@ function renderGroupPage(groupEl) {
                          Filter
                 </button>
                 <div class="filter-dropdown" id="filter-dropdown" style="display:none">
-    <div class="filter-dropdown-header">
-        <span>Filters</span>
-    </div>
-    <div class="filter-dropdown-body">
-        <div class="filter-option" data-filter="name-asc">
-            <span class="filter-icon">↑</span> Name (A-Z)
-        </div>
-        <div class="filter-option" data-filter="name-desc">
-            <span class="filter-icon">↓</span> Name (Z-A)
-        </div>
-        <div class="filter-option" data-filter="date-new">
-            <span class="filter-icon">📅</span> Date (Newest)
-        </div>
-        <div class="filter-option" data-filter="date-old">
-            <span class="filter-icon">📅</span> Date (Oldest)
-        </div>
-        <div class="filter-option" data-filter="fav-first">
-            <span class="filter-icon">♥︎</span> Favourites first
-        </div>
-        <div class="filter-option" data-filter="unfav-first">
-            <span class="filter-icon">♡︎</span> Non-favourites first
-        </div>
-        <div class="filter-option" data-filter="tasks-more">
-            <span class="filter-icon">↑</span> More tasks first
-        </div>
-        <div class="filter-option" data-filter="tasks-less">
-            <span class="filter-icon">↓</span> Less tasks first
-        </div>
-        <div class="filter-option" data-filter="group">
-            <span class="filter-icon">⬡</span> ${groupName} first
-        </div>
-    </div>
-    <div class="filter-dropdown-footer">
-        <button class="filter-add-btn">+ Add filter</button>
-    </div>
-</div>
-            </div>
-
-
-             <div class="group-info-card">
-            <div class="group-info-top">
-                <div class="group-info-left">
-                    <span class="group-info-arrow" id="group-info-arrow">▼</span>
-                    <span class="group-info-name">${groupName}</span>
-                    <button class="group-info-menu-btn" onclick="openGroupMenu(event, '${groupEl.dataset.groupId}')">⋯</button>
-                    <span class="group-info-priority priority-badge-${priority}">${priority}</span>
-                </div>
-                <div class="group-info-right">
-                    <span class="group-info-limit">Project limit: ${limit}</span>
+                    <div class="filter-dropdown-header"><span>Filters</span></div>
+                    <div class="filter-dropdown-body">
+                        <div class="filter-option" data-filter="name-asc"><span class="filter-icon">↑</span> Name (A-Z)</div>
+                        <div class="filter-option" data-filter="name-desc"><span class="filter-icon">↓</span> Name (Z-A)</div>
+                        <div class="filter-option" data-filter="date-new"><span class="filter-icon">📅</span> Date (Newest)</div>
+                        <div class="filter-option" data-filter="date-old"><span class="filter-icon">📅</span> Date (Oldest)</div>
+                        <div class="filter-option" data-filter="fav-first"><span class="filter-icon">♥︎</span> Favourites first</div>
+                        <div class="filter-option" data-filter="unfav-first"><span class="filter-icon">♡︎</span> Non-favourites first</div>
+                        <div class="filter-option" data-filter="tasks-more"><span class="filter-icon">↑</span> More tasks first</div>
+                        <div class="filter-option" data-filter="tasks-less"><span class="filter-icon">↓</span> Less tasks first</div>
+                        <div class="filter-option" data-filter="group"><span class="filter-icon">⬡</span> ${groupName} first</div>
+                    </div>
+                    <div class="filter-dropdown-footer"><button class="filter-add-btn">+ Add filter</button></div>
                 </div>
             </div>
 
-            <div class="group-info-subtitle">
+            <div class="group-info-card">
+                <div class="group-info-top">
+                    <div class="group-info-left">
+                        <span class="group-info-arrow" id="group-info-arrow">▼</span>
+                        <span class="group-info-name">${groupName}</span>
+                        <button class="group-info-menu-btn" onclick="openGroupMenu(event, '${groupEl.dataset.groupId}')">⋯</button>
+                        <span class="group-info-priority priority-badge-${priority}">${priority}</span>
+                    </div>
+                    <div class="group-info-right">
+                        <span class="group-info-limit">Project limit: ${limit}</span>
+                    </div>
+                </div>
+
+                <div class="group-info-subtitle">
                     <span class="group-info-projects-count">${projectItems.length} projects</span>
-            </div>
+                </div>
 
-            <div class="group-info-body" id="group-info-body">
-                <div class="group-page-projects board-view">
-                    ${projectItems.length === 0 ? `
-                    ` : Array.from(projectItems).map(item => {
-                        const name = item.querySelector('.project-name')?.textContent || '';
-                        const projectId = item.dataset.projectId;
-                        const isFav = item.querySelector('.project-fav')?.textContent.includes('♥') || false;
-                        return `
+                <div class="group-info-body" id="group-info-body">
+                    <div class="group-page-projects board-view">
+                        ${projectItems.length === 0 ? `` : Array.from(projectItems).map(item => {
+                            const name = item.querySelector('.project-name')?.textContent || '';
+                            const projectId = item.dataset.projectId;
+                            const isFav = item.querySelector('.project-fav')?.textContent.includes('♥') || false;
+                            return `
                                 <div class="group-page-project-card" data-project-id="${projectId}">
-                                <div class="group-page-project-top">
-            <img src="/static/tasks/icons/list_night.png" class="group-page-title-icon" alt="project-icon">
-            <span class="group-page-project-name">${name}</span>
-            <span class="project-group-dot">• ${groupName}</span>
-        </div>
-        <button class="group-page-project-menu-btn" onclick="openProjectMenu(event, '${projectId}', '${name}')">⋯</button>
-        <div class="group-page-project-img">
-            <img src="/static/tasks/icons/doc_light.png" alt="icon" class="card-icon"/>
-            <span class="card-subtitle">No tasks added</span>
-        </div>
-        <span class="group-page-project-fav" onclick="toggleFavourite(this, '${projectId}')">${isFav ? '♥︎' : '♡︎'}</span>
-    </div>
-`;
-                    }).join('')}
-                    <div class="group-page-add-card" onclick="openAddProjectFromGroup('${groupEl.dataset.groupId}')">
+                                    <div class="group-page-project-top">
+                                        <img src="/static/tasks/icons/list_night.png" class="group-page-title-icon" alt="project-icon">
+                                        <span class="group-page-project-name">${name}</span>
+                                        <span class="project-group-dot">• ${groupName}</span>
+                                    </div>
+                                    <button class="group-page-project-menu-btn" onclick="openProjectMenu(event, '${projectId}', '${name}')">⋯</button>
+                                    <div class="group-page-project-img" id="group-card-img-${projectId}">
+                                        <img src="/static/tasks/icons/doc_light.png" alt="icon" class="card-icon"/>
+                                        <span class="card-subtitle">No tasks added</span>
+                                    </div>
+                                    <span class="group-page-project-fav" onclick="toggleFavourite(this, '${projectId}')">${isFav ? '♥︎' : '♡︎'}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                        <div class="group-page-add-card" onclick="openAddProjectFromGroup('${groupEl.dataset.groupId}')">
                             <span class="group-page-add-plus">+</span>
                             <span class="group-page-add-text">Add project</span>
-</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+    `;
+    content.querySelector('.group-page').dataset.groupId = groupEl.dataset.groupId;
 
-    </div>
-`;
+    // Загружаем таски для каждой карточки группы
+    Array.from(projectItems).forEach(item => {
+        const projectId = item.dataset.projectId;
+        fetch(`/projects/${projectId}/tasks/`)
+            .then(res => res.json())
+            .then(tasks => {
+                const imgEl = document.getElementById(`group-card-img-${projectId}`);
+                if (!imgEl) return;
 
+                if (tasks.length === 0) {
+                    imgEl.innerHTML = `
+                        <img src="/static/tasks/icons/doc_light.png" alt="icon" class="card-icon"/>
+                        <span class="card-subtitle">No tasks added</span>
+                    `;
+                } else {
+                    imgEl.innerHTML = `
+                        <div class="card-tasks-preview">
+                            ${tasks.slice(0, 3).map(task => `
+                                <div class="card-task-item status-${task.status}">
+                                    <span class="card-task-name">${task.title}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+            });
+    });
 
-const arrow = content.querySelector('#group-info-arrow');
-const body = content.querySelector('#group-info-body');
-
-arrow.addEventListener('click', () => {
-    const isCollapsed = body.classList.contains('collapsed');
-    body.classList.toggle('collapsed');
-    arrow.textContent = isCollapsed ? '▼' : '▶';
-});
+    // Collapse arrow
+    const arrow = content.querySelector('#group-info-arrow');
+    const body = content.querySelector('#group-info-body');
+    arrow.addEventListener('click', () => {
+        body.classList.toggle('collapsed');
+        arrow.textContent = body.classList.contains('collapsed') ? '▶' : '▼';
+    });
 
     // View switch
     const viewBtns = content.querySelectorAll('.view-btn');
     const projectsGrid = content.querySelector('.group-page-projects');
-
     viewBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             viewBtns.forEach(b => b.classList.remove('active'));
@@ -178,13 +179,10 @@ arrow.addEventListener('click', () => {
     // Filter toggle
     const filterBtn = content.querySelector('#filter-btn');
     const filterDropdown = content.querySelector('#filter-dropdown');
-
     filterBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        filterDropdown.style.display =
-            filterDropdown.style.display === 'none' ? 'block' : 'none';
+        filterDropdown.style.display = filterDropdown.style.display === 'none' ? 'block' : 'none';
     });
-
     document.addEventListener('click', () => {
         if (filterDropdown) filterDropdown.style.display = 'none';
     });
@@ -198,26 +196,8 @@ arrow.addEventListener('click', () => {
             filterBtn.classList.add('filter-active');
 
             const filter = option.dataset.filter;
-const projectCards = content.querySelectorAll('.group-page-project-card');
-projectCards.forEach(card => {
-    card.addEventListener('click', (e) => {
-        if (e.target.closest('.group-page-project-menu-btn')) return;
-        if (e.target.closest('.group-page-project-fav')) return;
+            const cards = Array.from(content.querySelectorAll('.group-page-project-card'));
 
-        const projectId = card.dataset.projectId;
-        const projectEl = document.querySelector(`.project-item[data-project-id="${projectId}"]`);
-        if (!projectEl) return;
-
-        const isActive = card.classList.contains('active');
-        if (!isActive) {
-            projectCards.forEach(c => c.classList.remove('active'));
-            card.classList.add('active');
-            return;
-        }
-
-        renderProjectPage(projectEl);
-    });
-});
             cards.sort((a, b) => {
                 const nameA = a.querySelector('.group-page-project-name').textContent.trim();
                 const nameB = b.querySelector('.group-page-project-name').textContent.trim();
@@ -232,12 +212,63 @@ projectCards.forEach(card => {
             });
 
             cards.forEach(card => projectsGrid.appendChild(card));
+            const addCard = projectsGrid.querySelector('.group-page-add-card');
+            
+            if (addCard) projectsGrid.appendChild(addCard);
+
             filterDropdown.style.display = 'none';
         });
     });
+
+    Array.from(projectItems).forEach(item => {
+    const projectId = item.dataset.projectId;
+    fetch(`/projects/${projectId}/tasks/`)
+        .then(res => res.json())
+        .then(tasks => {
+            const imgEl = document.getElementById(`group-card-img-${projectId}`);
+            if (!imgEl) return;
+
+            if (tasks.length === 0) {
+                imgEl.innerHTML = `
+                    <img src="/static/tasks/icons/doc_light.png" alt="icon" class="card-icon"/>
+                    <span class="card-subtitle">No tasks added</span>
+                `;
+            } else {
+                imgEl.innerHTML = `
+                    <div class="card-tasks-preview">
+                        ${tasks.slice(0, 3).map(task => `
+                            <div class="card-task-item status-${task.status}">
+                                <span class="card-task-name">${task.title}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        });
+});
+
+    // ← КЛИК ПО КАРТОЧКЕ ПРОЕКТА
+    const projectCards = content.querySelectorAll('.group-page-project-card');
+    projectCards.forEach(card => {
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('.group-page-project-menu-btn')) return;
+            if (e.target.closest('.group-page-project-fav')) return;
+
+            const projectId = card.dataset.projectId;
+            const projectEl = document.querySelector(`.project-item[data-project-id="${projectId}"]`);
+            if (!projectEl) return;
+
+            const isActive = card.classList.contains('active');
+            if (!isActive) {
+                projectCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                return;
+            }
+
+            renderProjectPage(projectEl);
+        });
+    });
 }
-
-
 
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -278,13 +309,14 @@ window.openAddProjectFromGroup = openAddProjectFromGroup;
 
 function refreshGroupPageIfOpen() {
     const groupPage = document.querySelector('.group-page');
-    if (!groupPage) return; // страница групп не открыта
+    if (!groupPage) return;
 
-    // находим активную группу в сайдбаре
-    const activeGroup = document.querySelector('.spaces-group .group-title.active');
-    if (!activeGroup) return;
+    const groupId = groupPage.dataset.groupId;
+    if (!groupId) return;
 
-    const groupEl = activeGroup.closest('.spaces-group');
+    const groupEl = document.querySelector(`.spaces-group[data-group-id="${groupId}"]`);
+    if (!groupEl) return;
+
     renderGroupPage(groupEl);
 }
 

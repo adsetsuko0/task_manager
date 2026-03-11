@@ -1062,15 +1062,17 @@ body.dark-theme .custom-status-option {
     align-items: center;
     justify-content: space-between;
     padding: 8px 12px;
-    border: 1px solid #444;
+    border: 1px solid #ddd;      
     border-radius: 8px;
     cursor: pointer;
-    background: #2a2a2a;
     font-size: 13px;
-    color: #ccc;
+    color: #555555;              
     user-select: none;
     width: 100%;
     box-sizing: border-box;
+    font-weight: 600;
+    background: #fff;        
+
 }
 
 .status-select-selected {
@@ -1081,16 +1083,18 @@ body.dark-theme .custom-status-option {
 
 .status-select-options {
     position: absolute;
-    top: calc(100% + 4px);
+    top: 100%;
     left: 0;
-    right: 0;
-    background: #1e1e1e;
-    border: 1px solid #333;
+    width: 100%;
+    background: #fff;              /* ← светлый фон */
+    border: 1px solid #ddd;
     border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 1000;
     overflow: hidden;
+    font-weight: 600;
 }
+
 
 .status-select-opt {
     display: flex;
@@ -1099,12 +1103,14 @@ body.dark-theme .custom-status-option {
     padding: 8px 12px;
     cursor: pointer;
     font-size: 13px;
-    color: #ccc;
+    color: #555555;       
     transition: background 0.15s;
+    font-weight: 600;
+
 }
 
 .status-select-opt:hover {
-    background: #2a2a2a;
+    background: #f3f4f6;
 }
 
 .bulk-bar-btn svg {
@@ -1145,6 +1151,25 @@ body:not(.dark-theme) .bulk-bar-divider {
     background: #e0e0e0;
 }
 
+
+body.dark-theme .status-select-wrapper {
+    border-color: #444;
+    color: #ccc;
+    background: #2a2a2a;
+}
+
+body.dark-theme .status-select-options {
+    background: #1e1e1e;
+    border-color: #444;
+}
+
+body.dark-theme .status-select-opt {
+    color: #ccc;
+}
+
+body.dark-theme .status-select-opt:hover {
+    background: #2a2a2a;
+}
 
 .groupby-value-custom {
     position: relative;

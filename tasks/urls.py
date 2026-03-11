@@ -42,6 +42,8 @@ urlpatterns = [
     path('user/avatar/upload/', views.upload_avatar, name='upload_avatar'),
     path('user/avatar/delete/', views.delete_avatar, name='delete_avatar'), 
 
+    path('projects/favourites/', views.favourite_projects, name='favourite_projects'),
+
     path('tasks/rename/', views.rename_task),
     path('tasks/delete/', views.delete_task),
     path('tasks/duplicate/', views.duplicate_task),
@@ -52,3 +54,5 @@ urlpatterns = [
     path('tasks/update_assignee/', views.update_task_assignee),
     path('tasks/move/', views.move_task),
 ]   + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+

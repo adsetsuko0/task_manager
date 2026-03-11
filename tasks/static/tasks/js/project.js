@@ -116,7 +116,8 @@ function confirmBulkDelete() {
         document.getElementById('bulkDeleteModal').style.display = 'none';
         clearSelection();
         showToast('Tasks deleted');
-    });
+        const projectId = document.querySelector('.project-page')?.dataset.projectId;
+        if (projectId) refreshProjectCardImg(projectId).then(() => {});    });
 }
 
 window.confirmBulkDelete = confirmBulkDelete;
@@ -901,10 +902,11 @@ function submitCreateTask() {
     const assignee = document.getElementById('createTaskAssignee').value;
     const dueDate = document.getElementById('createTaskDueDate').value;
 
-    if (!title) {
-        showToast('Task name cannot be empty');
-        return;
-    }
+    if (!title) { showToast('Task name cannot be empty'); return; }
+    if (!status) { showToast('Status is required'); return; }
+    if (!priority) { showToast('Priority is required'); return; }
+    if (!assignee) { showToast('Assignee is required'); return; }
+    if (!dueDate) { showToast('Due date is required'); return; }
 
     fetch('/tasks/create/', {
         method: 'POST',
@@ -917,12 +919,10 @@ function submitCreateTask() {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            closeCreateTaskModal();
-            showToast('Task created!');
-            refreshProjectPageIfOpen();
-        } else {
-            showToast(data.error || 'Error creating task');
-        }
+    closeCreateTaskModal();
+    showToast('Task created!');
+    refreshProjectCardImg(projectId).then(() => refreshProjectPageIfOpen());
+}
     });
 }
 
@@ -1008,6 +1008,8 @@ function confirmDeleteTask() {
             if (row) row.remove();
             document.getElementById('deleteTaskModal').style.display = 'none';
             showToast('Task deleted');
+            const projectId = document.querySelector('.project-page')?.dataset.projectId;
+            refreshProjectCardImg(projectId).then(() => {});
         }
     });
 }
@@ -1457,6 +1459,84 @@ document.addEventListener('click', (e) => {
 }
 });
 
+
+document.addEventListener('click', function(e) {
+    const card = e.target.closest('#recent .card, #fav .card');
+    if (!card) return;
+
+    const projectId = card.dataset.projectId;
+    if (!projectId) return;
+
+    const projectEl = document.querySelector(`.project-item[data-project-id="${projectId}"]`);
+    if (!projectEl) return;
+
+    // активируем проект в сайдбаре
+    document.querySelectorAll('.project-item').forEach(el => el.classList.remove('active'));
+    projectEl.classList.add('active');
+
+    // открываем страницу проекта
+    renderProjectPage(projectEl);
+});
+
+
+function refreshProjectCardImg(projectId) {
+    return fetch(`/projects/${projectId}/tasks/`)
+        .then(res => res.json())
+        .then(tasks => {
+            const homeImg = document.getElementById(`home-card-img-${projectId}`);
+            if (homeImg) {
+                homeImg.innerHTML = tasks.length === 0 ? `
+                    <img src="/static/tasks/icons/doc_light.png" alt="icon" class="card-icon"/>
+                    <span class="card-subtitle">No tasks added</span>
+                ` : `
+                    <div class="card-tasks-preview">
+                        ${tasks.slice(0, 3).map(task => `
+                            <div class="card-task-item status-${task.status}">
+                                <span class="card-task-name">${task.title}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            const groupImg = document.getElementById(`group-card-img-${projectId}`);
+            if (groupImg) {
+                groupImg.innerHTML = tasks.length === 0 ? `
+                    <img src="/static/tasks/icons/doc_light.png" alt="icon" class="card-icon"/>
+                    <span class="card-subtitle">No tasks added</span>
+                ` : `
+                    <div class="card-tasks-preview">
+                        ${tasks.slice(0, 3).map(task => `
+                            <div class="card-task-item status-${task.status}">
+                                <span class="card-task-name">${task.title}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            // обновляем homeContent
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(homeContent, 'text/html');
+            const savedImg = doc.getElementById(`home-card-img-${projectId}`);
+            if (savedImg) {
+                savedImg.innerHTML = tasks.length === 0 ? `
+                    <img src="/static/tasks/icons/doc_light.png" alt="icon" class="card-icon"/>
+                    <span class="card-subtitle">No tasks added</span>
+                ` : `
+                    <div class="card-tasks-preview">
+                        ${tasks.slice(0, 3).map(task => `
+                            <div class="card-task-item status-${task.status}">
+                                <span class="card-task-name">${task.title}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                homeContent = doc.documentElement.innerHTML;
+            }
+        });
+}
+window.refreshProjectCardImg = refreshProjectCardImg;
 
 window.applyGroupBy = applyGroupBy;
 window.resetGroupBy = resetGroupBy;
