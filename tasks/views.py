@@ -657,3 +657,19 @@ def update_task_priority(request):
     print(f"After save: {task.priority}")
     return JsonResponse({'success': True})
 
+
+
+def favourite_projects(request):
+    projects = Project.objects.filter(
+        is_favourite=True, 
+        group__user=request.user
+    ).select_related('group')
+    
+    data = [{
+        'id': p.id,
+        'name': p.name,
+        'group_name': p.group.name,
+        'is_favourite': p.is_favourite
+    } for p in projects]
+    
+    return JsonResponse(data, safe=False)

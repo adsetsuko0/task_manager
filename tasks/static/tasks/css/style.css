@@ -1430,8 +1430,13 @@ body.dark-theme #project-dropdown button:last-child:hover {
     align-items: center;
     justify-content: center;
     font-size: 13px;
+    opacity: 1;
+}
+
+.card-img:not(:has(.card-tasks-preview)) {
     opacity: 0.6;
 }
+
 
 .card-icon {
     width: 32px;
@@ -1442,8 +1447,9 @@ body.dark-theme #project-dropdown button:last-child:hover {
 
 .card-subtitle {
     font-size: 12px;
-    color: #555;
+    color: #646464;
     margin-top: 10px;
+    font-weight: 500;
 }
 
 #recent .card-title,
@@ -1526,9 +1532,12 @@ body.dark-theme #project-dropdown button:last-child:hover {
 
 #recent .cards.list-view .card-fav,
 #fav .cards.list-view .card-fav {
-    position: absolute !important;  /* ← возвращаем absolute */
-    bottom: 14px;
-    right: 24px;
+    position: static !important;
+    bottom: auto;
+    right: auto;
+    margin-left: auto;
+    margin-top: 10px;
+    margin-right: 7px;
 }
 
 /* TABLE */
@@ -1663,6 +1672,8 @@ body.dark-theme .card-menu-btn:hover {
     align-items: center;
     line-height: 1;
     bottom: 16px;
+    margin-left: -3px;
+    margin-top: 10px;
 }
 
 
@@ -1923,27 +1934,30 @@ body.dark-theme .card-menu-btn-bottom:hover {
 .card-tasks-preview {
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    padding: 8px;
+    gap: 10px;
+    padding: 16px;
     width: 100%;
     height: 100%;
     justify-content: center;
+    box-sizing: border-box;
 }
 
 .card-task-item {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     font-size: 12px;
-    color: #555;
+    color: #999 !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    padding-left: 8px;
 }
 
 body.dark-theme .card-task-item {
-    color: #aaa;
+    color: #666;
 }
+
 
 .card-task-dot {
     width: 7px;
@@ -1952,12 +1966,298 @@ body.dark-theme .card-task-item {
     flex-shrink: 0;
 }
 
-.card-task-item.status-todo .card-task-dot { background: #999; }
-.card-task-item.status-in_progress .card-task-dot { background: #bea54a; }
-.card-task-item.status-done .card-task-dot { background: #2f9e44; }
 
 .card-task-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: #646464 !important;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    min-width: 60px;   /* ← минимум */
+    max-width: 45%;
+}
+
+
+
+.card-tasks-preview {
+    padding: 16px 20px 16px 8px;
+}
+
+.card-task-name::before {
+    content: '✔';
+    margin-right: 5px;
+    margin-left: 4px;
+    font-size: 13px;
+    color: #646464 !important;
+    font-weight: 500;
+}
+
+.card-task-item::after {
+    content: '';
+    flex: 1;
+    height: 1.5px;
+    background: #bbb;
+    margin-left: 8px;
+    margin-right: 8px;
+    border-radius: 2px;
+}
+.group-page-project-img {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    width: 100%;
+    opacity: 1;
+    position: static;
+    transform: none;
+}
+
+.group-page-project-img:not(:has(.card-tasks-preview)) {
+    opacity: 0.5;
+}
+
+
+.group-page-title-icon {
+    width: 1em;
+    height: 1em;
+    object-fit: contain;
+    align-items: center;
+}
+
+
+.group-page-projects.list-view {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.group-page-projects.list-view .group-page-project-card {
+    height: 160px !important;
+    width: 100% !important;
+    position: relative;  /* ← добавь */
+}
+
+.group-page-projects.list-view .group-page-project-top {
+    position: absolute;
+    top: 12px;
+    left: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: calc(100% - 32px);  /* ← чтобы не выходило за края */
+}
+
+.group-page-projects.list-view .group-page-project-img {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex: 1;
+    opacity: 1;
+    transform: none;
+    top: auto;
+    left: auto;
+    width: 100%;
+    padding-top: 10px;  /* ← расстояние от названия проекта до тасков */
+    margin-top: 10px;  /* ← расстояние между названием проекта и тасками */
+}
+
+.group-page-projects.list-view .group-page-project-img:not(:has(.card-tasks-preview)) {
+    opacity: 0.5;
+    align-items: center;
+    justify-content: center;
+}
+
+.group-page-projects.list-view .group-page-project-fav {
+    position: absolute;
+    bottom: 14px;
+    right: 24px;
+}
+
+
+.group-page-add-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px dashed rgba(150, 150, 150, 0.3);
+    border-radius: 12px;
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    gap: 8px;
+}
+
+.group-page-add-card:hover {
+    background: rgba(124, 118, 240, 0.08);
+    border-color: #7c76f0;
+}
+
+.group-page-add-plus {
+    font-size: 36px;
+    color: rgba(150, 150, 150, 0.5);
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.group-page-add-text {
+    font-size: 13px;
+    color: rgba(150, 150, 150, 0.5);
+    transition: color 0.2s;
+}
+
+.group-page-add-card:hover .group-page-add-plus,
+.group-page-add-card:hover .group-page-add-text {
+    color: #7c76f0;
+}
+
+.group-page-project-menu-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #888;
+    padding: 2px 6px;
+    border-radius: 6px;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.group-page-project-card:hover .group-page-project-menu-btn {
+    opacity: 1;
+}
+
+.group-page-project-menu-btn:hover {
+    background: rgba(0,0,0,0.08);
+}
+
+body.dark-theme .group-page-project-menu-btn:hover {
+    background: rgba(255,255,255,0.08);
+}
+
+
+.group-page-project-img .card-tasks-preview {
+    padding: 10px 16px 10px 8px;
+    justify-content: flex-start;
+}
+
+.group-page-project-img .card-task-item {
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    padding-left: 0 !important;
+    gap: 0 !important;
+    color: #646464 !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    font-size: 13px !important;
+}
+
+.group-page-project-img .card-task-item::after {
+    content: '';
+    flex: 1;
+    height: 1.5px;
+    background: #bbb;
+    margin-left: 8px;
+    margin-right: 8px;
+    border-radius: 2px;
+}
+
+.group-page-project-img .card-task-name {
+    font-size: 15px;       /* ← больше */
+    font-weight: 500;      /* ← жирнее */
+    color: #646464 !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 60px;
+    max-width: 45%;
+    flex-shrink: 0;
+}
+
+.group-page-project-img .card-task-name::before {
+    content: '✔';
+    margin-right: 6px;
+    margin-left: 4px;
+    font-size: 14px;       /* ← больше */
+    font-weight: 500;      /* ← жирнее */
+    color: #646464 !important;
+}
+
+.group-page-project-img .card-tasks-preview {
+    padding: 14px 16px 10px 8px;  /* ← увеличен верхний padding */
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+.group-page-project-card {
+    background: #f0f0f0;
+    border-radius: 12px;
+    position: relative;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 150px; 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.group-page-project-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.group-page-project-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.group-page-project-top .project-group-dot {
+    font-size: 12px;
+    color: rgba(132, 132, 132, 0.5);
+    font-weight: 600;
+}
+
+.group-page-project-bottom {
+    margin-top: auto;
+}
+.group-page-project-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #484747;
+}
+
+
+body.dark-theme .group-page-project-img .card-task-name {
+    color: #777777 !important;
+}
+
+body.dark-theme .group-page-project-img .card-task-name::before {
+    color: #777777 !important;
+}
+
+body.dark-theme .group-page-project-img .card-task-item::after {
+    background: #444;
+}
+
+body.dark-theme .card-task-name {
+    color: #a7a7a7 !important;
+}
+
+body.dark-theme .card-task-name::before {
+    color: #a7a7a7 !important;
+}
+
+body.dark-theme .card-task-item::after {
+    background: #444;
 }

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Manager</title>
+    <title>Task Manager - Personal Project</title>
 
     <!--CSS-->
     <link rel="icon" type="image/png" href="{% static 'tasks/icons/task_manager_logo.png' %}">
@@ -70,7 +70,7 @@
 </div>
 
 
-    <div class="nav-item">Favourites</div>
+    <div class="nav-item" id="nav-favourites">Favourites</div>
     <div class="nav-item">Dashboard</div>
 </div>
 </aside>
@@ -171,70 +171,82 @@
 
 
 
-        <!--RECENT PROJECTS-->
-        <section class="section" id="recent">
-            <div class="section-header" onclick="toggleSection('recent')">
-                <span>▼</span> Recent projects
-            </div>
+  <!--RECENT PROJECTS-->
+<section class="section" id="recent">
+    <div class="section-header" onclick="toggleSection('recent')">
+        <span>▼</span> Recent projects
+    </div>
 
-            <div class="cards board-view">
-                {% for p in recent_projects %}
-                <div class="card" data-project-id="{{ p.id }}">
-    <div class="card-img" data-project-id="{{ p.id }}">
-    {% if p.tasks.exists %}
-        <div class="card-tasks-preview">
-            {% for task in p.tasks.all|slice:":4" %}
-            <div class="card-task-item status-{{ task.status }}">
-                <span class="card-task-dot"></span>
-                <span class="card-task-name">{{ task.title }}</span>
+    <div class="cards board-view">
+        {% for p in recent_projects %}
+        <div class="card" data-project-id="{{ p.id }}">
+            <div class="card-img" data-project-id="{{ p.id }} id="home-card-img-{{ p.id }}">
+                {% if p.tasks.exists %}
+                    <div class="card-tasks-preview">
+                        {% for task in p.tasks.all|slice:":3" %}
+                        <div class="card-task-item status-{{ task.status }}">
+                            <span class="card-task-dot"></span>
+                            <span class="card-task-name">{{ task.title }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <img src="{% static 'tasks/icons/doc_light.png' %}" alt="icon" class="card-icon"/>
+                    <span class="card-subtitle">No tasks added</span>
+                {% endif %}
             </div>
-            {% endfor %}
+            <div class="card-title">
+                <img src="{% static 'tasks/icons/list_night.png' %}" class="title-icon" alt="icon">
+                {{ p.name }}
+                <span class="project-group-dot">• {{ p.group.name }}</span>
+            </div>
+            <div class="card-bottom-actions">
+                <button class="card-menu-btn-bottom" onclick="openProjectMenu(event, '{{ p.id }}', '{{ p.name }}')">⋯</button>
+                <span class="card-fav" data-project-id="{{ p.id }}" onclick="toggleFavourite(this, '{{ p.id }}')" style="cursor:pointer;pointer-events:auto;">{% if p.is_favourite %}♥︎{% else %}♡︎{% endif %}</span>
+            </div>
         </div>
-    {% else %}
-        <img src="{% static 'tasks/icons/doc_light.png' %}" alt="icon" class="card-icon"/>
-        <span class="card-subtitle">No tasks added</span>
-    {% endif %}
-</div>
-</div>
-                {% endfor %}
+        {% endfor %}
+    </div>
+</section>
 
+
+<!--FAVOURITE PROJECTS-->
+<section class="section" id="fav">
+    <div class="section-header" onclick="toggleSection('fav')">
+        <span>▼</span> Favourites
+    </div>
+
+    <div class="cards board-view">
+        {% for p in favourite_projects %}
+        <div class="card" data-project-id="{{ p.id }}">
+            <div class="card-img" data-project-id="{{ p.id }} id="home-card-img-{{ p.id }}">
+                {% if p.tasks.exists %}
+                    <div class="card-tasks-preview">
+                        {% for task in p.tasks.all|slice:":3" %}
+                        <div class="card-task-item status-{{ task.status }}">
+                            <span class="card-task-dot"></span>
+                            <span class="card-task-name">{{ task.title }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <img src="{% static 'tasks/icons/doc_light.png' %}" alt="icon" class="card-icon"/>
+                    <span class="card-subtitle">No tasks added</span>
+                {% endif %}
             </div>
-
-        </section>
-
-
-        <!--FAVOURITE PROJECTS-->
-        <section class="section" id="fav">
-
-            <div class="section-header" onclick="toggleSection('fav')">
-                <span>▼</span> Favourites
+            <div class="card-title">
+                <img src="{% static 'tasks/icons/list_night.png' %}" class="title-icon" alt="icon">
+                {{ p.name }}
+                <span class="project-group-dot">• {{ p.group.name }}</span>
             </div>
-
-            <div class="cards board-view">
-
-                {% for p in favourite_projects %}
-                <div class="card" data-project-id="{{ p.id }}">
-    <div class="card-img" data-project-id="{{ p.id }}">
-    {% if p.tasks.exists %}
-        <div class="card-tasks-preview">
-            {% for task in p.tasks.all|slice:":4" %}
-            <div class="card-task-item status-{{ task.status }}">
-                <span class="card-task-dot"></span>
-                <span class="card-task-name">{{ task.title }}</span>
+            <div class="card-bottom-actions">
+                <button class="card-menu-btn-bottom" onclick="openProjectMenu(event, '{{ p.id }}', '{{ p.name }}')">⋯</button>
+                <span class="card-fav" data-project-id="{{ p.id }}" onclick="toggleFavourite(this, '{{ p.id }}')" style="cursor:pointer;pointer-events:auto;">{% if p.is_favourite %}♥︎{% else %}♡︎{% endif %}</span>
             </div>
-            {% endfor %}
         </div>
-    {% else %}
-        <img src="{% static 'tasks/icons/doc_light.png' %}" alt="icon" class="card-icon"/>
-        <span class="card-subtitle">No tasks added</span>
-    {% endif %}
-</div>
-</div>
-                {% endfor %}
-
-            </div>
-
-        </section>
+        {% endfor %}
+    </div>
+</section>
 
 
     </div>
@@ -513,6 +525,8 @@
 <script src="{% static 'tasks/js/main.js' %}"></script>
 <script src="{% static 'tasks/js/group.js' %}"></script>
 <script src="{% static 'tasks/js/project.js' %}"></script>
+<script src="{% static 'tasks/js/fav.js' %}"></script>
+
 </div>
 <div id="toast" class="toast"></div>
 <script>
