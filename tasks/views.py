@@ -661,8 +661,7 @@ def update_task_priority(request):
 
 def favourite_projects(request):
     projects = Project.objects.filter(
-        is_favourite=True, 
-        group__user=request.user
+        is_favourite=True
     ).select_related('group')
     
     data = [{

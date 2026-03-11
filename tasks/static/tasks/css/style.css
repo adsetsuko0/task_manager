@@ -2261,3 +2261,27 @@ body.dark-theme .card-task-name::before {
 body.dark-theme .card-task-item::after {
     background: #444;
 }
+
+
+#fav-page-projects {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+#fav-page-projects .project-info-card {
+    min-width: 0;
+    overflow: hidden;
+}
+
+#fav-page-projects .tasks-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+#fav-page-projects .task-title-td,
+#fav-page-projects .task-muted {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
