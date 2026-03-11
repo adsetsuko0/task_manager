@@ -385,8 +385,8 @@ function renderProjectPage(projectEl) {
     const contentEl = document.querySelector('.content');
     contentEl.innerHTML = `
         <div class="project-page" data-project-id="${projectId}">
+                <div class="view-switcher">
 
-            <div class="divider"></div>
 
             <div class="project-toolbar">
                 <div class="filter-wrapper">
@@ -475,17 +475,20 @@ function renderProjectPage(projectEl) {
 
     // view switch
     const viewBtns = contentEl.querySelectorAll('.view-btn');
-    const tasksContainer = contentEl.querySelector('.project-tasks-container');
 
-    viewBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            viewBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const view = btn.dataset.view;
-            tasksContainer.classList.remove('board-view', 'list-view');
-            tasksContainer.classList.add(view + '-view');
-        });
+viewBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        viewBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const view = btn.dataset.view;
+        // берём контейнер заново каждый раз
+        const container = document.getElementById('project-tasks-container');
+        if (container) {
+            container.classList.remove('board-view', 'list-view');
+            container.classList.add(view + '-view');
+        }
     });
+});
 
     // collapse
     const arrow = contentEl.querySelector('#project-info-arrow');
