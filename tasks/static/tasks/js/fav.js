@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function renderFavouritesPage() {
+    saveAppState('favourites', null);    
     updatePageTitle('Favourites');
 
     const content = document.querySelector('.content');
@@ -32,60 +33,112 @@ function renderFavouritesPage() {
 
             <div class="divider"></div>
 
-            <div class="group-info-card">
-                <div class="group-info-top">
-                    <div class="group-info-left">
-                        <span class="group-info-arrow" id="fav-page-arrow">▼</span>
-                        <span class="group-info-name">Favourites</span>
-                    </div>
-                    <div class="group-info-right">
-                        <span id="fav-page-count"></span>
+            <div class="filter-wrapper" style="margin-bottom: 12px;">
+                <button class="filter-btn" id="fav-filter-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="4" y1="6" x2="20" y2="6"/>
+                        <line x1="8" y1="12" x2="16" y2="12"/>
+                        <line x1="11" y1="18" x2="13" y2="18"/>
+                        <circle cx="7" cy="6" r="2" fill="currentColor" stroke="none"/>
+                        <circle cx="17" cy="12" r="2" fill="currentColor" stroke="none"/>
+                        <circle cx="12" cy="18" r="2" fill="currentColor" stroke="none"/>
+                    </svg>
+                    Filter
+                </button>
+                <div class="filter-dropdown" id="fav-filter-dropdown" style="display:none">
+                    <div class="filter-dropdown-header"><span>Filters</span></div>
+                    <div class="filter-dropdown-body">
+                        <div class="filter-option" data-filter="name-asc"><span class="filter-icon">↑</span> Name (A-Z)</div>
+                        <div class="filter-option" data-filter="name-desc"><span class="filter-icon">↓</span> Name (Z-A)</div>
                     </div>
                 </div>
+            </div>
 
-                <div class="group-info-body" id="fav-page-body">
-                    <div class="group-page-projects board-view" id="fav-page-projects">
-                        <div class="fav-page-loading">Loading...</div>
-                    </div>
-                </div>
+            <div id="fav-page-projects" class="fav-projects-list">
+                <div class="project-tasks-loading">Loading...</div>
             </div>
         </div>
     `;
 
-    // collapse
-    const arrow = content.querySelector('#fav-page-arrow');
-    const body = content.querySelector('#fav-page-body');
-    arrow.addEventListener('click', () => {
-        body.classList.toggle('collapsed');
-        arrow.textContent = body.classList.contains('collapsed') ? '▶' : '▼';
-    });
-
     // view switch
     const viewBtns = content.querySelectorAll('.view-btn');
-    const projectsGrid = content.querySelector('#fav-page-projects');
+    const projectsList = content.querySelector('#fav-page-projects');
     viewBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             viewBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             const view = btn.dataset.view;
-            projectsGrid.classList.remove('board-view', 'list-view');
-            projectsGrid.classList.add(view + '-view');
+            projectsList.dataset.view = view;
+            renderFavProjectsInView(view);
         });
     });
 
-    // загружаем избранные проекты
-    loadFavouriteProjects();
+    // filter
+    const filterBtn = content.querySelector('#fav-filter-btn');
+    const filterDropdown = content.querySelector('#fav-filter-dropdown');
+    filterBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        filterDropdown.style.display = filterDropdown.style.display === 'none' ? 'block' : 'none';
+    });
+    document.addEventListener('click', () => {
+        if (filterDropdown) filterDropdown.style.display = 'none';
+    });
+
+    content.querySelectorAll('.filter-option').forEach(option => {
+        option.addEventListener('click', () => {
+            content.querySelectorAll('.filter-option').forEach(o => o.classList.remove('active'));
+            option.classList.add('active');
+            filterBtn.classList.add('filter-active');
+            filterDropdown.style.display = 'none';
+
+            const cards = content.querySelectorAll('.project-info-card[data-project-id]');
+            const arr = Array.from(cards);
+            arr.sort((a, b) => {
+                const nameA = a.querySelector('.project-info-name')?.textContent || '';
+                const nameB = b.querySelector('.project-info-name')?.textContent || '';
+                return option.dataset.filter === 'name-asc'
+                    ? nameA.localeCompare(nameB)
+                    : nameB.localeCompare(nameA);
+            });
+            arr.forEach(card => projectsList.appendChild(card));
+        });
+    });
+
+    loadFavouriteProjects().then(() => {
+    renderFavProjectsInView('board');
+});
 }
 
+window._favProjects = [];
+
+function renderFavProjectsInView(view) {
+    const projects = window._favProjects;
+    const grid = document.getElementById('fav-page-projects');
+    if (!grid || !projects.length) return;
+
+    if (view === 'board') {
+        grid.style.display = 'grid';
+        grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+        grid.style.gap = '16px';
+        grid.style.alignItems = 'start';
+    } else {
+        grid.style.display = 'flex';
+        grid.style.flexDirection = 'column';
+        grid.style.gap = '16px';
+        grid.style.gridTemplateColumns = '';
+    }
+}
+
+
+
+
 function loadFavouriteProjects() {
-    fetch('/projects/favourites/')
+    return fetch('/projects/favourites/')
         .then(res => res.json())
         .then(projects => {
+            window._favProjects = projects;
             const grid = document.getElementById('fav-page-projects');
-            const countEl = document.getElementById('fav-page-count');
             if (!grid) return;
-
-            countEl.textContent = `${projects.length} projects`;
 
             if (projects.length === 0) {
                 grid.innerHTML = `<div class="fav-page-empty">No favourite projects yet</div>`;
@@ -93,70 +146,78 @@ function loadFavouriteProjects() {
             }
 
             grid.innerHTML = projects.map(project => `
-                <div class="group-page-project-card" data-project-id="${project.id}">
-                    <div class="group-page-project-top">
-                        <img src="/static/tasks/icons/list_night.png" class="group-page-title-icon" alt="project-icon">
-                        <span class="group-page-project-name">${project.name}</span>
-                        <span class="project-group-dot">• ${project.group_name}</span>
+                <div class="project-info-card" data-project-id="${project.id}" style="min-width:0;overflow:hidden">
+                    <div class="project-info-top">
+                        <div class="project-info-left">
+                            <span class="project-info-arrow" id="fav-arrow-${project.id}">▼</span>
+                            <span class="project-info-name">${project.name}</span>
+                            <span class="project-info-group">• ${project.group_name}</span>
+                            <button class="project-info-menu-btn" onclick="openProjectMenu(event, '${project.id}', '${project.name}')">⋯</button>
+                        </div>
+                        <div class="project-info-right">
+                            <span class="project-info-fav" data-project-id="${project.id}" onclick="toggleFavourite(this, '${project.id}')">♥︎</span>
+                            <button class="project-add-task-btn" onclick="openCreateTaskModal('${project.id}')">+ Add task</button>
+                        </div>
                     </div>
-                    <button class="group-page-project-menu-btn" onclick="openProjectMenu(event, '${project.id}', '${project.name}')">⋯</button>
-                    <div class="group-page-project-img" id="fav-card-img-${project.id}">
-                        <img src="/static/tasks/icons/doc_light.png" alt="icon" class="card-icon"/>
-                        <span class="card-subtitle">No tasks added</span>
+                    <div class="project-info-subtitle">
+                        <span class="project-info-groupby-label">Group by: <span>None</span></span>
                     </div>
-                    <span class="group-page-project-fav" onclick="toggleFavourite(this, '${project.id}')">♥︎</span>
+                    <div class="project-info-body" id="fav-body-${project.id}">
+                        <div class="project-tasks-container" id="fav-tasks-${project.id}">
+                            <div class="project-tasks-loading">Loading tasks...</div>
+                        </div>
+                    </div>
                 </div>
             `).join('');
 
-            // загружаем таски для каждой карточки
+            // collapse для каждого
             projects.forEach(project => {
+                const arrow = document.getElementById(`fav-arrow-${project.id}`);
+                const body = document.getElementById(`fav-body-${project.id}`);
+                arrow.addEventListener('click', () => {
+                    body.classList.toggle('collapsed');
+                    arrow.textContent = body.classList.contains('collapsed') ? '▶' : '▼';
+                });
+
+                // загружаем таски
                 fetch(`/projects/${project.id}/tasks/`)
                     .then(res => res.json())
                     .then(tasks => {
-                        const img = document.getElementById(`fav-card-img-${project.id}`);
-                        if (!img) return;
+                        const container = document.getElementById(`fav-tasks-${project.id}`);
+                        if (!container) return;
+
                         if (tasks.length === 0) {
-                            img.innerHTML = `
-                                <img src="/static/tasks/icons/doc_light.png" alt="icon" class="card-icon"/>
-                                <span class="card-subtitle">No tasks added</span>
-                            `;
-                        } else {
-                            img.innerHTML = `
-                                <div class="card-tasks-preview">
-                                    ${tasks.slice(0, 3).map(task => `
-                                        <div class="card-task-item status-${task.status}">
-                                            <span class="card-task-name">${task.title}</span>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            `;
+                            container.innerHTML = `<button class="tasks-add-btn" onclick="openCreateTaskModal('${project.id}')">+ Add task</button>`;
+                            return;
                         }
+
+                        container.innerHTML = `
+                            <table class="tasks-table">
+                                <thead>
+                                    <tr>
+                                        <th class="tasks-th" style="width:32px">
+                                            <span class="task-select-all" onclick="toggleSelectAll(this)"></span>
+                                        </th>
+                                        <th class="tasks-th">Status</th>
+                                        <th class="tasks-th">Name</th>
+                                        <th class="tasks-th">Assignee</th>
+                                        <th class="tasks-th">Due date</th>
+                                        <th class="tasks-th">Priority</th>
+                                        <th class="tasks-th"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${tasks.map(task => taskRowHTML(task, project.id)).join('')}
+                                </tbody>
+                            </table>
+                            <button class="tasks-add-btn" onclick="openCreateTaskModal('${project.id}')">+ Add task</button>
+                        `;
                     });
-            });
-
-            // клик по карточке
-            const cards = grid.querySelectorAll('.group-page-project-card');
-            cards.forEach(card => {
-                card.addEventListener('click', (e) => {
-                    if (e.target.closest('.group-page-project-menu-btn')) return;
-                    if (e.target.closest('.group-page-project-fav')) return;
-
-                    const projectId = card.dataset.projectId;
-                    const projectEl = document.querySelector(`.project-item[data-project-id="${projectId}"]`);
-                    if (!projectEl) return;
-
-                    const isActive = card.classList.contains('active');
-                    if (!isActive) {
-                        cards.forEach(c => c.classList.remove('active'));
-                        card.classList.add('active');
-                        return;
-                    }
-
-                    renderProjectPage(projectEl);
-                });
             });
         });
 }
+
+
 
 window.renderFavouritesPage = renderFavouritesPage;
 window.loadFavouriteProjects = loadFavouriteProjects;

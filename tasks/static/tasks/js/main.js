@@ -115,8 +115,9 @@ function restoreAppState() {
             }
             renderGroupPage(groupEl);
         }
-    }
-}
+    } else if (state.type === 'favourites') {
+    renderFavouritesPage();
+}}
 
 
 
