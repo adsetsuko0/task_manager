@@ -138,19 +138,19 @@ function renderFavProjectsInView(view) {
     if (!wrapper) return;
 
     if (view === 'board') {
-    wrapper.style.display = 'block';
-    wrapper.style.columnCount = '2';
-    wrapper.style.columnGap = '16px';
-    wrapper.style.gridTemplateColumns = '';
-    wrapper.style.alignItems = '';
-    } else {
-        wrapper.style.display = 'flex';
-        wrapper.style.flexDirection = 'column';
-        wrapper.style.gap = '16px';
+        wrapper.style.display = 'block';
+        wrapper.style.columnCount = '2';
+        wrapper.style.columnGap = '16px';
         wrapper.style.gridTemplateColumns = '';
         wrapper.style.alignItems = '';
+        wrapper.style.gap = '';
+    } else {
+        wrapper.style.display = 'block';
+        wrapper.style.columnCount = '1';
+        wrapper.style.columnGap = '0';
     }
 }
+
 
 function loadFavouriteProjects() {
     return fetch('/projects/favourites/')
@@ -232,7 +232,7 @@ function loadFavouriteProjects() {
                 }
             });
 
-            // collapse каждого проекта
+            // collapse + таски каждого проекта
             projects.forEach(project => {
                 const arrow = document.getElementById(`fav-arrow-${project.id}`);
                 const body = document.getElementById(`fav-body-${project.id}`);
@@ -288,8 +288,33 @@ function loadFavouriteProjects() {
                         `;
                     });
             });
+
+            // клики по карточкам — переход на страницу проекта
+            projects.forEach(project => {
+                const card = document.querySelector(`#fav-body-inner .project-info-card[data-project-id="${project.id}"]`);
+                if (!card) return;
+
+                card.addEventListener('click', (e) => {
+                    if (e.target.closest('.project-info-menu-btn')) return;
+                    if (e.target.closest('.project-info-fav')) return;
+                    if (e.target.closest('.project-add-task-btn')) return;
+                    if (e.target.closest('.task-row')) return;
+                    if (e.target.closest('.tasks-add-btn')) return;
+                    if (e.target.closest('.project-info-arrow')) return;
+                    if (e.target.closest('.project-info-subtitle')) return;
+
+                    const projectEl = document.querySelector(`.project-item[data-project-id="${project.id}"]`);
+                    if (!projectEl) return;
+
+                    document.querySelectorAll('.project-item').forEach(el => el.classList.remove('active'));
+                    projectEl.classList.add('active');
+                    renderProjectPage(projectEl);
+                });
+            });
         });
 }
+
+
 
 function refreshFavPageIfOpen() {
     if (!document.getElementById('favourites-page')) return;

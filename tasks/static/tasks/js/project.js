@@ -921,10 +921,40 @@ function submitCreateTask() {
     })
     .then(res => res.json())
     .then(data => {
-        if (data.success) {
+    if (data.success) {
     closeCreateTaskModal();
     showToast('Task created!');
     refreshProjectCardImg(projectId).then(() => refreshProjectPageIfOpen());
+    
+    // обновляем только нужный контейнер в favourites
+    const favContainer = document.getElementById(`fav-tasks-${projectId}`);
+    if (favContainer) {
+        fetch(`/projects/${projectId}/tasks/`)
+            .then(res => res.json())
+            .then(tasks => {
+                favContainer.innerHTML = `
+                    <table class="tasks-table">
+                        <thead>
+                            <tr>
+                                <th class="tasks-th" style="width:32px"><span class="task-select-all" onclick="toggleSelectAll(this)"></span></th>
+                                <th class="tasks-th">Status</th>
+                                <th class="tasks-th">Name</th>
+                                <th class="tasks-th">Assignee</th>
+                                <th class="tasks-th">Due date</th>
+                                <th class="tasks-th">Priority</th>
+                                <th class="tasks-th"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tasks.map(task => taskRowHTML(task, projectId)).join('')}
+                        </tbody>
+                    </table>
+                    <button class="tasks-add-btn" onclick="openCreateTaskModal('${projectId}')">+ Add task</button>
+                `;
+            });
+    } else {
+        refreshFavPageIfOpen();
+    }
 }
     });
 }
