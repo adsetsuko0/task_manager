@@ -2272,6 +2272,13 @@ body.dark-theme .card-task-item::after {
 #fav-page-projects .project-info-card {
     min-width: 0;
     overflow: hidden;
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px 24px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 0;
 }
 
 #fav-page-projects .tasks-table {
@@ -2284,4 +2291,82 @@ body.dark-theme .card-task-item::after {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+
+.fav-section-header {
+    grid-column: 1 / -1;  /* занимает всю ширину в grid */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    margin-bottom: 4px;
+}
+
+.fav-section-title {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.fav-section-count {
+    font-size: 13px;
+    color: #aaa;
+}
+
+#fav-body-inner.collapsed {
+    display: none;
+}
+
+#fav-body-inner {
+    transition: opacity 0.25s ease;
+}
+
+#fav-body-inner.hiding {
+    opacity: 0;
+}
+
+.project-info-body {
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+}
+
+.project-info-body.collapsed {
+    max-height: 0 !important;
+}
+
+.fav-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    margin-bottom: 12px;
+    padding: 4px 0;
+}
+
+.fav-section-title {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.fav-section-count {
+    font-size: 13px;
+    color: #aaa;
+}
+
+.project-page .view-switch {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+#fav-body-inner {
+    align-items: start;
+}
+
+#fav-body-inner .project-info-card {
+    break-inside: avoid;
+    margin-bottom: 16px;
+    display: inline-block;
+    width: 100%;
 }

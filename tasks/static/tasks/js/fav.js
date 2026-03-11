@@ -33,7 +33,7 @@ function renderFavouritesPage() {
 
             <div class="divider"></div>
 
-            <div class="filter-wrapper" style="margin-bottom: 12px;">
+            <div class="filter-wrapper" style="margin-bottom: 5px;">
                 <button class="filter-btn" id="fav-filter-btn">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="4" y1="6" x2="20" y2="6"/>
@@ -46,32 +46,24 @@ function renderFavouritesPage() {
                     Filter
                 </button>
                 <div class="filter-dropdown" id="fav-filter-dropdown" style="display:none">
-                    <div class="filter-dropdown-header"><span>Filters</span></div>
-                    <div class="filter-dropdown-body">
-                        <div class="filter-option" data-filter="name-asc"><span class="filter-icon">↑</span> Name (A-Z)</div>
-                        <div class="filter-option" data-filter="name-desc"><span class="filter-icon">↓</span> Name (Z-A)</div>
-                    </div>
+    <div class="filter-dropdown-header"><span>Filters</span></div>
+    <div class="filter-dropdown-body">
+        <div class="filter-option" data-filter="name-asc"><span class="filter-icon">↑</span> Name (A-Z)</div>
+        <div class="filter-option" data-filter="name-desc"><span class="filter-icon">↓</span> Name (Z-A)</div>
+        <div class="filter-option" data-filter="date-new"><span class="filter-icon">📅</span> Date (Newest)</div>
+        <div class="filter-option" data-filter="date-old"><span class="filter-icon">📅</span> Date (Oldest)</div>
+        <div class="filter-option" data-filter="tasks-more"><span class="filter-icon">↑</span> More tasks first</div>
+        <div class="filter-option" data-filter="tasks-less"><span class="filter-icon">↓</span> Less tasks first</div>
+    </div>
+</div>
                 </div>
             </div>
 
-            <div id="fav-page-projects" class="fav-projects-list">
+            <div id="fav-page-projects">
                 <div class="project-tasks-loading">Loading...</div>
             </div>
         </div>
     `;
-
-    // view switch
-    const viewBtns = content.querySelectorAll('.view-btn');
-    const projectsList = content.querySelector('#fav-page-projects');
-    viewBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            viewBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const view = btn.dataset.view;
-            projectsList.dataset.view = view;
-            renderFavProjectsInView(view);
-        });
-    });
 
     // filter
     const filterBtn = content.querySelector('#fav-filter-btn');
@@ -84,69 +76,111 @@ function renderFavouritesPage() {
         if (filterDropdown) filterDropdown.style.display = 'none';
     });
 
-    content.querySelectorAll('.filter-option').forEach(option => {
-        option.addEventListener('click', () => {
-            content.querySelectorAll('.filter-option').forEach(o => o.classList.remove('active'));
-            option.classList.add('active');
-            filterBtn.classList.add('filter-active');
-            filterDropdown.style.display = 'none';
-
-            const cards = content.querySelectorAll('.project-info-card[data-project-id]');
-            const arr = Array.from(cards);
-            arr.sort((a, b) => {
-                const nameA = a.querySelector('.project-info-name')?.textContent || '';
-                const nameB = b.querySelector('.project-info-name')?.textContent || '';
-                return option.dataset.filter === 'name-asc'
-                    ? nameA.localeCompare(nameB)
-                    : nameB.localeCompare(nameA);
-            });
-            arr.forEach(card => projectsList.appendChild(card));
+    // view switch
+    const viewBtns = content.querySelectorAll('.view-btn');
+    viewBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            viewBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderFavProjectsInView(btn.dataset.view);
         });
     });
 
     loadFavouriteProjects().then(() => {
-    renderFavProjectsInView('board');
+        renderFavProjectsInView('board');
+
+        // filter logic — после загрузки проектов
+        content.querySelectorAll('.filter-option').forEach(option => {
+    option.addEventListener('click', () => {
+        content.querySelectorAll('.filter-option').forEach(o => o.classList.remove('active'));
+        option.classList.add('active');
+        filterBtn.classList.add('filter-active');
+        filterDropdown.style.display = 'none';
+
+        const wrapper = document.getElementById('fav-body-inner');
+        if (!wrapper) return;
+        const cards = Array.from(wrapper.querySelectorAll('.project-info-card'));
+
+       cards.sort((a, b) => {
+    const nameA = a.querySelector('.project-info-name')?.textContent || '';
+    const nameB = b.querySelector('.project-info-name')?.textContent || '';
+    const filter = option.dataset.filter;
+
+    if (filter === 'name-asc') return nameA.localeCompare(nameB);
+    if (filter === 'name-desc') return nameB.localeCompare(nameA);
+
+    if (filter === 'date-new' || filter === 'date-old') {
+        const dateA = a.querySelector('[data-due]')?.dataset.due || '';
+        const dateB = b.querySelector('[data-due]')?.dataset.due || '';
+        return filter === 'date-new'
+            ? dateB.localeCompare(dateA)
+            : dateA.localeCompare(dateB);
+    }
+
+    if (filter === 'tasks-more' || filter === 'tasks-less') {
+        const countA = a.querySelectorAll('.task-row').length;
+        const countB = b.querySelectorAll('.task-row').length;
+        return filter === 'tasks-more' ? countB - countA : countA - countB;
+    }
+
+    return 0;
 });
+        cards.forEach(card => wrapper.appendChild(card));
+    });
+});
+    });
 }
 
 window._favProjects = [];
 
 function renderFavProjectsInView(view) {
-    const projects = window._favProjects;
-    const grid = document.getElementById('fav-page-projects');
-    if (!grid || !projects.length) return;
+    const wrapper = document.getElementById('fav-body-inner');
+    if (!wrapper) return;
 
     if (view === 'board') {
-        grid.style.display = 'grid';
-        grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
-        grid.style.gap = '16px';
-        grid.style.alignItems = 'start';
+    wrapper.style.display = 'block';
+    wrapper.style.columnCount = '2';
+    wrapper.style.columnGap = '16px';
+    wrapper.style.gridTemplateColumns = '';
+    wrapper.style.alignItems = '';
     } else {
-        grid.style.display = 'flex';
-        grid.style.flexDirection = 'column';
-        grid.style.gap = '16px';
-        grid.style.gridTemplateColumns = '';
+        wrapper.style.display = 'flex';
+        wrapper.style.flexDirection = 'column';
+        wrapper.style.gap = '16px';
+        wrapper.style.gridTemplateColumns = '';
+        wrapper.style.alignItems = '';
     }
 }
-
-
-
 
 function loadFavouriteProjects() {
     return fetch('/projects/favourites/')
         .then(res => res.json())
         .then(projects => {
             window._favProjects = projects;
-            const grid = document.getElementById('fav-page-projects');
-            if (!grid) return;
+            const container = document.getElementById('fav-page-projects');
+            if (!container) return;
 
             if (projects.length === 0) {
-                grid.innerHTML = `<div class="fav-page-empty">No favourite projects yet</div>`;
+                container.innerHTML = `<div class="fav-page-empty">No favourite projects yet</div>`;
                 return;
             }
 
-            grid.innerHTML = projects.map(project => `
-                <div class="project-info-card" data-project-id="${project.id}" style="min-width:0;overflow:hidden">
+            container.innerHTML = `
+                <div class="fav-section-header" style="margin-bottom: 0px;">
+                    <span id="fav-section-arrow">▼</span>
+                    <span class="fav-section-title">Favourites</span>
+                    <span class="fav-section-count">${projects.length} projects</span>
+                </div>
+            `;
+
+            const wrapper = document.createElement('div');
+            wrapper.id = 'fav-body-inner';
+            wrapper.style.overflow = 'hidden';
+            wrapper.style.transition = 'max-height 0.35s ease';
+            container.appendChild(wrapper);
+
+            wrapper.innerHTML = projects.map(project => `
+                <div class="project-info-card" data-project-id="${project.id}">
                     <div class="project-info-top">
                         <div class="project-info-left">
                             <span class="project-info-arrow" id="fav-arrow-${project.id}">▼</span>
@@ -170,28 +204,68 @@ function loadFavouriteProjects() {
                 </div>
             `).join('');
 
-            // collapse для каждого
+            // применяем текущий вид СРАЗУ после рендера карточек
+            const currentView = document.querySelector('.view-btn.active')?.dataset.view || 'board';
+            renderFavProjectsInView(currentView);
+
+            requestAnimationFrame(() => {
+                wrapper.style.maxHeight = wrapper.scrollHeight + 'px';
+                setTimeout(() => { wrapper.style.maxHeight = 'none'; }, 400);
+            });
+
+            // секция collapse
+            const sectionArrow = document.getElementById('fav-section-arrow');
+            document.querySelector('.fav-section-header').addEventListener('click', () => {
+                const isCollapsed = wrapper.classList.contains('collapsed');
+                if (isCollapsed) {
+                    wrapper.style.maxHeight = wrapper.scrollHeight + 'px';
+                    wrapper.classList.remove('collapsed');
+                    sectionArrow.textContent = '▼';
+                    setTimeout(() => { wrapper.style.maxHeight = 'none'; }, 350);
+                } else {
+                    wrapper.style.maxHeight = wrapper.scrollHeight + 'px';
+                    sectionArrow.textContent = '▶';
+                    requestAnimationFrame(() => requestAnimationFrame(() => {
+                        wrapper.style.maxHeight = '0';
+                        wrapper.classList.add('collapsed');
+                    }));
+                }
+            });
+
+            // collapse каждого проекта
             projects.forEach(project => {
                 const arrow = document.getElementById(`fav-arrow-${project.id}`);
                 const body = document.getElementById(`fav-body-${project.id}`);
+
                 arrow.addEventListener('click', () => {
-                    body.classList.toggle('collapsed');
-                    arrow.textContent = body.classList.contains('collapsed') ? '▶' : '▼';
+                    const isCollapsed = body.classList.contains('collapsed');
+                    if (isCollapsed) {
+                        body.style.maxHeight = body.scrollHeight + 'px';
+                        body.classList.remove('collapsed');
+                        arrow.textContent = '▼';
+                        setTimeout(() => { body.style.maxHeight = 'none'; }, 350);
+                    } else {
+                        body.style.maxHeight = body.scrollHeight + 'px';
+                        arrow.textContent = '▶';
+                        requestAnimationFrame(() => requestAnimationFrame(() => {
+                            body.style.maxHeight = '0';
+                            body.classList.add('collapsed');
+                        }));
+                    }
                 });
 
-                // загружаем таски
                 fetch(`/projects/${project.id}/tasks/`)
                     .then(res => res.json())
                     .then(tasks => {
-                        const container = document.getElementById(`fav-tasks-${project.id}`);
-                        if (!container) return;
+                        const taskContainer = document.getElementById(`fav-tasks-${project.id}`);
+                        if (!taskContainer) return;
 
                         if (tasks.length === 0) {
-                            container.innerHTML = `<button class="tasks-add-btn" onclick="openCreateTaskModal('${project.id}')">+ Add task</button>`;
+                            taskContainer.innerHTML = `<button class="tasks-add-btn" onclick="openCreateTaskModal('${project.id}')">+ Add task</button>`;
                             return;
                         }
 
-                        container.innerHTML = `
+                        taskContainer.innerHTML = `
                             <table class="tasks-table">
                                 <thead>
                                     <tr>
@@ -217,7 +291,13 @@ function loadFavouriteProjects() {
         });
 }
 
+function refreshFavPageIfOpen() {
+    if (!document.getElementById('favourites-page')) return;
+    const currentView = document.querySelector('.view-btn.active')?.dataset.view || 'board';
+    loadFavouriteProjects().then(() => renderFavProjectsInView(currentView));
+}
 
+window.refreshFavPageIfOpen = refreshFavPageIfOpen;
 
 window.renderFavouritesPage = renderFavouritesPage;
 window.loadFavouriteProjects = loadFavouriteProjects;

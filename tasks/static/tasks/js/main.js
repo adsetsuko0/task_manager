@@ -12,6 +12,21 @@ document.addEventListener('DOMContentLoaded', () => {
     homeContent = document.querySelector('.content').innerHTML;
 });
 
+function refreshHomeContent() {
+    fetch(window.location.href)
+        .then(res => res.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newContent = doc.querySelector('.content');
+            if (newContent) {
+                homeContent = newContent.innerHTML;
+            }
+        });
+}
+
+window.refreshHomeContent = refreshHomeContent;
+
 document.getElementById('nav-home').addEventListener('click', () => {
     localStorage.removeItem('appState');
     document.querySelector('.content').innerHTML = homeContent;
@@ -928,6 +943,7 @@ function submitCreateProject() {
         }
 
         closeCreateProjectModal();
+        refreshHomeContent();
         refreshGroupPageIfOpen();  // ← обновляем страницу групп если открыта
     })
     .catch(err => console.error('Error creating project', err));
@@ -1081,6 +1097,8 @@ function submitRenameProject() {
 
             closeRenameProjectModal();
             refreshGroupPageIfOpen();
+            refreshHomeContent();
+            if (document.getElementById('favourites-page')) loadFavouriteProjects();
         } else {
             alert('Ошибка: ' + data.error);
         }
@@ -1147,13 +1165,15 @@ function toggleFavourite(button, projectId) {
         }
 
         // меняем текст кнопки в дропдауне
-        const dropdown =Document.getElementById('project-dropdown');
+        const dropdown = document.getElementById('project-dropdown');
         const favBtn = dropdown.querySelector('.project-fav-btn');
         if (favBtn) {
             favBtn.textContent = data.is_favourite ? 'Remove from favourites' : 'Add to favourites';
         }
 
         showToast(data.is_favourite ? 'Added to favourites' : 'Removed from favourites');
+        refreshHomeContent();
+        if (document.getElementById('favourites-page')) loadFavouriteProjects();
     });
 }
 
@@ -1175,12 +1195,10 @@ function duplicateProject() {
     const projectContainer = groupEl.querySelector(".projects") || originalEl.parentElement;
     const currentProjectsCount = projectContainer.querySelectorAll(".project-item").length;
 
-    // Получаем лимит группы из data-атрибута (добавить на сервере при рендере)
     const groupLimit = parseInt(groupEl.dataset.groupLimit, 10);
-
     if (currentProjectsCount >= groupLimit) {
         showToast("Project limit reached for this group");
-        return; // не создаем дубликат
+        return;
     }
 
     fetch("/projects/duplicate/", {
@@ -1200,6 +1218,7 @@ function duplicateProject() {
 
         const project = data.project;
 
+        // добавляем в сайдбар
         let container = groupEl.querySelector(".projects");
         if (!container) {
             container = document.createElement("div");
@@ -1214,7 +1233,8 @@ function duplicateProject() {
         el.innerHTML = `
             <span class="project-name">${project.name}</span>
             <div class="project-actions">
-                <button class="project-menu-btn" onclick="openProjectMenu(event, ${project.id}, '${project.name}')">⋯</button>
+                <span class="project-fav">${project.is_favourite ? '♥' : '♡'}</span>
+                <button class="project-menu-btn" onclick="openProjectMenu(event, '${project.id}', '${project.name}')">⋯</button>
             </div>
         `;
         originalEl.after(el);
@@ -1222,10 +1242,17 @@ function duplicateProject() {
             e.stopPropagation();
             activateProject(el);
         });
+
+        // обновляем group page если открыта
+        refreshGroupPageIfOpen();
+
+        // обновляем favourites если открыта
+        refreshFavPageIfOpen();
+
+        showToast('Project duplicated');
+        refreshHomeContent();
     })
     .catch(err => console.error(err));
-
-    refreshGroupPageIfOpen()
 }
 
 
@@ -1247,7 +1274,6 @@ function closeDeleteProjectModal() {
 
 document.getElementById('confirm-delete-project')
     ?.addEventListener('click', () => {
-
         fetch('/projects/delete/', {
             method: 'POST',
             headers: {
@@ -1263,27 +1289,26 @@ document.getElementById('confirm-delete-project')
                 return;
             }
 
-            // 🔥 Удаляем проект из сайдбара
-            const projectEl = document.querySelector(
-                `.project-item[data-project-id="${currentProjectId}"]`
-            );
+            const projectEl = document.querySelector(`.project-item[data-project-id="${currentProjectId}"]`);
             if (projectEl) projectEl.remove();
-            
+
             const cardEl = document.getElementById(`card-${currentProjectId}`);
             if (cardEl) cardEl.remove();
-            
 
             updateCards('recent', 3);
             updateCards('fav', 3);
 
             closeDeleteProjectModal();
-            currentProjectId = null;
-
             showToast('Project successfully deleted');
-        });
-        refreshGroupPageIfOpen()
-    });
 
+            refreshHomeContent();
+
+            refreshGroupPageIfOpen();       // ← внутри .then()
+            refreshFavPageIfOpen();         // ← внутри .then()
+
+            currentProjectId = null;
+        });
+    });
 
 
 const searchInput = document.getElementById('global-search');

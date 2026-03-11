@@ -251,6 +251,18 @@ def duplicate_project(request):
             is_favourite=project.is_favourite
         )
 
+        for task in project.tasks.all():
+            Task.objects.create(
+                title=task.title,
+            description=task.description,
+            status=task.status,
+            priority=task.priority,
+            owner=task.owner,
+            assignee=task.assignee,
+            due_date=task.due_date,
+            project=new_project
+        )
+
         return JsonResponse({
             "success": True,
             "project": {
