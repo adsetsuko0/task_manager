@@ -1,3 +1,4 @@
+from asyncio import all_tasks
 from email.headerregistry import Group
 from tokenize import group
 from django.shortcuts import render, redirect, get_object_or_404
@@ -696,3 +697,91 @@ def favourite_projects(request):
 def dashboard_stats(request):
     today=timezone.now()
     week_ago=today-timedelta(days=6)
+
+    all_tasks= Task.objects.all()
+
+    total=all_tasks.count()
+    done=all_tasks.filter(status='done').count()
+    in_progress=all_tasks.filter(status='in_progress').count()
+    todo=all_tasks.filter(status='todo').count()
+    overdue=all_tasks.filter(due_date__lt=today, status__in=['todo', 'in_progress']).count()
+
+    by_project=list(
+        Project.objects.annotate(task_count=Count('tasks')).values('name', 'task_count').order_by('-task_count')
+    )
+
+    completed_by_day=[]
+    for i in range(6, -1, -1):
+        day=today-timedelta(days=i)
+        count=all_tasks.filter(status='done', updated_at__date=day.date()).count()
+        completed_by_day.append({'date': day.strftime('%d.%m'), 'count': count})
+
+
+    overdue_tasks = list(
+        all_tasks.filter(due_date__lt=today)
+        .exclude(status='done')
+        .select_related('project')
+        .values('id', 'title', 'due_date', 'priority', 'project__name')
+        .order_by('due_date')[:10]
+    )
+    for t in overdue_tasks:
+        if t['due_date']:
+            t['due_date'] = t['due_date'].strftime('%d.%m.%Y')
+    
+    # upcoming tasks (следующие 7 дней)
+    upcoming_tasks = list(
+        all_tasks.filter(due_date__gte=today, due_date__lte=today + timedelta(days=7))
+        .exclude(status='done')
+        .select_related('project')
+        .values('id', 'title', 'due_date', 'priority', 'project__name', 'status')
+        .order_by('due_date')[:10]
+    )
+    for t in upcoming_tasks:
+        if t['due_date']:
+            t['due_date'] = t['due_date'].strftime('%d.%m.%Y')
+
+    # все таски
+    all_tasks_list = list(
+        all_tasks.select_related('project')
+        .values('id', 'title', 'status', 'priority', 'due_date', 'project__name')
+        .order_by('-created_at')[:20]
+    )
+
+    for t in all_tasks_list:
+        if t['due_date']:
+            t['due_date'] = t['due_date'].strftime('%d.%m.%Y')
+
+    done_tasks_list = list(
+    all_tasks.filter(status='done').select_related('project')
+    .values('id', 'title', 'status', 'priority', 'due_date', 'project__name')
+    .order_by('-updated_at')[:20]
+    )
+
+    for t in done_tasks_list:
+        if t['due_date']:
+            t['due_date'] = t['due_date'].strftime('%d.%m.%Y')
+
+    progress_tasks_list = list(
+        all_tasks.filter(status='in_progress').select_related('project')
+        .values('id', 'title', 'status', 'priority', 'due_date', 'project__name')
+        .order_by('-updated_at')[:20]
+    )
+
+    for t in progress_tasks_list:
+        if t['due_date']:
+            t['due_date'] = t['due_date'].strftime('%d.%m.%Y')
+
+    return JsonResponse({
+        'total': total,
+        'done': done,
+        'in_progress': in_progress,
+        'todo': todo,
+        'overdue': overdue,
+        'by_project': by_project,
+        'completed_by_day': completed_by_day,
+        'overdue_tasks': overdue_tasks,
+        'upcoming_tasks': upcoming_tasks,
+        'all_tasks': all_tasks_list,
+        'done_tasks': done_tasks_list,
+        'progress_tasks': progress_tasks_list,
+    })
