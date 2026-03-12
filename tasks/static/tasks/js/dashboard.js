@@ -168,7 +168,7 @@ function loadDashboardData() {
                                             <td class="task-td task-title-td">${t.title}</td>
                                             <td class="task-td task-muted">${t.project__name || '—'}</td>
                                             <td class="task-td task-muted">${t.due_date || '—'}</td>
-                                            <td class="task-td"><span class="task-status-badge status-${t.status}">${t.status.replace('_', ' ')}</span></td>
+                                            <td class="task-td"><span class="task-status-badge status-${t.status || ''}">${(t.status || '').replace('_', ' ')}</span></td>                                            
                                             <td class="task-td"><span class="task-priority-inline" style="color:${t.priority === 'high' ? '#e03131' : '#aaa'}">⚑</span></td>
                                         </tr>
                                     `).join('')}
@@ -201,7 +201,7 @@ function loadDashboardData() {
                     labels: ['To Do', 'In Progress', 'Done'],
                     datasets: [{
                         data: [data.todo, data.in_progress, data.done],
-                        backgroundColor: ['#adb5bd', '#fcc419', '#51cf66'],
+                        backgroundColor: ['#adb5bd', '#eac24a', '#7dc789'],
                         borderWidth: 0,
                     }]
                 },
@@ -219,7 +219,7 @@ function loadDashboardData() {
                     datasets: [{
                         label: 'Tasks',
                         data: data.by_project.map(p => p.task_count),
-                        backgroundColor: '#7c76f0',
+                        backgroundColor: '#9d9ad6',
                         borderRadius: 6,
                     }]
                 },
@@ -240,10 +240,10 @@ function loadDashboardData() {
                     datasets: [{
                         label: 'Completed',
                         data: data.completed_by_day.map(d => d.count),
-                        borderColor: '#7c76f0',
+                        borderColor: '#9d9ad6',
                         backgroundColor: 'rgba(124,118,240,0.1)',
                         borderWidth: 2,
-                        pointBackgroundColor: '#7c76f0',
+                        pointBackgroundColor: '#9d9ad6',
                         fill: true,
                         tension: 0.4,
                     }]
