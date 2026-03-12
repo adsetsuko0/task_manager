@@ -22,6 +22,12 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth import update_session_auth_hash
 
+from django.utils import timezone
+from django.db.models import Count
+from datetime import timedelta
+
+
+
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
@@ -684,3 +690,9 @@ def favourite_projects(request):
     } for p in projects]
     
     return JsonResponse(data, safe=False)
+
+
+
+def dashboard_stats(request):
+    today=timezone.now()
+    week_ago=today-timedelta(days=6)

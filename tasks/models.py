@@ -34,7 +34,7 @@ class Project(models.Model):
         on_delete=models.CASCADE,
         related_name='projects'
     )
-    task_limit=models.PositiveIntegerField(default=50)
+    task_limit=models.PositiveIntegerField(default=10)
     is_favourite=models.BooleanField(default=False)
     created_at=models.DateTimeField(auto_now_add=True)
 

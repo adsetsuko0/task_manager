@@ -2264,21 +2264,19 @@ body.dark-theme .card-task-item::after {
 
 
 #fav-page-projects {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    display: block;
 }
 
-#fav-page-projects .project-info-card {
+ 
+#fav-page-projects .project-info-card,
+#fav-body-inner .project-info-card {
     min-width: 0;
     overflow: hidden;
-    background: #fff;
-    border-radius: 14px;
-    padding: 20px 24px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0;
     width: 100%;
     box-sizing: border-box;
-    margin-bottom: 0;
+    align-self: start;
+    margin-top: 10px;
 }
 
 #fav-page-projects .tasks-table {
@@ -2366,7 +2364,37 @@ body.dark-theme .card-task-item::after {
 
 #fav-body-inner .project-info-card {
     break-inside: avoid;
+    page-break-inside: avoid;
     margin-bottom: 16px;
     display: inline-block;
+    width: 100%;
+    vertical-align: top;
+}
+
+#fav-body-inner .task-status-badge {
+    font-size: 10px;
+    padding: 3px 6px;
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#fav-body-inner .tasks-th:nth-child(2),
+#fav-body-inner .task-td:nth-child(2) {
+    width: 100px;
+    min-width: 80px;
+}
+
+#fav-body-inner .tasks-th:nth-child(3),
+#fav-body-inner .task-td:nth-child(3) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 0;
+}
+
+#fav-body-inner .tasks-table {
+    table-layout: fixed;
     width: 100%;
 }

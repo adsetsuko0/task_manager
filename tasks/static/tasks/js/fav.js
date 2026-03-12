@@ -138,18 +138,32 @@ function renderFavProjectsInView(view) {
     if (!wrapper) return;
 
     if (view === 'board') {
-        wrapper.style.display = 'block';
-        wrapper.style.columnCount = '2';
-        wrapper.style.columnGap = '16px';
-        wrapper.style.gridTemplateColumns = '';
-        wrapper.style.alignItems = '';
-        wrapper.style.gap = '';
+        wrapper.style.display = 'grid';
+        wrapper.style.gridTemplateColumns = '1fr 1fr';
+        wrapper.style.gap = '16px';
+        wrapper.style.alignItems = 'start';
     } else {
-        wrapper.style.display = 'block';
-        wrapper.style.columnCount = '1';
-        wrapper.style.columnGap = '0';
+        wrapper.style.display = 'grid';
+        wrapper.style.gridTemplateColumns = '1fr';
+        wrapper.style.gap = '16px';
+        wrapper.style.alignItems = 'start';
+    }
+
+    // расставляем карточки по колонкам
+    const cards = Array.from(wrapper.querySelectorAll('.project-info-card'));
+    if (view === 'board') {
+        cards.forEach((card, i) => {
+            card.style.gridColumn = (i % 2 === 0) ? '1' : '2';
+            card.style.alignSelf = 'start';
+        });
+    } else {
+        cards.forEach(card => {
+            card.style.gridColumn = '1';
+            card.style.alignSelf = 'start';
+        });
     }
 }
+
 
 
 function loadFavouriteProjects() {
@@ -175,7 +189,7 @@ function loadFavouriteProjects() {
 
             const wrapper = document.createElement('div');
             wrapper.id = 'fav-body-inner';
-            wrapper.style.overflow = 'hidden';
+            wrapper.style.overflow = 'visible';
             wrapper.style.transition = 'max-height 0.35s ease';
             container.appendChild(wrapper);
 
@@ -209,8 +223,7 @@ function loadFavouriteProjects() {
             renderFavProjectsInView(currentView);
 
             requestAnimationFrame(() => {
-                wrapper.style.maxHeight = wrapper.scrollHeight + 'px';
-                setTimeout(() => { wrapper.style.maxHeight = 'none'; }, 400);
+                wrapper.style.maxHeight = 'none';
             });
 
             // секция collapse
@@ -317,8 +330,10 @@ function loadFavouriteProjects() {
 
 
 function refreshFavPageIfOpen() {
-    if (!document.getElementById('favourites-page')) return;
-    const currentView = document.querySelector('.view-btn.active')?.dataset.view || 'board';
+     if (!document.getElementById('favourites-page')) return;
+    const activeBtn = document.querySelector('.view-btn.active');
+    console.log('activeBtn:', activeBtn?.dataset.view, activeBtn);
+    const currentView = activeBtn?.dataset.view || 'board';
     loadFavouriteProjects().then(() => renderFavProjectsInView(currentView));
 }
 
