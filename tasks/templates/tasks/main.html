@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{% static 'tasks/css/style.css' %}?v=3">
     <link rel="stylesheet" href="{% static 'tasks/css/group.css' %}?v=3">
     <link rel="stylesheet" href="{% static 'tasks/css/project.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'tasks/css/dashboard.css' %}?v=3">
 
 </head>
 <body>
@@ -71,7 +72,7 @@
 
 
     <div class="nav-item" id="nav-favourites">Favourites</div>
-    <div class="nav-item">Dashboard</div>
+    <div class="nav-item" id="nav-dashboard">Dashboard</div>
 </div>
 </aside>
 
@@ -526,6 +527,8 @@
 <script src="{% static 'tasks/js/group.js' %}"></script>
 <script src="{% static 'tasks/js/project.js' %}"></script>
 <script src="{% static 'tasks/js/fav.js' %}"></script>
+<script src="{% static 'tasks/js/dashboard.js' %}"></script>
+
 
 </div>
 <div id="toast" class="toast"></div>

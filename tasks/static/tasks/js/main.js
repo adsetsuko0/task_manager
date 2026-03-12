@@ -132,6 +132,8 @@ function restoreAppState() {
         }
     } else if (state.type === 'favourites') {
     renderFavouritesPage();
+    } else if (state.type === 'dashboard') {
+    renderDashboardPage();
 }}
 
 
