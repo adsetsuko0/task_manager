@@ -16,7 +16,7 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 import json
 
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, login, logout, authenticate
 User = get_user_model()
 
 from django.db.models.signals import post_save
@@ -855,3 +855,46 @@ def notifications(request):
 def task_info(request, task_id):
     task = Task.objects.select_related('project').get(id=task_id)
     return JsonResponse({'project_id': task.project_id})
+
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('/')
+    
+    error = None
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user:
+            login(request, user)
+            return redirect('/')
+        else:
+            error = 'Invalid username or password'
+    
+    return render(request, 'tasks/login.html', {'error': error})
+
+def register_view(request):
+    if request.user.is_authenticated:
+        return redirect('/')
+    
+    error = None
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        password2 = request.POST.get('password2')
+        
+        if password != password2:
+            error = 'Passwords do not match'
+        elif User.objects.filter(username=username).exists():
+            error = 'Username already taken'
+        else:
+            user = User.objects.create_user(username=username, password=password)
+            login(request, user)
+            return redirect('/')
+    
+    return render(request, 'tasks/register.html', {'error': error})
+
+def logout_view(request):
+    logout(request)
+    return redirect('/login/')

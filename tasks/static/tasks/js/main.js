@@ -1938,3 +1938,17 @@ document.addEventListener('DOMContentLoaded', () => {
     loadNotificationsBadge();
     setInterval(loadNotificationsBadge, 60000);
 });
+
+
+document.getElementById('logout-btn').addEventListener('click', () => {
+    document.getElementById('avatar-dropdown').style.display = 'none';
+    document.getElementById('logout-modal').style.display = 'flex';
+});
+
+
+function confirmLogout() {
+    window.location.href = '/logout/';
+}
+
+
+window.confirmLogout = confirmLogout;

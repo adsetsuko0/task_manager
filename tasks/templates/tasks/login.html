@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login · Task Manager</title>
+    {% load static %}
+    <link rel="icon" type="image/png" href="{% static 'tasks/icons/task_manager_logo.png' %}">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f0f0f;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .auth-card {
+            background: #1a1a1a;
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+        }
+        .auth-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+        .auth-logo img { width: 32px; height: 32px; }
+        .auth-logo span {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+        }
+        h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .auth-subtitle {
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 28px;
+        }
+        .auth-field {
+            margin-bottom: 16px;
+        }
+        .auth-field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+        }
+        .auth-field input {
+            width: 100%;
+            padding: 10px 14px;
+            background: #2a2a2a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .auth-field input:focus {
+            border-color: #7c76f0;
+        }
+        .auth-btn {
+            width: 100%;
+            padding: 11px;
+            background: #7c76f0;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+        .auth-btn:hover { background: #6a64d8; }
+        .auth-error {
+            background: rgba(224,49,49,0.15);
+            border: 1px solid rgba(224,49,49,0.3);
+            color: #ff6b6b;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #666;
+        }
+        .auth-footer a {
+            color: #7c76f0;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .auth-footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <div class="auth-logo">
+            <img src="{% static 'tasks/icons/task_manager_logo.png' %}" alt="logo">
+            <span>Task Manager</span>
+        </div>
+        <h2>Welcome back</h2>
+        <p class="auth-subtitle">Sign in to your account</p>
+
+        {% if error %}
+        <div class="auth-error">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="auth-field">
+                <label>Username</label>
+                <input type="text" name="username" placeholder="Enter username" autofocus>
+            </div>
+            <div class="auth-field">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Enter password">
+            </div>
+            <button type="submit" class="auth-btn">Sign in</button>
+        </form>
+
+        <div class="auth-footer">
+            Don't have an account? <a href="/register/">Sign up</a>
+        </div>
+    </div>
+</body>
+</html>
