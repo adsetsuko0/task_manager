@@ -59,6 +59,11 @@ urlpatterns = [
     path('notifications/', views.notifications, name='notifications'),
     path('tasks/<int:task_id>/info/', views.task_info, name='task_info'),
 
+
+    path('login/', views.login_view, name='login'),
+    path('register/', views.register_view, name='register'),
+    path('logout/', views.logout_view, name='logout'),
+
     path('dashboard/stats/', views.dashboard_stats, name='dashboard_stats'),
 ]   + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
