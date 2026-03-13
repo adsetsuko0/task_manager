@@ -53,6 +53,7 @@ urlpatterns = [
     path('tasks/update_priority/', views.update_task_priority),
     path('tasks/update_assignee/', views.update_task_assignee),
     path('tasks/move/', views.move_task),
+    path('tasks/reorder/', views.reorder_tasks, name='reorder_tasks'),
 
     path('dashboard/stats/', views.dashboard_stats, name='dashboard_stats'),
 ]   + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

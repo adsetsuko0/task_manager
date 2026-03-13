@@ -126,6 +126,9 @@ function renderFavouritesPage() {
     return 0;
 });
         cards.forEach(card => wrapper.appendChild(card));
+        
+        const activeView = document.querySelector('.view-btn.active')?.dataset.view || 'board';
+        renderFavProjectsInView(activeView);
     });
 });
     });

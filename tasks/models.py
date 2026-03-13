@@ -65,3 +65,4 @@ class Task(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     due_date=models.DateTimeField(null=True, blank=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='tasks', null=True, blank=True)
+    order= models.PositiveIntegerField(default=0)
