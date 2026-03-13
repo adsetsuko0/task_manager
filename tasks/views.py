@@ -785,3 +785,14 @@ def dashboard_stats(request):
         'done_tasks': done_tasks_list,
         'progress_tasks': progress_tasks_list,
     })
+
+
+
+def reorder_tasks(request):
+    if request.method == 'POST':
+        return JsonResponse({'success': False})
+    data=json.loads(request.body)
+    task_ids=data.get('task_ids', [])
+    for index, task_id in enumerate(task_ids):
+        Task.objects.filter(id=task_id).update(order=index)
+    return JsonResponse({'success': True})

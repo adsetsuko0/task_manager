@@ -539,6 +539,9 @@ filterOptions.forEach(option => {
 
         rows.forEach(row => tbody.appendChild(row));
         filterDropdown.style.display = 'none';
+        
+        const projectId = document.querySelector('.project-page')?.dataset.projectId;
+        if (projectId) initDragAndDrop(projectId);
     });
 });
 
@@ -779,6 +782,7 @@ function renderProjectTasks(tasks, projectId) {
         </table>
         <button class="tasks-add-btn" onclick="openCreateTaskModal('${projectId}')">+ Add task</button>
     `;
+    initDragAndDrop(projectId);
 }
 
 
@@ -1413,8 +1417,8 @@ document.getElementById('project-groupby-btn').classList.add('active');
 document.getElementById('project-groupby-dropdown').style.display = 'none';
     document.getElementById('project-groupby-btn').classList.add('active');
     document.getElementById('project-groupby-dropdown').style.display = 'none';
+    initDragAndDrop(projectId);
 }
-
 
 
 
@@ -1437,8 +1441,9 @@ function resetGroupBy() {
 
 function taskRowHTML(task, projectId) {
     return `
-        <tr class="task-row" data-task-id="${task.id}" data-status="${task.status}">
-            <td class="task-td" style="width:32px">
+        <tr class="task-row" data-task-id="${task.id}" data-status="${task.status}" draggable="true">
+            <td class="task-td" style="width:32px; position:relative">
+                <span class="drag-handle">⠿</span>
                 <span class="task-select-circle" onclick="toggleSelectTask(this, '${task.id}')"></span>
             </td>
             <td class="task-td">
@@ -1569,6 +1574,74 @@ function refreshProjectCardImg(projectId) {
             }
         });
 }
+
+
+
+function initDragAndDrop(projectId) {
+    const tbody = document.querySelector('.tasks-table tbody');
+    if (!tbody) return;
+
+    let draggedRow = null;
+
+    tbody.querySelectorAll('.task-row').forEach(row => {
+        row.setAttribute('draggable', false);
+        const handle = row.querySelector('.drag-handle');
+        if (!handle) return;
+
+        handle.addEventListener('mousedown', () => {
+            row.setAttribute('draggable', true);
+        });
+
+        handle.addEventListener('mouseup', () => {
+            row.setAttribute('draggable', false);
+        });
+    });
+
+    tbody.addEventListener('dragstart', (e) => {
+        draggedRow = e.target.closest('.task-row');
+        if (!draggedRow) return;
+        draggedRow.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+    });
+
+    tbody.addEventListener('dragend', () => {
+        if (!draggedRow) return;
+        draggedRow.classList.remove('dragging');
+        draggedRow.setAttribute('draggable', false);
+        document.querySelectorAll('.task-row.drag-over').forEach(r => r.classList.remove('drag-over'));
+
+        const taskIds = Array.from(tbody.querySelectorAll('.task-row'))
+            .map(r => r.dataset.taskId);
+
+        fetch('/tasks/reorder/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({ task_ids: taskIds })
+        });
+
+        draggedRow = null;
+    });
+
+    tbody.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        const target = e.target.closest('.task-row');
+        if (!target || target === draggedRow) return;
+
+        const rect = target.getBoundingClientRect();
+        const mid = rect.top + rect.height / 2;
+        if (e.clientY < mid) {
+            tbody.insertBefore(draggedRow, target);
+        } else {
+            tbody.insertBefore(draggedRow, target.nextSibling);
+        }
+    });
+}
+
+
+
 window.refreshProjectCardImg = refreshProjectCardImg;
 
 window.applyGroupBy = applyGroupBy;
