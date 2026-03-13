@@ -340,6 +340,12 @@ function refreshFavPageIfOpen() {
     loadFavouriteProjects().then(() => renderFavProjectsInView(currentView));
 }
 
+
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(loadHomeWidgets, 100);
+});
+
+
 window.refreshFavPageIfOpen = refreshFavPageIfOpen;
 
 window.renderFavouritesPage = renderFavouritesPage;

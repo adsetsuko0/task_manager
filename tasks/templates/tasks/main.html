@@ -91,6 +91,14 @@
         </div>
 
     <div class="topbar-right" style="margin-left: auto; position: relative;">
+        <div id="notifications-bell" class="notifications-bell" onclick="toggleNotifications()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+    </svg>
+    <span class="notifications-badge" id="notifications-badge" style="display:none">0</span>
+</div>
+
         <div id="theme-toggle" class="theme-toggle">
             <img id='theme-icon' src="{% static 'tasks/icons/night_mode.png' %}" alt="Dark Theme" />
         </div>

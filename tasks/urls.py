@@ -55,6 +55,10 @@ urlpatterns = [
     path('tasks/move/', views.move_task),
     path('tasks/reorder/', views.reorder_tasks, name='reorder_tasks'),
 
+    path('home/stats/', views.home_stats, name='home_stats'),
+    path('notifications/', views.notifications, name='notifications'),
+    path('tasks/<int:task_id>/info/', views.task_info, name='task_info'),
+
     path('dashboard/stats/', views.dashboard_stats, name='dashboard_stats'),
 ]   + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

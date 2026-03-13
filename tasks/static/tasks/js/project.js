@@ -539,7 +539,7 @@ filterOptions.forEach(option => {
 
         rows.forEach(row => tbody.appendChild(row));
         filterDropdown.style.display = 'none';
-        
+
         const projectId = document.querySelector('.project-page')?.dataset.projectId;
         if (projectId) initDragAndDrop(projectId);
     });
@@ -737,7 +737,7 @@ function renderProjectTasks(tasks, projectId) {
                                 ${task.status === 'todo' ? 'TO DO' : task.status === 'in_progress' ? 'IN PROGRESS' : 'DONE'}
                             </span>
                         </td>
-                        <td class="task-td task-title-td">${task.title}</td>
+                        <td class="task-td task-title-td" ondblclick="inlineRenameTask(event, '${task.id}', this)">${task.title}</td>
                         <td class="task-td task-muted" style="cursor:pointer" onclick="openAssigneePicker(event, '${task.id}', this)">
                             ${task.assignee ? '👤 ' + task.assignee : `
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="assignee-add-icon">
@@ -1456,7 +1456,7 @@ function taskRowHTML(task, projectId) {
                     ${task.status === 'todo' ? 'TO DO' : task.status === 'in_progress' ? 'IN PROGRESS' : 'DONE'}
                 </span>
             </td>
-            <td class="task-td task-title-td">${task.title}</td>
+           <td class="task-td task-title-td" ondblclick="inlineRenameTask(event, '${task.id}', this)">${task.title}</td>
             <td class="task-td task-muted" style="cursor:pointer" onclick="openAssigneePicker(event, '${task.id}', this)">
                 ${task.assignee ? '👤 ' + task.assignee : `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="assignee-add-icon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg>`}
             </td>
@@ -1639,6 +1639,19 @@ function initDragAndDrop(projectId) {
         }
     });
 }
+
+
+function inlineRenameTask(event, taskId, td) {
+    if (td.querySelector('input')) return; // уже редактируется
+    const oldName = td.textContent.trim();
+    td.innerHTML = `<input class="task-inline-input" value="${oldName}" 
+        onblur="submitRenameTask(this, '${taskId}')"
+        onkeydown="if(event.key==='Enter') this.blur(); if(event.key==='Escape') { this.value='${oldName}'; this.blur(); }">`;
+    const input = td.querySelector('input');
+    input.focus();
+    input.select();
+}
+window.inlineRenameTask = inlineRenameTask;
 
 
 
