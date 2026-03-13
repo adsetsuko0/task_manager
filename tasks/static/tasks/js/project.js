@@ -475,20 +475,18 @@ function renderProjectPage(projectEl) {
 
     // view switch
     const viewBtns = contentEl.querySelectorAll('.view-btn');
-
-viewBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-        viewBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const view = btn.dataset.view;
-        // берём контейнер заново каждый раз
-        const container = document.getElementById('project-tasks-container');
-        if (container) {
-            container.classList.remove('board-view', 'list-view');
-            container.classList.add(view + '-view');
-        }
+    viewBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            viewBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const view = btn.dataset.view;
+            const container = document.getElementById('project-tasks-container');
+            if (container) {
+                container.classList.remove('board-view', 'list-view');
+                container.classList.add(view + '-view');
+            }
+        });
     });
-});
 
     // collapse
     const arrow = contentEl.querySelector('#project-info-arrow');
@@ -511,45 +509,43 @@ viewBtns.forEach(btn => {
     });
 
     // filter logic
-    // filter logic
-const filterOptions = contentEl.querySelectorAll('.filter-option[data-filter]');
-filterOptions.forEach(option => {
-    option.addEventListener('click', () => {
-        filterOptions.forEach(o => o.classList.remove('active'));
-        option.classList.add('active');
-        filterBtn.classList.add('filter-active');
+    const filterOptions = contentEl.querySelectorAll('.filter-option[data-filter]');
+    filterOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            filterOptions.forEach(o => o.classList.remove('active'));
+            option.classList.add('active');
+            filterBtn.classList.add('filter-active');
 
-        const filter = option.dataset.filter;
-        const tbody = tasksContainer.querySelector('tbody');
-        if (!tbody) return;
+            const filter = option.dataset.filter;
+            const tbody = document.getElementById('project-tasks-container').querySelector('tbody');
+            if (!tbody) return;
 
-        const rows = Array.from(tbody.querySelectorAll('.task-row'));
+            const rows = Array.from(tbody.querySelectorAll('.task-row'));
 
-        rows.sort((a, b) => {
-            const nameA = a.querySelector('.task-title-td')?.textContent.trim() || '';
-            const nameB = b.querySelector('.task-title-td')?.textContent.trim() || '';
-            const statusA = a.dataset.status || '';
+            rows.sort((a, b) => {
+                const nameA = a.querySelector('.task-title-td')?.textContent.trim() || '';
+                const nameB = b.querySelector('.task-title-td')?.textContent.trim() || '';
+                const statusA = a.dataset.status || '';
 
-            if (filter === 'name-asc') return nameA.localeCompare(nameB);
-            if (filter === 'name-desc') return nameB.localeCompare(nameA);
-            if (filter === 'status-todo') return statusA === 'todo' ? -1 : 1;
-            if (filter === 'status-done') return statusA === 'done' ? -1 : 1;
-            return 0;
+                if (filter === 'name-asc') return nameA.localeCompare(nameB);
+                if (filter === 'name-desc') return nameB.localeCompare(nameA);
+                if (filter === 'status-todo') return statusA === 'todo' ? -1 : 1;
+                if (filter === 'status-done') return statusA === 'done' ? -1 : 1;
+                return 0;
+            });
+
+            rows.forEach(row => tbody.appendChild(row));
+            filterDropdown.style.display = 'none';
+
+            const pid = document.querySelector('.project-page')?.dataset.projectId;
+            if (pid) initDragAndDrop(pid);
         });
-
-        rows.forEach(row => tbody.appendChild(row));
-        filterDropdown.style.display = 'none';
-
-        const projectId = document.querySelector('.project-page')?.dataset.projectId;
-        if (projectId) initDragAndDrop(projectId);
     });
-});
 
     // group by
     const groupByBtn = contentEl.querySelector('#project-groupby-btn');
     const groupByDropdown = contentEl.querySelector('#project-groupby-dropdown');
     const groupByFieldSelect = contentEl.querySelector('#groupby-field-select');
-    const groupByValueSelect = contentEl.querySelector('#groupby-value-select');
 
     groupByBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -557,85 +553,86 @@ filterOptions.forEach(option => {
     });
 
     groupByFieldSelect.addEventListener('change', () => {
-    const field = groupByFieldSelect.value;
-    const valueSelect = document.getElementById('groupby-value-select');
+        const field = groupByFieldSelect.value;
+        const valueSelect = document.getElementById('groupby-value-select');
 
-    if (field === 'none') {
-        valueSelect.style.display = 'none';
-        return;
-    }
+        if (field === 'none') {
+            valueSelect.style.display = 'none';
+            return;
+        }
 
-    if (field === 'status') {
-        const opts = [
-            { value: 'todo', svg: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#888" stroke-width="1.5" stroke-dasharray="3 2"/></svg>`, label: 'TO DO' },
-            { value: 'in_progress', svg: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#bea54a" stroke-width="1.5"/><path d="M7 4v3l2 2" stroke="#bea54a" stroke-width="1.5" stroke-linecap="round"/></svg>`, label: 'IN PROGRESS' },
-            { value: 'done', svg: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#2f9e44" stroke-width="1.5"/><path d="M4.5 7l2 2 3-3" stroke="#2f9e44" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`, label: 'DONE' },
-        ];
-        valueSelect.innerHTML = `
-            <div class="groupby-custom-selected" onclick="toggleGroupByValueDropdown(event)">
-                <span id="groupby-custom-label">— All —</span>
-                <span style="color:#888;font-size:11px">▾</span>
-            </div>
-            <div class="groupby-custom-options" id="groupby-custom-options" style="display:none">
-                <div class="groupby-custom-opt" data-value="__all__" onclick="selectGroupByValue('__all__', '— All —', null)">— All —</div>
-                ${opts.map(o => `
-                    <div class="groupby-custom-opt" data-value="${o.value}" onclick="selectGroupByValue('${o.value}', '${o.label}', this)">
-                        ${o.svg} ${o.label}
-                    </div>
-                `).join('')}
-            </div>
-        `;
-        valueSelect.dataset.value = '__all__';
-    } else if (field === 'priority') {
-        valueSelect.innerHTML = `
-            <div class="groupby-custom-selected" onclick="toggleGroupByValueDropdown(event)">
-                <span id="groupby-custom-label">— All —</span>
-                <span style="color:#888;font-size:11px">▾</span>
-            </div>
-            <div class="groupby-custom-options" id="groupby-custom-options" style="display:none">
-                <div class="groupby-custom-opt" data-value="__all__" onclick="selectGroupByValue('__all__', '— All —', null)">— All —</div>
-                <div class="groupby-custom-opt" data-value="low" onclick="selectGroupByValue('low', 'Low', this)">⚐ Low</div>
-                <div class="groupby-custom-opt" data-value="high" onclick="selectGroupByValue('high', 'High', this)">⚑ High</div>
-            </div>
-        `;
-        valueSelect.dataset.value = '__all__';
-    } else if (field === 'assignee') {
-        const values = [...new Set(currentProjectTasks.map(t => t.assignee).filter(Boolean))];
-        valueSelect.innerHTML = `
-            <div class="groupby-custom-selected" onclick="toggleGroupByValueDropdown(event)">
-                <span id="groupby-custom-label">— All —</span>
-                <span style="color:#888;font-size:11px">▾</span>
-            </div>
-            <div class="groupby-custom-options" id="groupby-custom-options" style="display:none">
-                <div class="groupby-custom-opt" data-value="__all__" onclick="selectGroupByValue('__all__', '— All —', null)">— All —</div>
-                ${values.map(v => `
-                    <div class="groupby-custom-opt" data-value="${v}" onclick="selectGroupByValue('${v}', '${v}', this)">👤 ${v}</div>
-                `).join('')}
-            </div>
-        `;
-        valueSelect.dataset.value = '__all__';
-    }
+        if (field === 'status') {
+            const opts = [
+                { value: 'todo', svg: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#888" stroke-width="1.5" stroke-dasharray="3 2"/></svg>`, label: 'TO DO' },
+                { value: 'in_progress', svg: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#bea54a" stroke-width="1.5"/><path d="M7 4v3l2 2" stroke="#bea54a" stroke-width="1.5" stroke-linecap="round"/></svg>`, label: 'IN PROGRESS' },
+                { value: 'done', svg: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#2f9e44" stroke-width="1.5"/><path d="M4.5 7l2 2 3-3" stroke="#2f9e44" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`, label: 'DONE' },
+            ];
+            valueSelect.innerHTML = `
+                <div class="groupby-custom-selected" onclick="toggleGroupByValueDropdown(event)">
+                    <span id="groupby-custom-label">— All —</span>
+                    <span style="color:#888;font-size:11px">▾</span>
+                </div>
+                <div class="groupby-custom-options" id="groupby-custom-options" style="display:none">
+                    <div class="groupby-custom-opt" data-value="__all__" onclick="selectGroupByValue('__all__', '— All —', null)">— All —</div>
+                    ${opts.map(o => `
+                        <div class="groupby-custom-opt" data-value="${o.value}" onclick="selectGroupByValue('${o.value}', '${o.label}', this)">
+                            ${o.svg} ${o.label}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            valueSelect.dataset.value = '__all__';
+        } else if (field === 'priority') {
+            valueSelect.innerHTML = `
+                <div class="groupby-custom-selected" onclick="toggleGroupByValueDropdown(event)">
+                    <span id="groupby-custom-label">— All —</span>
+                    <span style="color:#888;font-size:11px">▾</span>
+                </div>
+                <div class="groupby-custom-options" id="groupby-custom-options" style="display:none">
+                    <div class="groupby-custom-opt" data-value="__all__" onclick="selectGroupByValue('__all__', '— All —', null)">— All —</div>
+                    <div class="groupby-custom-opt" data-value="low" onclick="selectGroupByValue('low', 'Low', this)">⚐ Low</div>
+                    <div class="groupby-custom-opt" data-value="high" onclick="selectGroupByValue('high', 'High', this)">⚑ High</div>
+                </div>
+            `;
+            valueSelect.dataset.value = '__all__';
+        } else if (field === 'assignee') {
+            const values = [...new Set(currentProjectTasks.map(t => t.assignee).filter(Boolean))];
+            valueSelect.innerHTML = `
+                <div class="groupby-custom-selected" onclick="toggleGroupByValueDropdown(event)">
+                    <span id="groupby-custom-label">— All —</span>
+                    <span style="color:#888;font-size:11px">▾</span>
+                </div>
+                <div class="groupby-custom-options" id="groupby-custom-options" style="display:none">
+                    <div class="groupby-custom-opt" data-value="__all__" onclick="selectGroupByValue('__all__', '— All —', null)">— All —</div>
+                    ${values.map(v => `
+                        <div class="groupby-custom-opt" data-value="${v}" onclick="selectGroupByValue('${v}', '${v}', this)">👤 ${v}</div>
+                    `).join('')}
+                </div>
+            `;
+            valueSelect.dataset.value = '__all__';
+        }
 
-    valueSelect.style.display = 'block';
-    groupByBtn.classList.add('active');
-    document.getElementById('project-groupby-value').textContent = field;
-});
+        valueSelect.style.display = 'block';
+        groupByBtn.classList.add('active');
+        document.getElementById('project-groupby-value').textContent = field;
+    });
 
     // show done
     let showDone = false;
-const showDoneBtn = contentEl.querySelector('#project-showdone-btn');
-showDoneBtn.addEventListener('click', () => {
-    showDone = !showDone;
-    showDoneBtn.classList.toggle('active', showDone);
-    const allRows = tasksContainer.querySelectorAll('.task-row');
-    allRows.forEach(row => {
-        if (showDone) {
-            row.style.display = row.dataset.status === 'done' ? '' : 'none';
-        } else {
-            row.style.display = '';
-        }
+    const showDoneBtn = contentEl.querySelector('#project-showdone-btn');
+    showDoneBtn.addEventListener('click', () => {
+        showDone = !showDone;
+        showDoneBtn.classList.toggle('active', showDone);
+        const allRows = document.getElementById('project-tasks-container').querySelectorAll('.task-row');
+        allRows.forEach(row => {
+            if (showDone) {
+                row.style.display = row.dataset.status === 'done' ? '' : 'none';
+            } else {
+                row.style.display = '';
+            }
+        });
     });
-});
+
     // сердечко
     const favBtn = contentEl.querySelector('#project-info-fav');
     const isFav = projectEl.querySelector('.project-fav')?.textContent.includes('♥') || false;
