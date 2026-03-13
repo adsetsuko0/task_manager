@@ -796,3 +796,62 @@ def reorder_tasks(request):
     for index, task_id in enumerate(task_ids):
         Task.objects.filter(id=task_id).update(order=index)
     return JsonResponse({'success': True})
+
+
+
+def home_stats(request):
+    today = timezone.now().date()
+    user = request.user
+    
+    all_tasks = Task.objects.filter(owner=user)
+    today_tasks = all_tasks.filter(due_date__date=today)
+    today_done = today_tasks.filter(status='done').count()
+    today_total = today_tasks.count()
+    
+    # таски с due_date для календаря
+    tasks_with_dates = list(
+        all_tasks.exclude(due_date=None)
+        .values('due_date', 'status')
+    )
+    calendar_dates = {}
+    for t in tasks_with_dates:
+        d = t['due_date'].strftime('%Y-%m-%d')
+        if d not in calendar_dates:
+            calendar_dates[d] = {'total': 0, 'done': 0}
+        calendar_dates[d]['total'] += 1
+        if t['status'] == 'done':
+            calendar_dates[d]['done'] += 1
+    
+    return JsonResponse({
+        'today_done': today_done,
+        'today_total': today_total,
+        'calendar_dates': calendar_dates,
+        'username': user.username,
+    })
+
+
+def notifications(request):
+    from django.utils import timezone
+    today = timezone.now()
+    overdue = Task.objects.filter(
+        owner=request.user,
+        due_date__lt=today
+    ).exclude(status='done').select_related('project').values(
+        'id', 'title', 'due_date', 'project__name'
+    ).order_by('due_date')[:20]
+    
+    result = []
+    for t in overdue:
+        result.append({
+            'id': t['id'],
+            'title': t['title'],
+            'project': t['project__name'],
+            'due_date': t['due_date'].strftime('%d.%m.%Y') if t['due_date'] else ''
+        })
+    
+    return JsonResponse({'notifications': result, 'count': len(result)})
+
+
+def task_info(request, task_id):
+    task = Task.objects.select_related('project').get(id=task_id)
+    return JsonResponse({'project_id': task.project_id})

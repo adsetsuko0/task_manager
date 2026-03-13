@@ -32,6 +32,7 @@ document.getElementById('nav-home').addEventListener('click', () => {
     document.querySelector('.content').innerHTML = homeContent;
 
     updatePageTitle('Home');
+    loadHomeWidgets();
 
     // переинициализируем view кнопки
     viewButtons = document.querySelectorAll('.view-switch .view-btn');
@@ -62,6 +63,7 @@ document.getElementById('nav-home').addEventListener('click', () => {
     // обновляем карточки
     limitCards('recent', 3);
     limitCards('fav', 3);
+
 });
 
 
@@ -1642,4 +1644,297 @@ document.addEventListener('DOMContentLoaded', () => {
         btnToActivate.click();
     }
 
+});
+
+
+
+
+document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
+
+    // Esc
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay, .modal-backdrop').forEach(m => m.style.display = 'none');
+        document.getElementById('status-picker')?.remove();
+        document.getElementById('date-picker-inline')?.remove();
+        document.getElementById('assignee-picker')?.remove();
+        document.getElementById('priority-picker')?.remove();
+        document.getElementById('bulk-status-picker')?.remove();
+        document.getElementById('bulk-assignee-picker')?.remove();
+        document.getElementById('bulk-move-picker')?.remove();
+        document.getElementById('bulk-date-picker')?.remove();
+        document.getElementById('task-dropdown').style.display = 'none';
+        document.getElementById('dropdown').style.display = 'none';
+        return;
+    }
+
+    // N — новый таск
+    if (e.key === 'n' || e.key === 'N') {
+        const projectPage = document.querySelector('.project-page');
+        if (!projectPage) return;
+        openCreateTaskModal(projectPage.dataset.projectId);
+        return;
+    }
+
+    // Ctrl+K — поиск
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('global-search')?.focus();
+        return;
+    }
+});
+
+
+function loadHomeWidgets() {
+    const content = document.querySelector('.content');
+    
+    // вставляем виджеты перед #recent
+    const recentSection = content.querySelector('#recent');
+    if (!recentSection || document.getElementById('home-widgets')) return;
+
+    const hour = new Date().getHours();
+    const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
+    const widgetsHTML = `
+        <div id="home-widgets" style="display:flex; gap:16px; margin-bottom:20px; flex-wrap:wrap;">
+            
+            <!-- Приветствие + прогресс -->
+            <div class="home-widget" id="home-greeting-widget">
+                <div class="home-widget-greeting" id="home-greeting-text">
+                    ${greeting}, loading... 👋
+                </div>
+                <div class="home-widget-progress-label" id="home-progress-label">
+                    Loading today's progress...
+                </div>
+                <div class="home-widget-progress-bar-bg">
+                    <div class="home-widget-progress-bar-fill" id="home-progress-fill" style="width:0%"></div>
+                </div>
+            </div>
+
+            <!-- Быстрое создание таска -->
+            <div class="home-widget" id="home-quick-task-widget">
+                <div class="home-widget-title">Quick task</div>
+                <input class="home-quick-task-input" id="home-quick-task-input" placeholder="Task name...">
+                <select class="home-quick-task-select" id="home-quick-task-project">
+                    <option value="">Select project...</option>
+                </select>
+                <button class="home-quick-task-btn" onclick="submitQuickTask()">+ Add task</button>
+            </div>
+
+            <!-- Мини-календарь -->
+            <div class="home-widget" id="home-calendar-widget">
+                <div class="home-widget-title" id="home-calendar-title"></div>
+                <div class="home-calendar-grid" id="home-calendar-grid"></div>
+            </div>
+
+        </div>
+    `;
+
+    recentSection.insertAdjacentHTML('beforebegin', widgetsHTML);
+
+    // заполняем проекты в quick task
+    document.querySelectorAll('.project-item').forEach(el => {
+        const opt = document.createElement('option');
+        opt.value = el.dataset.projectId;
+        opt.textContent = el.querySelector('.project-name').textContent;
+        document.getElementById('home-quick-task-project').appendChild(opt);
+    });
+
+    // загружаем данные
+    fetch('/home/stats/')
+        .then(res => res.json())
+        .then(data => {
+            // приветствие
+            document.getElementById('home-greeting-text').textContent = 
+                `${greeting}, ${data.username} 👋`;
+
+            // прогресс
+            const done = data.today_done;
+            const total = data.today_total;
+            const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+            document.getElementById('home-progress-label').textContent = 
+                total > 0 ? `${done} of ${total} tasks done today` : 'No tasks due today';
+            
+            const fillEl = document.getElementById('home-progress-fill');
+if (fillEl) setTimeout(() => { fillEl.style.width = pct + '%'; }, 100);
+
+            // календарь
+            renderMiniCalendar(data.calendar_dates);
+        });
+}
+
+function renderMiniCalendar(calendarDates) {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    
+    const monthNames = ['January','February','March','April','May','June',
+                        'July','August','September','October','November','December'];
+    document.getElementById('home-calendar-title').textContent = `${monthNames[month]} ${year}`;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const startOffset = (firstDay + 6) % 7; // пн первый
+
+    const grid = document.getElementById('home-calendar-grid');
+    grid.innerHTML = '';
+
+    // заголовки дней
+    ['Mo','Tu','We','Th','Fr','Sa','Su'].forEach(d => {
+        const el = document.createElement('div');
+        el.className = 'cal-day-header';
+        el.textContent = d;
+        grid.appendChild(el);
+    });
+
+    // пустые ячейки до начала месяца
+    for (let i = 0; i < startOffset; i++) {
+        const el = document.createElement('div');
+        el.className = 'cal-day empty';
+        grid.appendChild(el);
+    }
+
+    // дни месяца
+    for (let day = 1; day <= daysInMonth; day++) {
+        const el = document.createElement('div');
+        el.className = 'cal-day';
+        
+        const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        const isToday = day === now.getDate();
+        const hasTask = calendarDates[dateStr];
+
+        if (isToday) el.classList.add('cal-today');
+        
+        el.innerHTML = `<span>${day}</span>`;
+        
+        if (hasTask) {
+            const allDone = hasTask.done === hasTask.total;
+            const dot = document.createElement('span');
+            dot.className = allDone ? 'cal-dot cal-dot-done' : 'cal-dot cal-dot-pending';
+            el.appendChild(dot);
+        }
+
+        grid.appendChild(el);
+    }
+}
+
+function submitQuickTask() {
+    const title = document.getElementById('home-quick-task-input').value.trim();
+    const projectId = document.getElementById('home-quick-task-project').value;
+
+    if (!title) { showToast('Task name cannot be empty'); return; }
+    if (!projectId) { showToast('Select a project'); return; }
+
+    fetch('/tasks/create/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+        body: JSON.stringify({ 
+            project_id: projectId, title, 
+            status: 'todo', priority: 'low',
+            description: '', assignee_id: null, due_date: null
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('home-quick-task-input').value = '';
+            showToast('Task created!');
+            refreshProjectCardImg(projectId);
+        }
+    });
+}
+
+window.submitQuickTask = submitQuickTask;
+
+
+function toggleNotifications() {
+    const panel = document.getElementById('notifications-panel');
+    if (panel) {
+        panel.remove();
+        return;
+    }
+    
+    const bell = document.getElementById('notifications-bell');
+    const rect = bell.getBoundingClientRect();
+    
+    const div = document.createElement('div');
+    div.id = 'notifications-panel';
+    div.className = 'notifications-panel';
+    div.innerHTML = `
+        <div class="notifications-header">
+            <span>Notifications</span>
+            <button class="notifications-close" onclick="document.getElementById('notifications-panel').remove()">✕</button>
+        </div>
+        <div class="notifications-body" id="notifications-body">
+            <div class="notifications-loading">Loading...</div>
+        </div>
+    `;
+    
+    div.style.top = (rect.bottom + 8) + 'px';
+    div.style.right = (window.innerWidth - rect.right) + 'px';
+    document.body.appendChild(div);
+    
+    fetch('/notifications/')
+        .then(res => res.json())
+        .then(data => {
+            const body = document.getElementById('notifications-body');
+            if (!body) return;
+            
+            if (data.notifications.length === 0) {
+                body.innerHTML = `<div class="notifications-empty">No overdue tasks 🎉</div>`;
+                return;
+            }
+            
+            body.innerHTML = data.notifications.map(n => `
+                <div class="notification-item" onclick="openTaskProject('${n.id}')">
+                    <div class="notification-icon">⚠️</div>
+                    <div class="notification-content">
+                        <div class="notification-title">${n.title}</div>
+                        <div class="notification-meta">${n.project} · overdue ${n.due_date}</div>
+                    </div>
+                </div>
+            `).join('');
+        });
+}
+
+function loadNotificationsBadge() {
+    fetch('/notifications/')
+        .then(res => res.json())
+        .then(data => {
+            const badge = document.getElementById('notifications-badge');
+            if (!badge) return;
+            if (data.count > 0) {
+                badge.textContent = data.count > 9 ? '9+' : data.count;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        });
+}
+
+function openTaskProject(taskId) {
+    document.getElementById('notifications-panel')?.remove();
+    fetch(`/tasks/${taskId}/info/`)
+        .then(res => res.json())
+        .then(data => {
+            const projectEl = document.querySelector(`.project-item[data-project-id="${data.project_id}"]`);
+            if (!projectEl) return;
+            document.querySelectorAll('.project-item').forEach(el => el.classList.remove('active'));
+            projectEl.classList.add('active');
+            renderProjectPage(projectEl);
+        });
+}
+
+window.toggleNotifications = toggleNotifications;
+
+document.addEventListener('click', (e) => {
+    const panel = document.getElementById('notifications-panel');
+    if (panel && !panel.contains(e.target) && !document.getElementById('notifications-bell').contains(e.target)) {
+        panel.remove();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadNotificationsBadge();
+    setInterval(loadNotificationsBadge, 60000);
 });
