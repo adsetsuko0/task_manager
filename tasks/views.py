@@ -598,12 +598,10 @@ def list_users(request):
 @login_required
 def rename_task(request):
     data = json.loads(request.body)
-    print(f"Renaming task {data['task_id']} to {data['new_name']}")
     task = Task.objects.get(id=data['task_id'])
     task.title = data['new_name']
     task.save()
     task.refresh_from_db()
-    print(f"After save: {task.title}")
     return JsonResponse({'success': True})
 
 @login_required
@@ -669,11 +667,9 @@ def move_task(request):
 def update_task_priority(request):
     data = json.loads(request.body)
     task = Task.objects.get(id=data['task_id'])
-    print(f"Updating task {task.id} priority from {task.priority} to {data['priority']}")
     task.priority = data['priority']
     task.save()
     task.refresh_from_db()
-    print(f"After save: {task.priority}")
     return JsonResponse({'success': True})
 
 
