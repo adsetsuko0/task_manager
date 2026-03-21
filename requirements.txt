@@ -2,3 +2,4 @@ django
 gunicorn
 whitenoise
 pillow
+python-decouple
