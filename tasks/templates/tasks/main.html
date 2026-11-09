@@ -4,95 +4,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Manager</title>
+    <title>Task Manager - Personal Project</title>
 
     <!--CSS-->
-    <link rel="stylesheet" href="{% static 'tasks/css/style.css' %}?v=2">
+    <link rel="icon" type="image/png" href="{% static 'tasks/icons/task_manager_logo.png' %}">
+    <link rel="stylesheet" href="{% static 'tasks/css/style.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'tasks/css/group.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'tasks/css/project.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'tasks/css/dashboard.css' %}?v=3">
+
 </head>
 <body>
 <div class="app">
 
+
+
 <!--SIDEBAR-->
+{% csrf_token %}
 <div class="layout">
     <div id="sidebar-container">
     <aside class="sidebar" id="sidebar">
 
     <div id="sidebar-toggle" onclick="toggleSidebar()" class="triangle">◀</div>
-    <div class="nav-item">Home</div>
+    <div class="sidebar-title">{{ page_title }}</div>
+
+    <div class="sidebar-nav">
+    <div class="nav-item" id="nav-home">Home</div>
     
     <div class="nav-item" id="spaces-nav" >
     <div class="spaces-section">
-        <div class="spaces-header" onclick="toggleSpaces(event);">
+        <div class="spaces-header" onclick="handleSpacesClick(event)">
             <div class="spaces-left">
-                <span id='spaces-arrow'>▼</span>Spaces
+                <span id='spaces-arrow'>▶</span>Spaces
             </div>
 
 
-            <button type="button" class="spaces-add-btn" onclick="addSpace(event)">+</button>
+            <button type="button" class="spaces-add-btn" onclick="openCreateGroupModal(event)">+</button>
         </div>
     </div>
 </div>
+
 
 
     <div id="spaces-body" class="hidden">
         {% for group in groups %}
-        <div class="space-group">
-            <strong>{{ group.name }}</strong>
+        <div class="spaces-group" data-group-id="{{ group.id }}">
+            <div class="group-title clickable">
+            <span class="group-name">{{ group.name }}</span>
+            </div>
 
+            <div class="projects" style="display: none;">
             {% for project in group.projects.all %}
-            <div class="project-row">
-                <span>{{ project.name }}</span>
+            <div class="project-item" data-project-id="{{ project.id }}">
+                <span class="project-name">{{ project.name }}</span>
 
-                <button class="menu-btn"
-                        onclick="openProjectMenu(event, '{{ project.id }}', '{{ project.name }}')">•••
-                </button>
+                <div class="project-actions">
+                    <span class="project-fav">{% if project.is_favourite %}♥{% else %}♡{% endif %}</span>
 
+                    <button class="project-menu-btn" 
+                            onclick="openProjectMenu(event, '{{ project.id }}', '{{ project.name }}')">
+                        ⋯
+                    </button>
+                </div>
             </div>
             {% endfor %}
-
         </div>
-        {% endfor %}
-
     </div>
+    {% endfor %}
+</div>
 
 
-
-    <div class="nav-item">Dashboard</div>
-
+    <div class="nav-item" id="nav-favourites">Favourites</div>
+    <div class="nav-item" id="nav-dashboard">Dashboard</div>
+</div>
 </aside>
 </div>
 
 </div>
+
+
+
 
 <!--MAIN-->
 <main class="main">
 
     <div class="topbar">
 
+
         <div class="topbar-left">
-            <div class="page-title">{{ page_title }}</div>
-            <input class="search" placeholder="Search">
+            <input class="search" placeholder="Search" id="global-search">
+            <div id="search-suggestions" class="search-suggestions"></div>
         </div>
 
-    <div class="topbar-right">
-        <div class="avatar">{{ request.user.username|first|upper }}</div>
-    </div>
-    </div>
+    <div class="topbar-right" style="margin-left: auto; position: relative;">
+        <div id="notifications-bell" class="notifications-bell" onclick="toggleNotifications()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+    </svg>
+    <span class="notifications-badge" id="notifications-badge" style="display:none">0</span>
+</div>
 
-    <div class="content">
+        <div id="theme-toggle" class="theme-toggle">
+            <img id='theme-icon' src="{% static 'tasks/icons/night_mode.png' %}" alt="Dark Theme" />
+        </div>
+        <div class="avatar-dropdown-wrapper">
+
+            <!-- Аватар -->
+            <div class="avatar" id="user-avatar">
+                {% if request.user.profile.avatar %}
+            <img src="{{ request.user.profile.avatar.url }}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">
+                {% else %}
+                    {{ request.user.username|slice:":1" }}
+                {% endif %}
+    <span class="avatar-status {% if request.user.is_active %}online{% else %}offline{% endif %}"></span>
+</div>
+
+            <!-- Dropdown -->
+            <div class="dropdown avatar-dropdown" id="avatar-dropdown">
+
+                <div class="dropdown-header">
+                    <div class="avatar small-avatar">
+                        {% if request.user.profile.avatar %}
+                    <img src="{{ request.user.profile.avatar.url }}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">
+                        {% else %}
+                            {{ request.user.username|slice:":1" }}
+                        {% endif %}
+    <span class="avatar-status {% if request.user.is_active %}online{% else %}offline{% endif %}"></span>
+</div>
+
+                    <div class="user-info">
+                        <div class="username">{{ request.user.username }}</div>
+                    </div>
+                </div>
+
+                <div class="dropdown-divider"></div>
+
+                <div class="dropdown-item" id="settings-btn">
+                    <span class="icon">⛭</span>
+                    <span class="text">Settings</span>
+                </div>
+
+                <div class="dropdown-item" id="logout-btn">
+                    <span class="icon">⏼</span>
+                    <span class="text">Log out</span>
+                </div>
+
+            </div> <!-- dropdown -->
+
+        </div> <!-- avatar-dropdown-wrapper -->
+    </div> <!-- topbar-right -->
+</div> <!-- topbar -->
+
+ <div class="content">
 
         <div class="view-switch">
-    <button class="view-btn active">
-        <svg class="view-icon" viewBox="0 0 24 24">
-            <rect x="4" y="5" width="16" height="2"/>
-            <rect x="4" y="11" width="16" height="2"/>
-            <rect x="4" y="17" width="16" height="2"/>
-        </svg>
-        <span>List</span>
-    </button>
-
-    <button class="view-btn">
-        <svg class="view-icon" viewBox="0 0 24 24">
+    <button class="view-btn active" data-view="board">
+        <svg class="view-icon" viewBox="0 0 24 24">      
             <rect x="4" y="4" width="7" height="7"/>
             <rect x="13" y="4" width="7" height="7"/>
             <rect x="4" y="13" width="7" height="7"/>
@@ -101,64 +169,99 @@
         <span>Board</span>
     </button>
 
-    <button class="view-btn">
+    <button class="view-btn" data-view="list">
         <svg class="view-icon" viewBox="0 0 24 24">
-            <rect x="3" y="5" width="18" height="16" rx="2"/>
-            <line x1="3" y1="9" x2="21" y2="9"/>
+            <rect x="4" y="5" width="16" height="2"/>
+            <rect x="4" y="11" width="16" height="2"/>
+            <rect x="4" y="17" width="16" height="2"/> 
         </svg>
-        <span>Calendar</span>
+        <span>List</span>
     </button>
-</div>
 
+</div>
 <div class="divider"></div>
 
-        <!--RECENT PROJECTS-->
-        <section class="section" id="recent">
-            <div class="section-header" onclick="toggleSection('recent')">
-                <span>▼</span> Recent projects
+
+
+
+
+
+  <!--RECENT PROJECTS-->
+<section class="section" id="recent">
+    <div class="section-header" onclick="toggleSection('recent')">
+        <span>▼</span> Recent projects
+    </div>
+
+    <div class="cards board-view">
+        {% for p in recent_projects %}
+        <div class="card" data-project-id="{{ p.id }}">
+            <div class="card-img" data-project-id="{{ p.id }} id="home-card-img-{{ p.id }}">
+                {% if p.tasks.exists %}
+                    <div class="card-tasks-preview">
+                        {% for task in p.tasks.all|slice:":3" %}
+                        <div class="card-task-item status-{{ task.status }}">
+                            <span class="card-task-dot"></span>
+                            <span class="card-task-name">{{ task.title }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <img src="{% static 'tasks/icons/doc_light.png' %}" alt="icon" class="card-icon"/>
+                    <span class="card-subtitle">No tasks added</span>
+                {% endif %}
             </div>
-
-            <div class="cards">
-                {% for p in recent_projects %}
-                <div class="card">
-
-                    <button class="card-menu-btn"
-                            onclick="openProjectMenu(event, '{{ p.id }}', '{{ p.name }}')">
-                    </button>
-
-                </div>
-                {% endfor %}
-
+            <div class="card-title">
+                <img src="{% static 'tasks/icons/list_night.png' %}" class="title-icon" alt="icon">
+                {{ p.name }}
+                <span class="project-group-dot">• {{ p.group.name }}</span>
             </div>
-
-        </section>
-
-
-        <!--FAVOURITE PROJECTS-->
-        <section class="section" id="fav">
-
-            <div class="section-header" onclick="toggleSection('fav')">
-                <span>▼</span> Favourites
+            <div class="card-bottom-actions">
+                <button class="card-menu-btn-bottom" onclick="openProjectMenu(event, '{{ p.id }}', '{{ p.name }}')">⋯</button>
+                <span class="card-fav" data-project-id="{{ p.id }}" onclick="toggleFavourite(this, '{{ p.id }}')" style="cursor:pointer;pointer-events:auto;">{% if p.is_favourite %}♥︎{% else %}♡︎{% endif %}</span>
             </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
 
-            <div class="cards">
 
-                {% for p in favourite_projects %}
-                <div class="card">
+<!--FAVOURITE PROJECTS-->
+<section class="section" id="fav">
+    <div class="section-header" onclick="toggleSection('fav')">
+        <span>▼</span> Favourites
+    </div>
 
-                    <button class="card-menu-btn"
-                            onclick="openProjectMenu(event, '{{ p.id }}', '{{ p.name}}')">
-                    </button>
-
-                    <div class="card-img">Image</div>
-                    <div class="card-title">{{ p.name }}</div>
-
-                </div>
-                {% endfor %}
-
+    <div class="cards board-view">
+        {% for p in favourite_projects %}
+        <div class="card" data-project-id="{{ p.id }}">
+            <div class="card-img" data-project-id="{{ p.id }} id="home-card-img-{{ p.id }}">
+                {% if p.tasks.exists %}
+                    <div class="card-tasks-preview">
+                        {% for task in p.tasks.all|slice:":3" %}
+                        <div class="card-task-item status-{{ task.status }}">
+                            <span class="card-task-dot"></span>
+                            <span class="card-task-name">{{ task.title }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <img src="{% static 'tasks/icons/doc_light.png' %}" alt="icon" class="card-icon"/>
+                    <span class="card-subtitle">No tasks added</span>
+                {% endif %}
             </div>
-
-        </section>
+            <div class="card-title">
+                <img src="{% static 'tasks/icons/list_night.png' %}" class="title-icon" alt="icon">
+                {{ p.name }}
+                <span class="project-group-dot">• {{ p.group.name }}</span>
+            </div>
+            <div class="card-bottom-actions">
+                <button class="card-menu-btn-bottom" onclick="openProjectMenu(event, '{{ p.id }}', '{{ p.name }}')">⋯</button>
+                <span class="card-fav" data-project-id="{{ p.id }}" onclick="toggleFavourite(this, '{{ p.id }}')" style="cursor:pointer;pointer-events:auto;">{% if p.is_favourite %}♥︎{% else %}♡︎{% endif %}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
 
 
     </div>
@@ -174,55 +277,493 @@
     <button onclick="openDelete()">Delete</button>
 </div>
 
-<!--RENAME MODAL-->
-<div class="modal-backdrop" id='renameModal'>
+
+
+<!-- ===================== GROUPS ===================== -->
+
+<!-- CREATE GROUP MODAL -->
+<div id="groupModal" class="modal-backdrop">
+  <div class="modal">
+    <h3>Create Group</h3>
+    <label>Name<input id="group-name" type="text" placeholder="Enter name"></label>
+    <label>
+      Priority
+      <select id="group-priority">
+        <option value="low">Low</option>
+        <option value="normal">Normal</option>
+        <option value="high">High</option>
+      </select>
+    </label>
+    <label>Project limit<input id="group-limit" type="number" min="1" placeholder="Enter limit"></label>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeGroupModal()">Cancel</button>
+      <button class="btn btn-create" onclick="submitGroup()">Create</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- GROUP DROPDOWN MODAL-->
+<div id="group-dropdown" class="dropdown">
+    <button onclick="renameGroup()">Rename</button>
+    <button onclick="addProjectInGroup()">Add Project</button>
+    <button onclick="changeGroupPriority()">Change Priority</button>
+    <button onclick="duplicateGroup()">Duplicate</button>
+    <button onclick="deleteGroup()">Delete</button>
+</div>
+
+
+<!--RENAME GROUP MODAL-->
+<div class="modal-backdrop" id="renameGroupModal">
+  <div class="modal">
+    <h3>Rename group</h3>
+
+    <input type="hidden" id="renameGroupId">
+    <input type="text" id="renameGroupInput">
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeRenameGroupModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitRenameGroup()">Save</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- CHANGE PRIORITY MODAL -->
+<div id="changePriorityModal" class="modal-backdrop">
+  <div class="modal">
+    <h3>Change Group Priority</h3>
+    
+    <input type="hidden" id="changePriorityGroupId">
+
+    <label>
+      Priority
+      <select id="changePrioritySelect">
+        <option value="low">Low</option>
+        <option value="normal">Normal</option>
+        <option value="high">High</option>
+      </select>
+    </label>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeChangePriorityModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitChangePriority()">Change</button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- DELETE GROUP MODAL -->
+<div id="delete-group-modal" class="modal-overlay" style="display: none;">
     <div class="modal">
-        <h3>Rename project</h3>
+        <h3>Delete group</h3>
+        <p>Are you sure you want to delete this group?<br>
+           All projects inside will be deleted.</p>
 
-        <form method="post" action="{% url 'project_rename' %}">
-
-            {% csrf_token %}
-
-            <input type="hidden" name="project_id" id="renameProjectId">
-            <input type="text" name="name" id="renameProjectName">
-
-            <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" onclick="closeModals()">Cancel</button>
-                <button class="btn vtn-primary">Save</button>
-            </div>
-
-        </form>
-
-
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeDeleteGroupModal()">
+                Cancel</button>
+            <button class="btn btn-danger" onclick="confirmDeleteGroup()">
+                Delete</button>
+        </div>
     </div>
 </div>
 
-<!--DELETE MODAL-->
-<div class="modal-backdrop" id='deleteModal'>
-    <div class="modal"></div>
+
+
+<!-- ===================== PROJECTS ===================== -->
+<!-- CREATE PROJECT MODAL -->
+<div id="createProjectModal" class="modal-backdrop" style="display:none;">
+    <div class="modal">
+        <input type="hidden" id="createProjectGroupId">
+        <h3>Create Project</h3>
+
+        <label>Name<input id="createProjectName" type="text"></label>
+        <label>Task limit<input id="createProjectLimit" type="number" min="1"></label>
+
+        <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeCreateProjectModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitCreateProject()">Save</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- PROJECT DROPDOWN MODAL-->
+<div id="project-dropdown" class="dropdown">
+    <button onclick="renameProject()">Rename</button>
+    <button class="project-fav-btn" onclick="toggleFavourite(this, currentProjectId)">Add to favourites</button>
+    <button onclick="duplicateProject()">Duplicate</button>
+    <button onclick="deleteProject()">Delete</button>
+</div>
+
+
+<!-- RENAME PROJECT MODAL -->
+<div id="renameProjectModal" class="modal-backdrop modal-overlay" style="display: none;">
+    <div class="modal">
+        <h3>Rename Project</h3>
+            <input type="hidden" id="renameProjectId">
+            <input type="text" id="renameProjectName" placeholder="Project name" class="rounded-input">
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeRenameProjectModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="submitRenameProject()">Rename</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- DELETE PROJECT MODAL -->
+<div id="delete-project-modal" class="modal-backdrop modal-overlay" style="display:none">
+    <div class="modal">
         <h3>Delete project?</h3>
+        <p></p>
+        <p>This action cannot be undone.</p>
 
-        <form method="post" action="{% url 'project_delete' %}">
-
-            {% csrf_token %}
-
-            <input type="hidden" name="project_id" id="deleteProjectId">
-            <p>This action cannot be undone.</p>
-
-            <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" onclick="closeModals()">Cancel</button>
-                <button class="btn vtn-primary">Delete</button>
-            </div>
-
-        </form>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeDeleteProjectModal()">Cancel</button>
+            <button class="btn btn-danger" id="confirm-delete-project">Delete</button>
+        </div>
     </div>
 </div>
 
+
+
+<!-- CREATE TASK MODAL -->
+<div id="createTaskModal" class="modal-overlay" style="display:none">
+    <div class="create-task-modal-content">
+        <div class="create-task-modal-header">
+            <span>New Task</span>
+            <button class="modal-close-btn" onclick="closeCreateTaskModal()">✕</button>
+        </div>
+
+        <div class="create-task-modal-body">
+            <div class="create-task-field">
+                <label>Project</label>
+                <select id="createTaskProjectId" class="create-task-select">
+                </select>
+            </div>
+
+            <div class="create-task-field">
+                <input type="text" id="createTaskTitle" class="create-task-input-title" placeholder="Task name">
+            </div>
+
+            <div class="create-task-field">
+                <textarea id="createTaskDescription" class="create-task-textarea" placeholder="Description"></textarea>
+            </div>
+
+            <div class="create-task-fields-row">
+    <div class="create-task-field">
+    <label>Status</label>
+    <div class="status-select-wrapper" id="statusSelectWrapper" onclick="toggleStatusDropdown(event)">
+        <div class="status-select-selected" id="statusSelectSelected">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <circle cx="7" cy="7" r="6" stroke="#888" stroke-width="1.5" stroke-dasharray="3 2"/>
+            </svg>
+            <span>TO DO</span>
+        </div>
+        <span style="color:#888;font-size:11px">▾</span>
+        <div class="status-select-options" id="statusSelectOptions" style="display:none">
+            <div class="status-select-opt" onclick="pickStatus('todo')">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <circle cx="7" cy="7" r="6" stroke="#888" stroke-width="1.5" stroke-dasharray="3 2"/>
+                </svg>TO DO
+            </div>
+            <div class="status-select-opt" onclick="pickStatus('in_progress')">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <circle cx="7" cy="7" r="6" stroke="#e67700" stroke-width="1.5"/>
+                    <path d="M7 4v3l2 2" stroke="#e67700" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>IN PROGRESS
+            </div>
+            <div class="status-select-opt" onclick="pickStatus('done')">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <circle cx="7" cy="7" r="6" stroke="#2f9e44" stroke-width="1.5"/>
+                    <path d="M4.5 7l2 2 3-3" stroke="#2f9e44" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>DONE
+            </div>
+        </div>
+    </div>
+    <input type="hidden" id="createTaskStatus" value="todo">
+</div>
+
+    <div class="create-task-field">
+        <label>Priority</label>
+        <select id="createTaskPriority" class="create-task-select">
+            <option value="low">⚐ Low</option>
+            <option value="high">⚑ High</option>
+        </select>
+    </div>
+</div>
+
+<div class="create-task-fields-row">
+    <div class="create-task-field">
+        <label>Assignee</label>
+        <select id="createTaskAssignee" class="create-task-select">
+            <option value="">👤 Unassigned</option>
+        </select>
+    </div>
+    <div class="create-task-field">
+        <label>Due date</label>
+        <input type="date" id="createTaskDueDate" class="create-task-select">
+    </div>
+</div>
+
+<div class="create-task-fields-row">
+    <div class="create-task-field">
+        <label>Created at</label>
+        <span class="create-task-readonly">—</span>
+    </div>
+    <div class="create-task-field">
+        <label>Updated at</label>
+        <span class="create-task-readonly">—</span>
+    </div>
+</div>
+        </div>
+
+        <div class="create-task-modal-footer">
+            <button class="create-task-cancel-btn" onclick="closeCreateTaskModal()">Cancel</button>
+            <button class="create-task-save-btn" onclick="submitCreateTask()">Create task</button>
+        </div>
+    </div>
+</div>
+
+<div id="task-dropdown" class="task-dropdown" style="display:none">
+    <div class="task-dropdown-item" onclick="renameTask()">✎ Rename</div>
+    <div class="task-dropdown-item" onclick="duplicateTask()">⧉ Duplicate</div>
+    <div class="task-dropdown-item" onclick="changeTaskDescription()">☰ Change description</div>
+    <div class="task-dropdown-item" onclick="moveTaskTo()">➜ Move to</div>
+    <div class="task-dropdown-divider"></div>
+    <div class="task-dropdown-item task-dropdown-delete" onclick="deleteTask()">🗑 Delete</div>
+</div>
 
 
 <!--JS-->
 <script src="{% static 'tasks/js/main.js' %}"></script>
+<script src="{% static 'tasks/js/group.js' %}"></script>
+<script src="{% static 'tasks/js/project.js' %}"></script>
+<script src="{% static 'tasks/js/fav.js' %}"></script>
+<script src="{% static 'tasks/js/dashboard.js' %}"></script>
+
+
 </div>
+<div id="toast" class="toast"></div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const avatar = document.getElementById("user-avatar");
+        const dropdown = document.getElementById("avatar-dropdown");
+
+        avatar.addEventListener("click", () => {
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        });
+
+        // Закрыть при клике вне дропдауна
+        document.addEventListener("click", (e) => {
+            if (!dropdown.contains(e.target) && !avatar.contains(e.target)) {
+                dropdown.style.display = "none";
+            }
+        });
+    });
+    </script>
+
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const themeToggle = document.getElementById('theme-icon'); // твоя иконка
+    const body = document.body;
+
+    // Проверка сохраненной темы при загрузке страницы
+    if(localStorage.getItem('theme') === 'dark') {
+        body.classList.add('dark-theme');
+        // При темной теме показываем светлое солнце
+        themeToggle.src = "{% static 'tasks/icons/light_mode.png' %}";
+    } else {
+        // При светлой теме показываем луну
+        themeToggle.src = "{% static 'tasks/icons/night_mode.png' %}";
+    }
+
+    themeToggle.addEventListener('click', function() {
+        body.classList.toggle('dark-theme');
+
+        if(body.classList.contains('dark-theme')) {
+            // Темная тема включена → иконка солнца
+            themeToggle.src = "{% static 'tasks/icons/light_mode.png' %}";
+            localStorage.setItem('theme', 'dark');
+        } else {
+            // Светлая тема → иконка луны
+            themeToggle.src = "{% static 'tasks/icons/night_mode.png' %}";
+            localStorage.setItem('theme', 'light');
+        }
+    });
+});
+</script>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    const viewButtons = document.querySelectorAll('.view-switch .view-btn');
+    const cardsSections = document.querySelectorAll('.cards');
+
+    viewButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+
+            // переключаем активную кнопку
+            viewButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            const view = this.dataset.view; // board | list | table
+
+            cardsSections.forEach(section => {
+                section.classList.remove('board-view', 'list-view', 'table-view');
+                section.classList.add(view + '-view');
+            });
+
+            console.log("View changed to:", view); // для проверки
+        });
+    });
+
+});
+</script>
+
+<div id="settings-modal" class="modal-overlay" style="display:none">
+    <div class="settings-modal-content">
+        <div class="settings-modal-header">
+            <span>Profile settings</span>
+            <button class="modal-close-btn" onclick="closeSettingsModal()">✕</button>
+        </div>
+
+        <div class="settings-avatar-section">
+            <div class="settings-avatar-wrapper" id="avatar-wrapper">
+       <div class="settings-avatar" id="settings-avatar-circle">
+                {% if request.user.profile.avatar %}
+        <img src="{{ request.user.profile.avatar.url }}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">
+                {% else %}
+        {{ request.user.username|slice:":1" }}
+    {% endif %}
+</div>
+        <div class="settings-avatar-edit" id="avatar-edit-btn">✎</div>
+
+        <div class="avatar-edit-dropdown" id="avatar-edit-dropdown" style="display:none">
+            <div class="avatar-edit-option" id="avatar-choose">🖼 Choose from gallery</div>
+            <div class="avatar-edit-option" id="avatar-show">👁 Show profile picture</div>
+            <div class="avatar-edit-option" id="avatar-delete">🗑 Delete profile picture</div>
+        </div>
+    </div>
+    <input type="file" id="avatar-file-input" accept="image/*" style="display:none">
+</div>
+
+        <div class="settings-modal-body">
+            <div class="settings-field">
+                <label>Username</label>
+                <input type="text" id="settings-username" value="{{ request.user.username }}">
+            </div>
+            <div class="settings-field">
+                <label>Email</label>
+                <input type="email" id="settings-email" value="{{ request.user.email }}">
+            </div>
+            <div class="settings-field">
+                <label>New password</label>
+                <input type="password" id="settings-password" placeholder="Leave empty to keep current">
+            </div>
+            <div class="settings-field">
+                <label>Confirm password</label>
+                <input type="password" id="settings-password-confirm" placeholder="Repeat new password">
+            </div>
+        </div>
+
+        <div class="settings-modal-footer">
+            <button class="settings-save-btn" onclick="saveSettings()">Save</button>
+        </div>
+    </div>
+</div>
+
+
+<div id="confirm-delete-avatar-modal" class="modal-overlay" style="display:none">
+    <div class="confirm-modal-content">
+        <div class="confirm-modal-header">Delete profile picture?</div>
+        <div class="confirm-modal-text">This action cannot be undone.</div>
+        <div class="confirm-modal-buttons">
+            <button class="confirm-cancel-btn" onclick="document.getElementById('confirm-delete-avatar-modal').style.display='none'">Cancel</button>
+            <button class="confirm-delete-btn" id="confirm-avatar-delete-btn">Delete</button>
+        </div>
+    </div>
+</div>
+
+<div id="deleteTaskModal" class="modal-overlay" style="display:none">
+    <div class="confirm-modal-content">
+        <div class="confirm-modal-header">Delete task</div>
+        <div class="confirm-modal-text">Are you sure you want to delete this task? This action cannot be undone.</div>
+        <div class="confirm-modal-buttons">
+            <button class="confirm-cancel-btn" onclick="document.getElementById('deleteTaskModal').style.display='none'">Cancel</button>
+            <button class="confirm-delete-btn" onclick="confirmDeleteTask()">Delete</button>
+        </div>
+    </div>
+</div>
+
+<div id="moveTaskModal" class="modal-overlay" style="display:none">
+    <div class="confirm-modal-content">
+        <div class="confirm-modal-header">Move task</div>
+        <div class="confirm-modal-text">Select a project to move this task to:</div>
+        <select id="moveTaskProjectSelect" class="create-task-select" style="margin: 12px 0;">
+        </select>
+        <div class="confirm-modal-buttons">
+            <button class="confirm-cancel-btn" onclick="document.getElementById('moveTaskModal').style.display='none'">Cancel</button>
+            <button class="confirm-delete-btn" style="background:#7c76f0" onclick="confirmMoveTask()">Move</button>
+        </div>
+    </div>
+</div>
+
+<div id="task-bulk-bar" class="task-bulk-bar" style="display:none">
+    <div class="bulk-bar-left">
+        <span id="bulk-bar-count">0 Tasks selected</span>
+        <button class="bulk-bar-clear" onclick="clearSelection()">✕</button>
+    </div>
+    <div class="bulk-bar-actions">
+    <button class="bulk-bar-btn" onclick="bulkChangeStatus(event)">⊙ Status</button>
+    <button class="bulk-bar-btn" onclick="bulkChangeAssignee(event)">👤 Assignees</button>
+    <button class="bulk-bar-btn" onclick="bulkChangeDates(event)">
+    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+        <line x1="12" y1="14" x2="12" y2="20"/>
+        <line x1="9" y1="17" x2="15" y2="17"/>
+    </svg>
+    Dates
+</button>
+    <button class="bulk-bar-btn" onclick="bulkMoveTo(event)">➜ Move/Add</button>
+    <div class="bulk-bar-divider"></div>
+    <button class="bulk-bar-btn bulk-bar-delete" onclick="bulkDelete()">🗑</button>
+</div>
+</div>
+
+<div id="bulkDeleteModal" class="modal-overlay" style="display:none">
+    <div class="confirm-modal-content">
+        <div class="confirm-modal-header">Delete tasks</div>
+        <div class="confirm-modal-text" id="bulk-delete-modal-text">Are you sure you want to delete selected tasks?</div>
+        <div class="confirm-modal-buttons">
+            <button class="confirm-cancel-btn" onclick="document.getElementById('bulkDeleteModal').style.display='none'">Cancel</button>
+            <button class="confirm-delete-btn" onclick="confirmBulkDelete()">Delete</button>
+        </div>
+    </div>
+</div>
+
+<div id="logout-modal" class="modal-overlay" style="display:none">
+    <div class="confirm-modal-content">
+        <div class="confirm-modal-header">Log out</div>
+        <div class="confirm-modal-text">Are you sure you want to log out?</div>
+        <div class="confirm-modal-buttons">
+            <button class="confirm-cancel-btn" onclick="document.getElementById('logout-modal').style.display='none'">Cancel</button>
+            <button class="confirm-delete-btn" style="background:#7c76f0" onclick="confirmLogout()">Log out</button>
+        </div>
+    </div>
+</div>
+
 
 </body>
 </html>
+0

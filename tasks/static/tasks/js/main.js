@@ -1,10 +1,73 @@
+let homeContent = null;
+
 let currentProjectId = null;
-let currentPrijectName = null;
+let currentGroupId = null;
+let currentProjectName = null;
 
-const dropdown = document.getElementById('dropdown');
-
-/*===COLLAPSE SECTION===*/
+const dropdown = document.getElementById('group-dropdown');
 const navItems = document.querySelectorAll('.nav-item');
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    homeContent = document.querySelector('.content').innerHTML;
+});
+
+function refreshHomeContent() {
+    fetch(window.location.href)
+        .then(res => res.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newContent = doc.querySelector('.content');
+            if (newContent) {
+                homeContent = newContent.innerHTML;
+            }
+        });
+}
+
+window.refreshHomeContent = refreshHomeContent;
+
+document.getElementById('nav-home').addEventListener('click', () => {
+    localStorage.removeItem('appState');
+    document.querySelector('.content').innerHTML = homeContent;
+
+    updatePageTitle('Home');
+    loadHomeWidgets();
+
+    // переинициализируем view кнопки
+    viewButtons = document.querySelectorAll('.view-switch .view-btn');
+    viewButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            viewButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const view = btn.dataset.view;
+            const cardsSections = document.querySelectorAll('.cards');
+            cardsSections.forEach(section => {
+                section.classList.remove('board-view', 'list-view');
+                if (view === 'board') section.classList.add('board-view');
+                else if (view === 'list') section.classList.add('list-view');
+            });
+
+            localStorage.setItem('selectedView', view);
+        });
+    });
+
+    // восстанавливаем сохранённый вид
+    const savedView = localStorage.getItem('selectedView');
+    if (savedView) {
+        const btnToActivate = document.querySelector(`.view-btn[data-view="${savedView}"]`);
+        if (btnToActivate) btnToActivate.click();
+    }
+
+    // обновляем карточки
+    limitCards('recent', 3);
+    limitCards('fav', 3);
+
+});
+
+
+
 
 navItems.forEach(item => {
     item.addEventListener('click', () => {
@@ -13,6 +76,115 @@ navItems.forEach(item => {
     });
 });
 
+
+
+let viewButtons = document.querySelectorAll('.view-switch .view-btn');
+const cardsContainer = document.querySelector('.content'); // или контейнер с карточками
+
+viewButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        // Убираем active со всех кнопок
+        viewButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Получаем выбранный вид
+        const view = btn.dataset.view;
+
+        // Находим все контейнеры с карточками
+        const cardsSections = document.querySelectorAll('.cards');
+
+        cardsSections.forEach(section => {
+            section.classList.remove('board-view', 'list-view');
+
+            if (view === 'board') section.classList.add('board-view');
+            else if (view === 'list') section.classList.add('list-view');
+            else if (view === 'calendar') section.classList.add('calendar-view');
+        });
+        localStorage.setItem('selectedView', view);
+    });
+});
+
+
+
+// сохраняем состояние при открытии страниц
+function saveAppState(type, id) {
+    localStorage.setItem('appState', JSON.stringify({ type, id }));
+}
+
+// восстанавливаем состояние при загрузке
+function restoreAppState() {
+    const state = JSON.parse(localStorage.getItem('appState'));
+    if (!state) return;
+
+    if (state.type === 'project') {
+        const projectEl = document.querySelector(`.project-item[data-project-id="${state.id}"]`);
+        if (projectEl) {
+            projectEl.classList.add('active');
+            renderProjectPage(projectEl);
+        }
+    } else if (state.type === 'group') {
+        const groupEl = document.querySelector(`.spaces-group[data-group-id="${state.id}"]`);
+        if (groupEl) {
+            const projects = groupEl.querySelector('.projects');
+            if (projects) {
+                projects.style.display = 'block';
+                projects.classList.add('open');
+            }
+            renderGroupPage(groupEl);
+        }
+    } else if (state.type === 'favourites') {
+    renderFavouritesPage();
+    } else if (state.type === 'dashboard') {
+    renderDashboardPage();
+}}
+
+
+
+
+function limitCards(sectionId, maxCards = 3) {
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+
+    const cardsContainer = section.querySelector('.cards');
+    const cards = Array.from(cardsContainer.children);
+
+    // Скрываем все карточки
+    cards.forEach(card => card.style.display = 'none');
+
+    // Показываем только последние maxCards карточек (LIFO)
+    const lastCards = cards.slice(-maxCards).reverse(); // переворачиваем для LIFO
+    lastCards.forEach(card => card.style.display = '');
+}
+
+limitCards('recent', 3);
+limitCards('fav', 3);
+
+
+function updateCards(sectionId, maxCards = 3) {
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+
+    const cardsContainer = section.querySelector('.cards');
+    const cards = Array.from(cardsContainer.children);
+
+    // Удаляем карточки, которых больше нет в базе (или помечены удалёнными)
+    cards.forEach(card => {
+        const projectId = card.dataset.projectId;
+        if (!document.querySelector(`.project-item[data-project-id="${projectId}"]`)) {
+            card.remove();
+        }
+    });
+
+    // Показываем только последние maxCards карточек LIFO
+    const updatedCards = Array.from(cardsContainer.children);
+    updatedCards.forEach((card, index) => {
+        if (index >= updatedCards.length - maxCards) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
 
 
 function toggleSection(Id) {
@@ -24,18 +196,68 @@ function toggleSection(Id) {
 
 
 
+
 function toggleSpaces(event) {
     event.stopPropagation();
-    
+
+    const header = event.currentTarget; // .spaces-header
     const body = document.getElementById('spaces-body');
     const arrow = document.getElementById('spaces-arrow');
 
-    body.classList.toggle('hidden');
-    if (body.classList.contains('hidden')) {
+    // ❌ если ещё НЕ активен — НИЧЕГО не открываем
+    if (!spacesActive) {
+        header.classList.add('active');
+        spacesActive = true;
+
+        // гарантированно держим закрытым
+        body.classList.add('hidden');
+        arrow.textContent = '▶';
+        return;
+    }
+
+    // ✅ только если уже активен — разрешаем раскрытие
+    spacesExpanded = !spacesExpanded;
+
+    if (spacesExpanded) {
+        body.classList.remove('hidden');
+        arrow.textContent = '▼';
+    } else {
+        body.classList.add('hidden');
+        arrow.textContent = '▶';
+    }
+}
+
+function handleSpacesClick(event) {
+    event.stopPropagation();
+
+    const nav = document.getElementById('spaces-nav');
+    const body = document.getElementById('spaces-body');
+    const arrow = document.getElementById('spaces-arrow');
+
+    const isActive = nav.classList.contains('active');
+    const isExpanded = !body.classList.contains('hidden');
+
+    // 1️⃣ Первый клик — просто активируем
+    if (!isActive) {
+        document
+            .querySelectorAll('.nav-item')
+            .forEach(i => i.classList.remove('active'));
+
+        nav.classList.add('active');
+
+        body.classList.add('hidden');
+        arrow.textContent = '▶';
+        return;
+    }
+
+    // 2️⃣ Второй клик — раскрываем / закрываем
+    if (isExpanded) {
+        body.classList.add('hidden');
         arrow.textContent = '▶';
     } else {
+        body.classList.remove('hidden');
         arrow.textContent = '▼';
-    } 
+    }
 }
 
 
@@ -47,6 +269,752 @@ function toggleSidebar() {
 
     btn.textContent = sidebar.classList.contains('collapsed') ? '▶' : '◀';
 }
+
+
+
+
+/*===========================GROUP============================*/
+function addSpace(event) {
+    event.stopPropagation();
+    openCreateGroupModal();
+}
+
+
+/*==GROUP MODAL===*/
+
+function openGroupModal() {
+    document.getElementById('groupModal').style.display = 'flex';
+}
+
+function closeGroupModal() {
+    const modal = document.getElementById('groupModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function openCreateGroupModal(event) {
+    if (event) {
+        event.stopPropagation();
+    }
+
+    const modal = document.getElementById('groupModal');
+
+    if (!modal) {
+        console.error('groupModal is not found');
+        return;
+    }
+
+    document.getElementById('group-name').value = '';  // очищаем имя группы
+    document.getElementById('group-priority').value = 'medium';  // сбрасываем приоритет на 'medium'
+    document.getElementById('group-limit').value = ''; 
+
+    modal.style.display = 'flex';
+}
+
+
+function closeRenameGroupModal() {
+    document.getElementById('renameGroupModal').style.display = 'none';
+}
+
+/*===GROUPS===*/
+
+function createGroup() {
+    const nameInput = document.getElementById('group-name');
+    const name = nameInput.value.trim();
+
+    if (!name) {
+        alert('Group name is required');
+        return;
+    }
+
+    fetch('/groups/create/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({
+            name: name
+        })
+    })
+    .then(res => {
+        if (!res.ok) {
+            throw new Error('Group creation failed');
+        }
+        return res.json();
+    })
+    .then(data => {
+        addGroupToSidebar(data);
+        closeGroupModal();
+        nameInput.value = '';
+    })
+    .catch(err => {
+        alert(err.message);
+    });
+}
+
+
+function submitGroup() {
+    const name = document.getElementById('group-name').value;
+    const priority = document.getElementById('group-priority').value;
+    const limit = Number(document.getElementById('group-limit').value);
+
+    if (!name) {
+        showToast('Name is required!', 'error');
+        return;
+    }
+
+    if (!priority) {
+        showToast('Priority is required!', 'error');
+        return;
+    }
+
+    if (!limit) {
+        showToast('Limit is required!', 'error');
+        return;
+    }
+
+
+    fetch('/groups/create/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken(),
+        },
+        body: JSON.stringify({
+            name,
+            priority,
+            limit
+        })
+    })
+    .then(res => res.json())
+    .then(group => {
+        renderGroup(group);   // 👈 только тут рисуем
+        closeGroupModal();
+    });
+}
+
+
+
+
+function loadGroups() {
+    return fetch('/groups/')
+        .then(res => res.json())
+        .then(groups => {
+            const container = document.getElementById('spaces-body');
+            container.innerHTML = ''; // очистка всех групп
+
+            groups.forEach(group => {
+                renderGroup(group);
+            });
+        })
+        .catch(err => {
+            console.error('Ошибка загрузки групп', err);
+        });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadGroups();
+});
+
+
+function renderGroup(group) {
+    const spacesBody = document.getElementById('spaces-body');
+    const groupEl = document.createElement('div');
+
+    groupEl.className = 'spaces-group';
+    groupEl.dataset.groupId = group.id;
+
+    groupEl.innerHTML = `
+        <div class="group-title clickable priority-${group.priority}">
+            <span class="group-name">${group.name}</span>
+            <div class="group-actions">
+                <span class="limit-badge">${group.limit}</span>
+                <button class="group-menu-btn">⋯</button>
+            </div>
+        </div>
+        <div class="projects" style="display:none"></div>
+    `;
+
+    spacesBody.appendChild(groupEl);
+
+    const title = groupEl.querySelector('.group-title');
+    const menuBtn = groupEl.querySelector('.group-menu-btn');
+
+    title.addEventListener('click', () => activateGroup(title));
+
+    menuBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); 
+        openGroupMenu(e, group.id);
+    });
+
+}
+
+function renderProject(project) {
+    const groupEl = document.querySelector(`.spaces-group[data-group-id="${project.group_id}"]`);
+    if (!groupEl) {
+        console.error('Group element not found for project rendering', project);
+        return;
+    }
+
+    let projectContainer = groupEl.querySelector('.projects');
+    if (!projectContainer) {
+        projectContainer = document.createElement('div');
+        projectContainer.className = 'projects';
+        projectContainer.style.display = 'none';
+        groupEl.appendChild(projectContainer);
+    }
+
+    const el = document.createElement('div');
+    el.className = 'project-item';
+    el.dataset.projectId = project.id;
+    el.innerHTML = `
+        <span class="project-name">${project.name}</span>
+        <div class="project-actions">
+            <span class="project-fav">${project.is_favourite ? '♥︎' : '♡︎'}</span>
+            <button class="project-menu-btn" onclick="openProjectMenu(event, ${project.id}, '${project.name}')">⋯</button>
+        </div>
+    `;
+
+
+    projectContainer.appendChild(el);
+
+    let projectClickCount = {};
+
+        el.addEventListener('click', (e) => {
+            e.stopPropagation();
+                if (e.target.closest('.project-menu-btn') || e.target.closest('.project-fav')) return;
+
+    const id = project.id;
+                if (!projectClickCount[id]) projectClickCount[id] = 0;
+                projectClickCount[id]++;
+
+    if (projectClickCount[id] === 1) {
+        document.querySelectorAll('.project-item').forEach(p => p.classList.remove('active'));
+        el.classList.add('active');
+        setTimeout(() => { projectClickCount[id] = 0; }, 500);
+    } else {
+        projectClickCount[id] = 0;
+        renderProjectPage(el);
+    }
+});
+
+
+    const fav = el.querySelector('.project-fav');
+    if (fav) {
+        fav.addEventListener('click', (e) => {
+            e.stopPropagation(); // чтобы клик по сердечку не активировал проект
+            fav.classList.toggle('filled');
+            fav.textContent = fav.classList.contains('filled') ? '♥' : '♡';
+    });
+}
+}
+
+
+function activateGroup(activeEl) {
+    document
+        .querySelectorAll('.group-title')
+        .forEach(el => el.classList.remove('active'));
+
+    activeEl.classList.add('active');
+}
+
+
+function openGroupMenu(event, groupId) {
+    event.stopPropagation();
+
+    currentGroupId = groupId;
+
+    const dropdown = document.getElementById('group-dropdown');
+    const rect = event.target.getBoundingClientRect();
+
+    dropdown.style.display = 'block';
+    dropdown.style.top = (rect.bottom + window.scrollY) + "px";
+    dropdown.style.left = rect.left + "px";
+}
+
+document.addEventListener('click', () => {
+    const dropdown = document.getElementById('group-dropdown');
+    if (dropdown) dropdown.style.display = 'none';
+});
+
+
+
+function renameGroup() {
+    const groupId = currentGroupId;
+    const titleEl = document.querySelector(`.spaces-group[data-group-id="${groupId}"] .group-name`);
+
+
+    document.getElementById('renameGroupId').value = groupId;
+    document.getElementById('renameGroupInput').value = titleEl.textContent;
+    document.getElementById('renameGroupModal').style.display = 'flex';
+}
+
+
+function submitRenameGroup() {
+    const groupId = document.getElementById('renameGroupId').value;
+    const newName = document.getElementById('renameGroupInput').value;
+
+    if (!newName) {
+        showToast('Name is required!', 'error');
+        return;
+    }
+
+
+    fetch('/groups/rename/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCSRFToken(),
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            group_id: groupId,
+            new_name: newName,
+        }),
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const titleEl = document.querySelector(`.spaces-group[data-group-id="${groupId}"] .group-name`);
+            titleEl.textContent = newName;
+
+            const activeGroup = document.querySelector('.spaces-group .group-title.active');
+            if (activeGroup && activeGroup.closest('.spaces-group').dataset.groupId === groupId) {
+                updatePageTitle(newName); // обновляем сразу заголовок
+            }
+
+
+            closeRenameGroupModal();
+            refreshGroupPageIfOpen(); 
+        } else {
+            alert('Error renaming group');
+        }
+    });
+}
+
+
+
+function toggleGroupProjects(event) {
+    const titleEl = event.currentTarget;
+    const groupEl = titleEl.closest('.spaces-group');
+    if (!groupEl) return;
+
+    const projectsContainer = groupEl.querySelector('.projects');
+    if (!projectsContainer) return;
+
+    const isHidden = projectsContainer.style.display === 'none';
+    projectsContainer.style.display = isHidden ? 'block' : 'none';
+    titleEl.classList.toggle('active', isHidden);
+}
+
+
+
+
+
+function changeGroupPriority() {
+    if (!currentGroupId) {
+        alert('No group selected');
+        return;
+    }
+
+    const groupEl = document.querySelector(`.spaces-group[data-group-id="${currentGroupId}"] .group-title`);
+    const currentPriorityClass = Array.from(groupEl.classList).find(cls => cls.startsWith('priority-'));
+    const currentPriority = currentPriorityClass ? currentPriorityClass.replace('priority-', '') : 'normal';
+
+    document.getElementById('changePriorityGroupId').value = currentGroupId;
+    document.getElementById('changePrioritySelect').value = currentPriority;
+
+    document.getElementById('changePriorityModal').style.display = 'flex';
+}
+
+function closeChangePriorityModal() {
+    document.getElementById('changePriorityModal').style.display = 'none';
+}
+
+function submitChangePriority() {
+    const groupId = document.getElementById('changePriorityGroupId').value;
+    const newPriority = document.getElementById('changePrioritySelect').value;
+
+    fetch('/groups/change_priority/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken(),
+        },
+        body: JSON.stringify({ group_id: groupId, new_priority: newPriority })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            // Меняем класс группы на новый приоритет
+            const groupEl = document.querySelector(`.spaces-group[data-group-id="${groupId}"] .group-title`);
+            groupEl.classList.remove('priority-low', 'priority-normal', 'priority-high');
+            groupEl.classList.add(`priority-${newPriority}`);
+            closeChangePriorityModal();
+            refreshGroupPageIfOpen();
+        } else {
+            alert(data.error || 'Error changing priority');
+        }
+    })
+    .catch(err => console.error(err));
+}
+
+// Делаем функции глобальными, чтобы их вызывал dropdown
+window.changeGroupPriority = changeGroupPriority;
+window.closeChangePriorityModal = closeChangePriorityModal;
+window.submitChangePriority = submitChangePriority;
+
+
+function duplicateGroup() {
+    if (!currentGroupId) {
+        alert('No group selected');
+        return;
+    }
+
+    fetch(`/groups/duplicate/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({ group_id: currentGroupId })
+    })
+    .then(res => res.json())
+    .then(group => {
+        if (!group) {
+            console.error('Server returned empty group');
+            return;
+        }
+
+        // Находим все дубликаты с таким же именем
+        const originalGroupEl = document.querySelector(`.spaces-group[data-group-id="${currentGroupId}"]`);
+        const spacesBody = document.getElementById('spaces-body');
+
+        let baseName = group.name || 'Duplicated Group';
+        const existingNames = Array.from(document.querySelectorAll('.spaces-group .group-name'))
+            .map(el => el.textContent)
+            .filter(name => name.startsWith(baseName));
+
+        let copyNumber = existingNames.length; // сколько уже дубликатов
+        let groupName = copyNumber > 0 ? `${baseName} (${copyNumber})` : baseName;
+
+        // Создаём новый элемент группы
+        const groupEl = document.createElement('div');
+        groupEl.className = 'spaces-group';
+        groupEl.dataset.groupId = group.id;
+
+        groupEl.innerHTML = `
+            <div class="group-title clickable priority-${group.priority || 'normal'}">
+                <span class="group-name">${groupName}</span>
+                <div class="group-actions">
+                    <span class="limit-badge">${group.limit || 0}</span>
+                    <button class="group-menu-btn">⋯</button>
+                </div>
+            </div>
+            <div class="projects"></div>
+        `;
+
+        // Вставка после оригинала
+        originalGroupEl.after(groupEl);
+
+        const title = groupEl.querySelector('.group-title');
+        const menuBtn = groupEl.querySelector('.group-menu-btn');
+
+        title.addEventListener('click', () => activateGroup(title));
+        title.addEventListener('click', toggleGroupProjects);
+
+        menuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openGroupMenu(e, group.id);
+        });
+
+        // Добавляем проекты оригинальной группы
+        const originalProjects = originalGroupEl.querySelectorAll('.project-item');
+        const projectsContainer = groupEl.querySelector('.projects');
+
+        originalProjects.forEach(project => {
+            const clone = project.cloneNode(true);
+            projectsContainer.appendChild(clone);
+
+            // Навешиваем обработчики на клонированные проекты
+            const menuBtn = clone.querySelector('.project-menu-btn');
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openProjectMenu(e, project.dataset.projectId);
+            });
+
+            clone.addEventListener('click', () => activateProject(clone));
+        });
+    })
+    .catch(err => console.error('Error duplicating group', err));
+}
+
+
+function deleteGroup() {
+    if (!currentGroupId) return;
+
+    const modal = document.getElementById('delete-group-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+function confirmDeleteGroup() {
+    if (!currentGroupId) return;
+
+    fetch('/groups/delete/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({ group_id: currentGroupId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.success) return;
+
+        const groupEl = document.querySelector(
+            `.spaces-group[data-group-id="${currentGroupId}"]`
+        );
+        if (groupEl) groupEl.remove();
+
+        closeDeleteGroupModal();
+        currentGroupId = null;
+
+        showToast('Group successfully deleted');
+    });
+    refreshGroupPageIfOpen(); 
+}
+
+
+
+
+
+function closeDeleteGroupModal() {
+    const modal = document.getElementById('delete-group-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+
+
+function activateProject(activeEl) {
+    document
+        .querySelectorAll('.project-item')
+        .forEach(el => el.classList.remove('active'));
+
+    activeEl.classList.add('active');
+}
+
+
+
+
+
+/*===OTHER===*/
+function getCSRFToken() {
+  return document.cookie
+    .split('; ')
+    .find(row => row.startsWith('csrftoken='))
+    ?.split('=')[1];
+}
+
+
+/*===========================PROJECT============================*/
+function addProjectInGroup() {
+    if (!currentGroupId) {
+        alert('No group selected');
+        return;
+    }
+
+    document.getElementById('createProjectGroupId').value = currentGroupId;
+    document.getElementById('createProjectName').value = '';
+    document.getElementById('createProjectLimit').value = 50;
+    document.getElementById('createProjectModal').style.display = 'flex';
+}
+
+
+
+function addProjectToGroupSidebar(project) {
+    // Найти контейнер группы
+    const groupEl = document.querySelector(`.spaces-group[data-group-id="${project.group_id}"]`);
+    if (!groupEl) {
+        console.error('Group element not found for project rendering');
+        return;
+    }
+
+    // Создать контейнер проектов, если его нет
+    let projectContainer = groupEl.querySelector('.projects');
+    if (!projectContainer) {
+        projectContainer = document.createElement('div');
+        projectContainer.className = 'projects';
+        groupEl.appendChild(projectContainer);
+    }
+
+    // Создать элемент проекта
+    const el = document.createElement('div');
+    el.className = 'project-item';
+    el.dataset.projectId = project.id;
+    el.innerHTML = `
+    <span class="project-name">${project.name}</span>
+    <div class="project-actions">
+        <span class="project-fav">♡</span>
+        <button class="project-menu-btn">⋯</button>
+    </div>
+`;
+
+    projectContainer.appendChild(el);
+
+    // Навешиваем открытие меню на кнопку
+    const btn = el.querySelector('.project-menu-btn');
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openProjectMenu(e, project.id, project.name);
+    });
+
+    // Навешиваем клик на имя проекта (если нужно отдельное поведение)
+    el.querySelector('.project-name').addEventListener('click', (e) => {
+        e.stopPropagation();
+        openProjectMenu(e, project.id, project.name);
+    });
+
+    el.addEventListener('click', (e) => {
+    e.stopPropagation();
+    activateProject(el);
+});}
+
+
+
+
+
+
+function submitCreateProject() {
+    const name = document.getElementById('createProjectName').value.trim();
+    const groupId = document.getElementById('createProjectGroupId').value;
+    const limit = Number(document.getElementById('createProjectLimit').value);
+
+    if (!name) {
+        showToast('Name is required!', 'error');
+        return;
+    }
+
+    if (!limit) {
+        showToast('Limit is required!', 'error');
+        return;
+    }
+
+    fetch('/projects/create/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({ name, group_id: groupId, limit })
+    })
+    .then(res => res.json())
+    .then(project => {
+        if (project.error) {
+            if (project.error === 'PROJECT_LIMIT_REACHED') {
+                showToast('Project limit reached for this group!');
+                return;
+            }
+            showToast(project.error);
+            return;
+        }
+
+        addProjectToGroupSidebar(project);
+
+        // добавляем карточку в recent только если секция существует
+        const cardsContainer = document.querySelector('#recent .cards');
+        if (cardsContainer) {
+            const cardEl = document.createElement('div');
+            cardEl.className = 'card';
+            cardEl.dataset.projectId = project.id;
+            cardEl.id = `card-${project.id}`;
+
+            const groupEl = document.querySelector(`.spaces-group[data-group-id="${project.group_id}"]`);
+            const groupName = groupEl ? groupEl.querySelector('.group-name').textContent : '';
+
+            cardEl.innerHTML = `
+                <button class="card-menu-btn" onclick="openProjectMenu(event, '${project.id}', '${project.name}')"></button>
+                <div class="card-content">
+                    <div class="card-img">
+                        <img src="/static/tasks/icons/doc_light.png" alt="icon" class="card-icon"/>
+                        <span class="card-subtitle">example</span>
+                    </div>
+                    <div class="card-title">
+                        ${project.name}
+                        <span class="project-group-dot">• ${groupName}</span>
+                    </div>
+                </div>
+            `;
+
+            cardsContainer.prepend(cardEl);
+            updateCards('recent', 3);
+        }
+
+        closeCreateProjectModal();
+        refreshHomeContent();
+        refreshGroupPageIfOpen();  // ← обновляем страницу групп если открыта
+    })
+    .catch(err => console.error('Error creating project', err));
+}
+
+
+
+
+function openProjectMenu(event, projectId, projectName) {
+    event.stopPropagation();
+
+    currentProjectId = projectId;
+    currentProjectName = projectName;
+
+    const dropdown = document.getElementById('project-dropdown');
+    const rect = event.target.getBoundingClientRect();
+
+    dropdown.style.display = 'block';
+    dropdown.style.top = (rect.bottom + window.scrollY) + "px";
+    dropdown.style.left = rect.left + "px";
+
+    const favBtn = dropdown.querySelector('.project-fav-btn');
+    if (!favBtn) return;
+
+    // Проверяем is_favourite по карточке в #fav
+    const favCard = document.querySelector(`#fav .cards .card[data-project-id="${projectId}"]`);
+    const isFavourite = !!favCard;
+
+    favBtn.textContent = isFavourite ? 'Remove from favourites' : 'Add to favourites';
+}
+
+
+
+
+function loadProjects() {
+    fetch('/projects/')
+        .then(res => res.json())
+        .then(projects => {
+            // Удаляем все существующие проекты, чтобы не дублировать
+            document.querySelectorAll('.project-item').forEach(el => el.remove());
+
+            projects.forEach(project => {
+                renderProject(project);
+            });
+            restoreAppState();
+
+        })
+        .catch(err => {
+            console.error('Error loading projects', err);
+        });
+}
+
+
+
+
+/*==PROJECT MODAL===*/
+function closeCreateProjectModal() {
+    document.getElementById('createProjectModal').style.display = 'none';
+}
+
 
 
 
@@ -64,9 +1032,390 @@ function openMenu(event, projectId, projectName) {
     dropdown.style.left=rect.left + "px";   
 }
 
-document.addEventListener('click', () => {
-    dropdown.style.display = 'none';
+
+function renameProject() {
+    if (!currentProjectId) return;
+
+    const projectEl = document.querySelector(`.project-item[data-project-id="${currentProjectId}"]`);
+    const projectName = projectEl ? projectEl.querySelector('.project-name').textContent : '';
+
+    document.getElementById('renameProjectId').value = currentProjectId;
+    document.getElementById('renameProjectName').value = projectName;
+
+    document.getElementById('renameProjectModal').style.display = 'flex';
+}
+
+// закрыть модалку
+function closeRenameProjectModal() {
+    document.getElementById('renameProjectModal').style.display = 'none';
+    refreshGroupPageIfOpen()
+}
+
+// отправка изменений на сервер
+function submitRenameProject() {
+    const projectId = document.getElementById('renameProjectId').value;
+    const newName = document.getElementById('renameProjectName').value.trim();
+
+    if (!newName) {
+        alert('Project name cannot be empty');
+        return;
+    }
+
+    fetch('/projects/rename/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({ project_id: projectId, new_name: newName })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            // сайдбар
+            const projectEl = document.querySelector(`.project-item[data-project-id="${projectId}"]`);
+            if (projectEl) projectEl.querySelector('.project-name').textContent = newName;
+
+            // карточки #recent
+            const recentCard = document.querySelector(`#recent .card[data-project-id="${projectId}"] .card-title`);
+            if (recentCard) {
+                const icon = recentCard.querySelector('.title-icon');
+                const dot = recentCard.querySelector('.project-group-dot');
+                const iconHtml = icon ? icon.outerHTML : '';
+                const dotHtml = dot ? dot.outerHTML : '';
+                recentCard.innerHTML = `${iconHtml} ${newName} ${dotHtml}`;
+            }
+
+            // карточки #fav
+            const favCard = document.querySelector(`#fav .card[data-project-id="${projectId}"] .card-title`);
+            if (favCard) {
+                const icon = favCard.querySelector('.title-icon');
+                const dot = favCard.querySelector('.project-group-dot');
+                const iconHtml = icon ? icon.outerHTML : '';
+                const dotHtml = dot ? dot.outerHTML : '';
+                favCard.innerHTML = `${iconHtml} ${newName} ${dotHtml}`;
+            }
+
+            // страница проекта если открыта
+            const projectPage = document.querySelector(`.project-page[data-project-id="${projectId}"]`);
+            if (projectPage) {
+                const nameEl = projectPage.querySelector('.project-info-name');
+                if (nameEl) nameEl.textContent = newName;
+            }
+
+            // карточки группы
+            const groupCard = document.querySelector(`.group-page-project-card[data-project-id="${projectId}"] .group-page-project-name`);
+            if (groupCard) groupCard.textContent = newName;
+
+            closeRenameProjectModal();
+            refreshGroupPageIfOpen();
+            refreshHomeContent();
+            if (document.getElementById('favourites-page')) loadFavouriteProjects();
+        } else {
+            alert('Ошибка: ' + data.error);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Error renaming project');
+    });
+}
+
+
+
+function toggleFavourite(button, projectId) {
+    fetch('/projects/favourite/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({ project_id: projectId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.success) return;
+
+        // обновляем сердечко в карточках home
+        const homeCard = document.querySelector(`#recent .cards .card[data-project-id="${projectId}"] .card-fav`);
+        if (homeCard) homeCard.textContent = data.is_favourite ? '♥︎' : '♡︎';
+
+        const favCard2 = document.querySelector(`#fav .cards .card[data-project-id="${projectId}"] .card-fav`);
+        if (favCard2) favCard2.textContent = data.is_favourite ? '♥︎' : '♡︎';
+
+        // обновляем сердечко в карточках режима групп
+        const groupCard = document.querySelector(`.group-page-project-card[data-project-id="${projectId}"] .group-page-project-fav`);
+        if (groupCard) groupCard.textContent = data.is_favourite ? '♥︎' : '♡︎';
+
+        // обновляем сердечко в сайдбаре
+        const sidebarItem = document.querySelector(`.project-item[data-project-id="${projectId}"]`);
+        if (sidebarItem) {
+            const fav = sidebarItem.querySelector('.project-fav');
+            if (fav) fav.textContent = data.is_favourite ? '♥︎' : '♡︎';
+        }
+
+        // обновляем сердечко на странице проекта
+        const projectPageFav = document.querySelector(`#project-info-fav[data-project-id="${projectId}"]`);
+        if (projectPageFav) projectPageFav.textContent = data.is_favourite ? '♥︎' : '♡︎';
+
+        // добавляем/убираем из избранного
+        const favContainer = document.querySelector('#fav .cards');
+        const recentCard = document.querySelector(`#recent .cards .card[data-project-id="${projectId}"]`);
+        const favCard = document.querySelector(`#fav .cards .card[data-project-id="${projectId}"]`);
+
+        if (data.is_favourite) {
+            if (recentCard && !favCard) {
+                const clone = recentCard.cloneNode(true);
+                favContainer.prepend(clone);
+                updateCards('fav', 3);
+            }
+        } else {
+            if (favCard) {
+                favCard.remove();
+                updateCards('fav', 3);
+            }
+        }
+
+        // меняем текст кнопки в дропдауне
+        const dropdown = document.getElementById('project-dropdown');
+        const favBtn = dropdown.querySelector('.project-fav-btn');
+        if (favBtn) {
+            favBtn.textContent = data.is_favourite ? 'Remove from favourites' : 'Add to favourites';
+        }
+
+        showToast(data.is_favourite ? 'Added to favourites' : 'Removed from favourites');
+        refreshHomeContent();
+        if (document.getElementById('favourites-page')) loadFavouriteProjects();
+    });
+}
+
+
+
+
+function duplicateProject() {
+    if (!currentProjectId) {
+        showToast("No project selected");
+        return;
+    }
+
+    const originalEl = document.querySelector(`.project-item[data-project-id="${currentProjectId}"]`);
+    if (!originalEl) return;
+
+    const groupEl = originalEl.closest(".spaces-group");
+    if (!groupEl) return;
+
+    const projectContainer = groupEl.querySelector(".projects") || originalEl.parentElement;
+    const currentProjectsCount = projectContainer.querySelectorAll(".project-item").length;
+
+    const groupLimit = parseInt(groupEl.dataset.groupLimit, 10);
+    if (currentProjectsCount >= groupLimit) {
+        showToast("Project limit reached for this group");
+        return;
+    }
+
+    fetch("/projects/duplicate/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken()
+        },
+        body: JSON.stringify({ project_id: currentProjectId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.success) {
+            showToast(data.error || "Error duplicating project");
+            return;
+        }
+
+        const project = data.project;
+
+        // добавляем в сайдбар
+        let container = groupEl.querySelector(".projects");
+        if (!container) {
+            container = document.createElement("div");
+            container.className = "projects";
+            container.style.display = "none";
+            groupEl.appendChild(container);
+        }
+
+        const el = document.createElement("div");
+        el.className = "project-item";
+        el.dataset.projectId = project.id;
+        el.innerHTML = `
+            <span class="project-name">${project.name}</span>
+            <div class="project-actions">
+                <span class="project-fav">${project.is_favourite ? '♥' : '♡'}</span>
+                <button class="project-menu-btn" onclick="openProjectMenu(event, '${project.id}', '${project.name}')">⋯</button>
+            </div>
+        `;
+        originalEl.after(el);
+        el.addEventListener("click", (e) => {
+            e.stopPropagation();
+            activateProject(el);
+        });
+
+        // обновляем group page если открыта
+        refreshGroupPageIfOpen();
+
+        // обновляем favourites если открыта
+        refreshFavPageIfOpen();
+
+        showToast('Project duplicated');
+        refreshHomeContent();
+    })
+    .catch(err => console.error(err));
+}
+
+
+function deleteProject() {
+    if (!currentProjectId) return;
+
+    document.getElementById('delete-project-modal').style.display = 'flex';
+    refreshGroupPageIfOpen()
+}
+
+
+function closeDeleteProjectModal() {
+    const modal = document.getElementById('delete-project-modal');
+    if (modal) modal.style.display = 'none';
+    refreshGroupPageIfOpen()
+}
+
+
+
+document.getElementById('confirm-delete-project')
+    ?.addEventListener('click', () => {
+        fetch('/projects/delete/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({ project_id: currentProjectId })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                alert(data.error || 'Error deleting project');
+                return;
+            }
+
+            const projectEl = document.querySelector(`.project-item[data-project-id="${currentProjectId}"]`);
+            if (projectEl) projectEl.remove();
+
+            const cardEl = document.getElementById(`card-${currentProjectId}`);
+            if (cardEl) cardEl.remove();
+
+            updateCards('recent', 3);
+            updateCards('fav', 3);
+
+            closeDeleteProjectModal();
+            showToast('Project successfully deleted');
+
+            refreshHomeContent();
+
+            refreshGroupPageIfOpen();       // ← внутри .then()
+            refreshFavPageIfOpen();         // ← внутри .then()
+
+            currentProjectId = null;
+        });
+    });
+
+
+const searchInput = document.getElementById('global-search');
+const suggestionsBox = document.getElementById('search-suggestions');
+
+let searchTimeout = null;
+
+searchInput.addEventListener('input', () => {
+    const query = searchInput.value.trim();
+
+    if (searchTimeout) clearTimeout(searchTimeout);
+
+    if (query.length === 0) {
+        suggestionsBox.style.display = 'none';
+        return;
+    }
+
+    // немного задержки, чтобы не спамить сервер на каждый символ
+    searchTimeout = setTimeout(() => {
+        fetch(`/search_suggestions/?q=${encodeURIComponent(query)}`)
+            .then(res => res.json())
+            .then(results => {
+                renderSearchSuggestions(results);
+            });
+    }, 300);
 });
+
+function renderSearchSuggestions(results) {
+    suggestionsBox.innerHTML = '';
+
+    if (!results || results.length === 0) {
+        suggestionsBox.style.display = 'none';
+        return;
+    }
+
+    results.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'search-suggestion-item';
+
+        const typeIcon = item.type === 'project' 
+            ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`
+            : item.type === 'group'
+            ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5"><path d="M3 7h18M3 12h18M3 17h18"/></svg>`
+            : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+
+        const namePart = `<span class="suggestion-name">${item.name}</span>`;
+        const groupPart = item.group ? `<span class="suggestion-dot">•</span><span class="suggestion-group">${item.group}</span>` : '';
+
+        div.innerHTML = `
+            <span class="suggestion-icon">${typeIcon}</span>
+            <span class="suggestion-text">${namePart}${groupPart}</span>
+            <span class="suggestion-type">${item.type}</span>
+        `;
+
+        div.addEventListener('click', () => {
+            searchInput.value = item.name;
+            suggestionsBox.style.display = 'none';
+            highlightItem(item);
+        });
+        suggestionsBox.appendChild(div);
+    });
+
+    const rect = searchInput.getBoundingClientRect();
+    suggestionsBox.style.width = rect.width + 'px';
+    suggestionsBox.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+    suggestionsBox.style.left = rect.left + 'px';
+    suggestionsBox.style.display = 'block';
+}
+
+
+
+// пример подсветки выбранного элемента
+function highlightItem(item) {
+    if (item.type === 'project') {
+        const el = document.querySelector(`.project-item[data-project-id="${item.id}"]`);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.classList.add('highlight');
+            setTimeout(() => el.classList.remove('highlight'), 2000);
+            renderProjectPage(el);
+        }
+    }
+
+    if (item.type === 'group') {
+        const el = document.querySelector(`.spaces-group[data-group-id="${item.id}"]`);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.classList.add('highlight');
+            setTimeout(() => el.classList.remove('highlight'), 2000);
+            renderGroupPage(el);
+        }
+    }
+}
+
+
 
 /*===MODALS===*/
 function openRename() {
@@ -93,17 +1442,521 @@ function closeModal() {
 
 
 
-/*===создание группы в сайдбаре===*/
-function addSpace(event) {
-    event.stopPropagation();
 
-    const spacesBody = document.getElementById('spaces-body');
 
-    const newGroup = document.createElement('div');
-    newGroup.className = 'space-group';
-    newGroup.innerHTML = `<strong>My First Group</strong>`;
-    spacesBody.appendChild(newGroup);
-    spacesBody.classList.remove('hidden');
-    document.getElementById('spaces-arrow').textContent = '▼';
 
+window.renameGroup = renameGroup;
+window.submitRenameGroup = submitRenameGroup;
+window.closeRenameGroupModal = closeRenameGroupModal;
+window.deleteGroup = deleteGroup;
+window.renameProject = renameProject;
+window.closeRenameProjectModal = closeRenameProjectModal;
+window.submitRenameProject = submitRenameProject;
+window.duplicateProject = duplicateProject;
+window.deleteProject = deleteProject;
+window.closeDeleteProjectModal = closeDeleteProjectModal;
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Загружаем группы и после успешного рендера загружаем проекты
+    loadGroups()
+        .then(() => {
+            loadProjects();
+        });
+});
+
+
+
+document.addEventListener('click', (event) => {
+    const dropdown = document.getElementById('project-dropdown');
+    if (!dropdown) return;
+
+    // Если клик не по dropdown и не по кнопке ⋯
+    if (!dropdown.contains(event.target) && !event.target.classList.contains('project-menu-btn')) {
+        dropdown.style.display = 'none';
+    }
+});
+
+
+
+
+function showToast(text) {
+    const toast = document.getElementById('toast');
+    toast.textContent = text;
+    toast.classList.add('show');
+
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 5000);
 }
+
+
+document.addEventListener('click', function(e) {
+    const spacesBody = document.getElementById('spaces-body');
+    const spacesHeader = document.querySelector('.spaces-header');
+    const projectDropdown = document.getElementById('project-dropdown');
+    const groupDropdown = document.getElementById('group-dropdown');
+
+    if (!spacesBody || spacesBody.classList.contains('hidden')) return;
+
+    // Если клик не по spacesBody, не по заголовку и не по дропдаунам
+    if (!spacesBody.contains(e.target) &&
+        !spacesHeader.contains(e.target) &&
+        (!projectDropdown || !projectDropdown.contains(e.target)) &&
+        (!groupDropdown || !groupDropdown.contains(e.target))) {
+        spacesBody.classList.add('hidden');
+    }
+});
+
+
+
+document.getElementById('settings-btn').addEventListener('click', () => {
+    document.getElementById('avatar-dropdown').style.display = 'none';
+    document.getElementById('settings-modal').style.display = 'flex';
+    initSettingsModal();  // ← добавь сюда
+});
+
+function closeSettingsModal() {
+    document.getElementById('settings-modal').style.display = 'none';
+}
+
+function saveSettings() {
+    const username = document.getElementById('settings-username').value.trim();
+    const email = document.getElementById('settings-email').value.trim();
+    const password = document.getElementById('settings-password').value;
+    const confirmPassword = document.getElementById('settings-password-confirm').value;
+
+    if (password && password !== confirmPassword) {
+        showToast('Passwords do not match', 'error');
+        return;
+    }   
+
+
+
+    fetch('/user/update/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({ username, email })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Settings saved!');
+            closeSettingsModal();
+        } else {
+            showToast(data.error || 'Error saving settings', 'error');
+        }
+    });
+}
+
+
+// открытие дропдауна аватара
+function initSettingsModal() {
+    document.getElementById('avatar-edit-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const dd = document.getElementById('avatar-edit-dropdown');
+    dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+    });
+
+    document.getElementById('settings-avatar-circle').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const dd = document.getElementById('avatar-edit-dropdown');
+        dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+    });
+
+    document.getElementById('avatar-choose').addEventListener('click', () => {
+        document.getElementById('avatar-file-input').click();
+    });
+
+    document.getElementById('avatar-file-input').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const formData = new FormData();
+        formData.append('avatar', file);
+        formData.append('csrfmiddlewaretoken', getCSRFToken());
+        fetch('/user/avatar/upload/', { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const imgHtml = `<img src="${data.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
+                // обновляем все аватары
+                document.getElementById('settings-avatar-circle').innerHTML = imgHtml;
+                document.getElementById('user-avatar').innerHTML = imgHtml + `<span class="avatar-status online"></span>`;
+                document.querySelector('.small-avatar').innerHTML = imgHtml + `<span class="avatar-status online"></span>`;
+                showToast('Avatar updated!');
+                }
+            });
+    });
+
+    document.getElementById('avatar-delete').addEventListener('click', () => {
+    document.getElementById('avatar-edit-dropdown').style.display = 'none';
+    document.getElementById('confirm-delete-avatar-modal').style.display = 'flex';
+});
+
+document.getElementById('confirm-avatar-delete-btn').addEventListener('click', () => {
+    fetch('/user/avatar/delete/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCSRFToken() }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const firstLetter = document.getElementById('settings-username').value.slice(0, 1).toUpperCase();
+            // обновляем все аватары
+            document.getElementById('settings-avatar-circle').innerHTML = firstLetter;
+            document.getElementById('user-avatar').innerHTML = firstLetter + `<span class="avatar-status online"></span>`;
+            document.querySelector('.small-avatar').innerHTML = firstLetter + `<span class="avatar-status online"></span>`;
+            document.getElementById('confirm-delete-avatar-modal').style.display = 'none';
+            showToast('Avatar deleted');
+        }
+    });
+});
+
+    document.getElementById('avatar-show').addEventListener('click', () => {
+        const img = document.querySelector('#settings-avatar-circle img');
+        if (img) {
+            window.open(img.src, '_blank');
+        } else {
+            showToast('No profile picture set');
+        }
+    });
+}
+
+
+
+// 2. клик вне — закрывает
+document.addEventListener('click', (e) => {
+    const dd = document.getElementById('avatar-edit-dropdown');
+    if (!dd) return;
+    const btn = document.getElementById('avatar-edit-btn');
+    const circle = document.getElementById('settings-avatar-circle');
+    if (!btn || !circle) return;
+    if (!btn.contains(e.target) && !circle.contains(e.target) && !dd.contains(e.target)) {
+        dd.style.display = 'none';
+    }
+});
+
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    const savedView = localStorage.getItem('selectedView');
+
+    if (!savedView) return;
+
+    const btnToActivate = document.querySelector(`.view-btn[data-view="${savedView}"]`);
+
+    if (btnToActivate) {
+        btnToActivate.click();
+    }
+
+});
+
+
+
+
+document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
+
+    // Esc
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay, .modal-backdrop').forEach(m => m.style.display = 'none');
+        document.getElementById('status-picker')?.remove();
+        document.getElementById('date-picker-inline')?.remove();
+        document.getElementById('assignee-picker')?.remove();
+        document.getElementById('priority-picker')?.remove();
+        document.getElementById('bulk-status-picker')?.remove();
+        document.getElementById('bulk-assignee-picker')?.remove();
+        document.getElementById('bulk-move-picker')?.remove();
+        document.getElementById('bulk-date-picker')?.remove();
+        document.getElementById('task-dropdown').style.display = 'none';
+        document.getElementById('dropdown').style.display = 'none';
+        return;
+    }
+
+    // N — новый таск
+    if (e.key === 'n' || e.key === 'N') {
+        const projectPage = document.querySelector('.project-page');
+        if (!projectPage) return;
+        openCreateTaskModal(projectPage.dataset.projectId);
+        return;
+    }
+
+    // Ctrl+K — поиск
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('global-search')?.focus();
+        return;
+    }
+});
+
+
+function loadHomeWidgets() {
+    const content = document.querySelector('.content');
+    
+    // вставляем виджеты перед #recent
+    const recentSection = content.querySelector('#recent');
+    if (!recentSection || document.getElementById('home-widgets')) return;
+
+    const hour = new Date().getHours();
+    const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
+    const widgetsHTML = `
+        <div id="home-widgets" style="display:flex; gap:16px; margin-bottom:20px; flex-wrap:wrap;">
+            
+            <!-- Приветствие + прогресс -->
+            <div class="home-widget" id="home-greeting-widget">
+                <div class="home-widget-greeting" id="home-greeting-text">
+                    ${greeting}, loading... 👋
+                </div>
+                <div class="home-widget-progress-label" id="home-progress-label">
+                    Loading today's progress...
+                </div>
+                <div class="home-widget-progress-bar-bg">
+                    <div class="home-widget-progress-bar-fill" id="home-progress-fill" style="width:0%"></div>
+                </div>
+            </div>
+
+            <!-- Быстрое создание таска -->
+            <div class="home-widget" id="home-quick-task-widget">
+                <div class="home-widget-title">Quick task</div>
+                <input class="home-quick-task-input" id="home-quick-task-input" placeholder="Task name...">
+                <select class="home-quick-task-select" id="home-quick-task-project">
+                    <option value="">Select project...</option>
+                </select>
+                <button class="home-quick-task-btn" onclick="submitQuickTask()">+ Add task</button>
+            </div>
+
+            <!-- Мини-календарь -->
+            <div class="home-widget" id="home-calendar-widget">
+                <div class="home-widget-title" id="home-calendar-title"></div>
+                <div class="home-calendar-grid" id="home-calendar-grid"></div>
+            </div>
+
+        </div>
+    `;
+
+    recentSection.insertAdjacentHTML('beforebegin', widgetsHTML);
+
+    // заполняем проекты в quick task
+    document.querySelectorAll('.project-item').forEach(el => {
+        const opt = document.createElement('option');
+        opt.value = el.dataset.projectId;
+        opt.textContent = el.querySelector('.project-name').textContent;
+        document.getElementById('home-quick-task-project').appendChild(opt);
+    });
+
+    // загружаем данные
+    fetch('/home/stats/')
+        .then(res => res.json())
+        .then(data => {
+            // приветствие
+            document.getElementById('home-greeting-text').textContent = 
+                `${greeting}, ${data.username} 👋`;
+
+            // прогресс
+            const done = data.today_done;
+            const total = data.today_total;
+            const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+            document.getElementById('home-progress-label').textContent = 
+                total > 0 ? `${done} of ${total} tasks done today` : 'No tasks due today';
+            
+            const fillEl = document.getElementById('home-progress-fill');
+if (fillEl) setTimeout(() => { fillEl.style.width = pct + '%'; }, 100);
+
+            // календарь
+            renderMiniCalendar(data.calendar_dates);
+        });
+}
+
+function renderMiniCalendar(calendarDates) {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    
+    const monthNames = ['January','February','March','April','May','June',
+                        'July','August','September','October','November','December'];
+    document.getElementById('home-calendar-title').textContent = `${monthNames[month]} ${year}`;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const startOffset = (firstDay + 6) % 7; // пн первый
+
+    const grid = document.getElementById('home-calendar-grid');
+    grid.innerHTML = '';
+
+    // заголовки дней
+    ['Mo','Tu','We','Th','Fr','Sa','Su'].forEach(d => {
+        const el = document.createElement('div');
+        el.className = 'cal-day-header';
+        el.textContent = d;
+        grid.appendChild(el);
+    });
+
+    // пустые ячейки до начала месяца
+    for (let i = 0; i < startOffset; i++) {
+        const el = document.createElement('div');
+        el.className = 'cal-day empty';
+        grid.appendChild(el);
+    }
+
+    // дни месяца
+    for (let day = 1; day <= daysInMonth; day++) {
+        const el = document.createElement('div');
+        el.className = 'cal-day';
+        
+        const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        const isToday = day === now.getDate();
+        const hasTask = calendarDates[dateStr];
+
+        if (isToday) el.classList.add('cal-today');
+        
+        el.innerHTML = `<span>${day}</span>`;
+        
+        if (hasTask) {
+            const allDone = hasTask.done === hasTask.total;
+            const dot = document.createElement('span');
+            dot.className = allDone ? 'cal-dot cal-dot-done' : 'cal-dot cal-dot-pending';
+            el.appendChild(dot);
+        }
+
+        grid.appendChild(el);
+    }
+}
+
+function submitQuickTask() {
+    const title = document.getElementById('home-quick-task-input').value.trim();
+    const projectId = document.getElementById('home-quick-task-project').value;
+
+    if (!title) { showToast('Task name cannot be empty'); return; }
+    if (!projectId) { showToast('Select a project'); return; }
+
+    fetch('/tasks/create/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+        body: JSON.stringify({ 
+            project_id: projectId, title, 
+            status: 'todo', priority: 'low',
+            description: '', assignee_id: null, due_date: null
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('home-quick-task-input').value = '';
+            showToast('Task created!');
+            refreshProjectCardImg(projectId);
+        }
+    });
+}
+
+window.submitQuickTask = submitQuickTask;
+
+
+function toggleNotifications() {
+    const panel = document.getElementById('notifications-panel');
+    if (panel) {
+        panel.remove();
+        return;
+    }
+    
+    const bell = document.getElementById('notifications-bell');
+    const rect = bell.getBoundingClientRect();
+    
+    const div = document.createElement('div');
+    div.id = 'notifications-panel';
+    div.className = 'notifications-panel';
+    div.innerHTML = `
+        <div class="notifications-header">
+            <span>Notifications</span>
+            <button class="notifications-close" onclick="document.getElementById('notifications-panel').remove()">✕</button>
+        </div>
+        <div class="notifications-body" id="notifications-body">
+            <div class="notifications-loading">Loading...</div>
+        </div>
+    `;
+    
+    div.style.top = (rect.bottom + 8) + 'px';
+    div.style.right = (window.innerWidth - rect.right) + 'px';
+    document.body.appendChild(div);
+    
+    fetch('/notifications/')
+        .then(res => res.json())
+        .then(data => {
+            const body = document.getElementById('notifications-body');
+            if (!body) return;
+            
+            if (data.notifications.length === 0) {
+                body.innerHTML = `<div class="notifications-empty">No overdue tasks 🎉</div>`;
+                return;
+            }
+            
+            body.innerHTML = data.notifications.map(n => `
+                <div class="notification-item" onclick="openTaskProject('${n.id}')">
+                    <div class="notification-icon">⚠️</div>
+                    <div class="notification-content">
+                        <div class="notification-title">${n.title}</div>
+                        <div class="notification-meta">${n.project} · overdue ${n.due_date}</div>
+                    </div>
+                </div>
+            `).join('');
+        });
+}
+
+function loadNotificationsBadge() {
+    fetch('/notifications/')
+        .then(res => res.json())
+        .then(data => {
+            const badge = document.getElementById('notifications-badge');
+            if (!badge) return;
+            if (data.count > 0) {
+                badge.textContent = data.count > 9 ? '9+' : data.count;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        });
+}
+
+function openTaskProject(taskId) {
+    document.getElementById('notifications-panel')?.remove();
+    fetch(`/tasks/${taskId}/info/`)
+        .then(res => res.json())
+        .then(data => {
+            const projectEl = document.querySelector(`.project-item[data-project-id="${data.project_id}"]`);
+            if (!projectEl) return;
+            document.querySelectorAll('.project-item').forEach(el => el.classList.remove('active'));
+            projectEl.classList.add('active');
+            renderProjectPage(projectEl);
+        });
+}
+
+window.toggleNotifications = toggleNotifications;
+
+document.addEventListener('click', (e) => {
+    const panel = document.getElementById('notifications-panel');
+    if (panel && !panel.contains(e.target) && !document.getElementById('notifications-bell').contains(e.target)) {
+        panel.remove();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadNotificationsBadge();
+    setInterval(loadNotificationsBadge, 60000);
+});
+
+
+document.getElementById('logout-btn').addEventListener('click', () => {
+    document.getElementById('avatar-dropdown').style.display = 'none';
+    document.getElementById('logout-modal').style.display = 'flex';
+});
+
+
+function confirmLogout() {
+    window.location.href = '/logout/';
+}
+
+
+window.confirmLogout = confirmLogout;
