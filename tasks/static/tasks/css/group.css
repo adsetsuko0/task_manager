@@ -54,7 +54,15 @@ body.dark-theme .group-page-project-name {
 .group-page-project-fav {
     font-size: 16px;
     color: #888;
-    pointer-events: none;
+    position: absolute;
+    top: 10px;
+    right: 40px;
+    padding: 2px 6px;
+    cursor: pointer;
+}
+
+.group-page-project-top {
+    padding-right: 64px;
 }
 
 .group-page-project-bottom {
