@@ -1,0 +1,26 @@
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Secrets and local data
+.env
+.env.*
+!.env.example
+db.sqlite3
+media/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Editors and system files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.bak
+*.log
