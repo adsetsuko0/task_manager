@@ -25,48 +25,30 @@ Suggestions and feedback are welcome, feel free to open an issue. This is a prac
 
 ## Installation
 ### Run locally
-```
+```bash
 git clone https://github.com/adsetsuko0/task_manager.git
 cd task_manager
 python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env
 ```
-Open .env and set SECRET_KEY. You can generate one with:
-```
+Open `.env` and set `SECRET_KEY`. You can generate one with:
+
+```bash
 python -c "from django.core.management.utils import get_random_secret_key as g; print(g())"
 ```
 
 Then apply migrations and start the server:
-```python manage.py migrate
+
+```bash
+python manage.py migrate
 python manage.py runserver
 ```
 Open http://127.0.0.1:8000/ and create an account on the /register/ page.
 
 ### Run with Docker
-```
+```bash
 docker build -t task-manager .
 docker run --rm -p 8000:8000 --env-file .env task-manager
 ```
-
-### Configuration
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `SECRET_KEY` | yes | Django secret key |
-| `DEBUG` | no | `True` for local development |
-| `ALLOWED_HOSTS` | no | Comma-separated hosts, defaults to  `localhost` |
-
-### API documentation
-Interactive docs are available while the server is running:
-
-- [Swagger UI](http://127.0.0.1:8000/swagger/)
-- [ReDoc](http://127.0.0.1:8000/redoc/)
-
-### Tests
-```
-python manage.py test
-```
-
-### License
-MIT, see LICENSE.
