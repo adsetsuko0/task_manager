@@ -4,23 +4,22 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('tasks', '0005_projects_group_priority_projects_group_project_limit_and_more'),
+        ("tasks", "0005_projects_group_priority_projects_group_project_limit_and_more"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='projects_group',
-            old_name='project_limit',
-            new_name='limit',
+            model_name="projects_group",
+            old_name="project_limit",
+            new_name="limit",
         ),
         migrations.RemoveField(
-            model_name='projects_group',
-            name='created_at',
+            model_name="projects_group",
+            name="created_at",
         ),
         migrations.RemoveField(
-            model_name='projects_group',
-            name='owner',
+            model_name="projects_group",
+            name="owner",
         ),
     ]

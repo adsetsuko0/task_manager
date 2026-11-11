@@ -4,15 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('tasks', '0008_userprofile'),
+        ("tasks", "0008_userprofile"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='task',
-            name='priority',
-            field=models.CharField(choices=[('low', 'Low'), ('normal', 'Normal'), ('high', 'High')], default='normal', max_length=10),
+            model_name="task",
+            name="priority",
+            field=models.CharField(
+                choices=[("low", "Low"), ("normal", "Normal"), ("high", "High")],
+                default="normal",
+                max_length=10,
+            ),
         ),
     ]

@@ -4,25 +4,28 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('tasks', '0004_project_task_project_projects_group_project_group'),
+        ("tasks", "0004_project_task_project_projects_group_project_group"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='projects_group',
-            name='priority',
-            field=models.CharField(choices=[('low', 'Low'), ('normal', 'Normal'), ('high', 'High')], default='normal', max_length=10),
+            model_name="projects_group",
+            name="priority",
+            field=models.CharField(
+                choices=[("low", "Low"), ("normal", "Normal"), ("high", "High")],
+                default="normal",
+                max_length=10,
+            ),
         ),
         migrations.AddField(
-            model_name='projects_group',
-            name='project_limit',
+            model_name="projects_group",
+            name="project_limit",
             field=models.PositiveIntegerField(default=10),
         ),
         migrations.AlterField(
-            model_name='projects_group',
-            name='name',
+            model_name="projects_group",
+            name="name",
             field=models.CharField(max_length=100, unique=True),
         ),
     ]

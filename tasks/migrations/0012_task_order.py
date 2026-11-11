@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('tasks', '0011_alter_project_task_limit_alter_task_priority'),
+        ("tasks", "0011_alter_project_task_limit_alter_task_priority"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='task',
-            name='order',
+            model_name="task",
+            name="order",
             field=models.PositiveIntegerField(default=0),
         ),
     ]

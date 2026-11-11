@@ -4,24 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('tasks', '0006_rename_project_limit_projects_group_limit_and_more'),
+        ("tasks", "0006_rename_project_limit_projects_group_limit_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='project',
-            name='owner',
+            model_name="project",
+            name="owner",
         ),
         migrations.AddField(
-            model_name='project',
-            name='is_favourite',
+            model_name="project",
+            name="is_favourite",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='project',
-            name='task_limit',
+            model_name="project",
+            name="task_limit",
             field=models.PositiveIntegerField(default=50),
         ),
     ]
