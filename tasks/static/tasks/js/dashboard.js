@@ -21,7 +21,7 @@ function renderDashboardPage() {
         <div id="dashboard-page">
             <div class="dashboard-stats-row" id="dashboard-stats-row">
                 <div class="dash-stat-card" id="dash-stat-total">
-                    <div class="dash-stat-icon" style="background:#eef2ff">📋</div>
+                    <div class="dash-stat-icon" style="background:rgba(128,128,128,0.18)">📋</div>
                     <div class="dash-stat-info">
                         <div class="dash-stat-label">Total Tasks</div>
                         <div class="dash-stat-value" id="dash-total">—</div>
@@ -219,7 +219,7 @@ function loadDashboardData() {
                     datasets: [{
                         label: 'Tasks',
                         data: data.by_project.map(p => p.task_count),
-                        backgroundColor: '#9d9ad6',
+                        backgroundColor: '#9a9a9a',
                         borderRadius: 6,
                     }]
                 },
@@ -240,10 +240,10 @@ function loadDashboardData() {
                     datasets: [{
                         label: 'Completed',
                         data: data.completed_by_day.map(d => d.count),
-                        borderColor: '#9d9ad6',
-                        backgroundColor: 'rgba(124,118,240,0.1)',
+                        borderColor: '#9a9a9a',
+                        backgroundColor: 'rgba(154,154,154,0.15)',
                         borderWidth: 2,
-                        pointBackgroundColor: '#9d9ad6',
+                        pointBackgroundColor: '#9a9a9a',
                         fill: true,
                         tension: 0.4,
                     }]

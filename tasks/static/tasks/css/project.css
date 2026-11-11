@@ -126,15 +126,15 @@ body.dark-theme .project-info-name {
 }
 
 .toolbar-btn.active {
-    background: #eef2ff;
-    border-color: #7c76f0;
-    color: #7c76f0;
+    background: #ededed;
+    border-color: var(--accent);
+    color: var(--accent);
 }
 
 body.dark-theme .toolbar-btn.active {
-    background: #1a1a2e;
-    color: #7c76f0;
-    border-color: #7c76f0;
+    background: #2a2a2a;
+    color: var(--accent);
+    border-color: var(--accent);
 }
 
 body.dark-theme .toolbar-btn {
@@ -217,7 +217,7 @@ body.dark-theme .toolbar-btn:hover {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #7c76f0;
+    color: var(--accent);
     font-size: 11px;
 }
 
@@ -271,7 +271,7 @@ body:not(.dark-theme) .project-info-groupby-label {
 }
 
 .groupby-select:focus {
-    border-color: #7c76f0;
+    border-color: var(--accent);
 }
 
 body.dark-theme .groupby-dropdown {
@@ -286,8 +286,8 @@ body.dark-theme .groupby-select {
 }
 
 .inline-picker-item.selected {
-    background: rgba(124, 118, 240, 0.12);
-    color: #7c76f0;
+    background: var(--accent-soft);
+    color: var(--accent);
 }
 
 .create-task-modal-content {
@@ -347,7 +347,7 @@ body.dark-theme .groupby-select {
 }
 
 .create-task-input-title:focus {
-    border-bottom-color: #7c76f0;
+    border-bottom-color: var(--accent);
 }
 
 .create-task-textarea {
@@ -363,7 +363,7 @@ body.dark-theme .groupby-select {
 }
 
 .create-task-textarea:focus {
-    border-color: #7c76f0;
+    border-color: var(--accent);
 }
 
 .create-task-select {
@@ -382,7 +382,7 @@ body.dark-theme .groupby-select {
 
 
 .create-task-select:focus {
-    border-color: #7c76f0;
+    border-color: var(--accent);
 }
 
 .create-task-fields-row {
@@ -415,8 +415,8 @@ body.dark-theme .groupby-select {
 
 .create-task-save-btn {
     padding: 10px 20px;
-    background: #7c76f0;
-    color: white;
+    background: var(--accent);
+    color: var(--accent-contrast);
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -425,7 +425,7 @@ body.dark-theme .groupby-select {
 }
 
 .create-task-save-btn:hover {
-    background: #6a64d8;
+    background: var(--accent-hover);
 }
 
 
@@ -672,7 +672,7 @@ body.dark-theme .inline-picker-item {
 
 .task-inline-input {
     border: none;
-    border-bottom: 2px solid #7c76f0;
+    border-bottom: 2px solid var(--accent);
     outline: none;
     font-size: 14px;
     width: 100%;
@@ -784,9 +784,9 @@ body.dark-theme .task-priority-inline {
 }
 
 .tasks-add-btn:hover {
-    border-color: #7c76f0;
-    color: #7c76f0;
-    background: #f5f4ff;
+    border-color: var(--accent);
+    color: var(--accent);
+    background: #f2f2f2;
 }
 
 body.dark-theme .tasks-add-btn {
@@ -795,9 +795,9 @@ body.dark-theme .tasks-add-btn {
 }
 
 body.dark-theme .tasks-add-btn:hover {
-    border-color: #7c76f0;
-    color: #7c76f0;
-    background: #1a1a2e;
+    border-color: var(--accent);
+    color: var(--accent);
+    background: #2a2a2a;
 }
 
 
@@ -819,14 +819,14 @@ body.dark-theme .tasks-add-btn:hover {
 
 .task-select-circle:hover,
 .task-select-all:hover {
-    border-color: #7c76f0;
+    border-color: var(--accent);
 }
 
 .task-select-circle.selected,
 .task-select-all.selected {
-    background: #7c76f0;
+    background: var(--accent);
     font-size: 11px;
-    color: white;
+    color: var(--accent-contrast);
 }
 
 .task-select-circle.selected::after,
@@ -942,8 +942,8 @@ body.dark-theme .task-select-all {
 .groupby-apply-btn {
     padding: 5px 12px;
     font-size: 12px;
-    background: #7c76f0;
-    color: white;
+    background: var(--accent);
+    color: var(--accent-contrast);
     border: none;
     border-radius: 6px;
     cursor: pointer;
@@ -1038,12 +1038,12 @@ body.dark-theme .task-group-count {
 }
 
 .custom-status-option:hover {
-    border-color: #7c76f0;
+    border-color: var(--accent);
 }
 
 .custom-status-option.selected {
     border-color: currentColor;
-    background: rgba(124, 118, 240, 0.08);
+    background: var(--accent-soft);
 }
 
 .custom-status-option[data-value="todo"].selected { color: #888; border-color: #888; }
@@ -1274,4 +1274,12 @@ body:not(.dark-theme) .groupby-reset-btn:hover {
 
 #project-showdone-btn svg {
     margin-right: 0px;
+}
+/*===MONO ICONS===*/
+.user-icon {
+    width: 14px;
+    height: 14px;
+    vertical-align: -2px;
+    opacity: 0.75;
+    flex-shrink: 0;
 }

@@ -1,3 +1,20 @@
+/*===ACCENT (нейтральный, переключается вместе с темой)===*/
+:root {
+    --accent: #2b2b2b;            /* текст, рамки, заливка кнопок */
+    --accent-hover: #000000;      /* наведение */
+    --accent-contrast: #ffffff;   /* текст на заливке акцента */
+    --accent-soft: rgba(0, 0, 0, 0.06);   /* лёгкая подложка */
+    --accent-ring: rgba(0, 0, 0, 0.15);   /* тень при фокусе */
+}
+
+body.dark-theme {
+    --accent: #d4d4d4;
+    --accent-hover: #ffffff;
+    --accent-contrast: #161616;
+    --accent-soft: rgba(255, 255, 255, 0.08);
+    --accent-ring: rgba(255, 255, 255, 0.18);
+}
+
 * {
     box-sizing: border-box;
 }
@@ -115,7 +132,7 @@ body.dark-theme .sidebar-nav {
 }    
 
 .nav-item.active {
-    background-color: #eef2ff;
+    background-color: #ededed;
     font-weight: bold;
 }
 
@@ -183,7 +200,7 @@ body.dark-theme .nav-item:hover {
 }
 
 .spaces-add-btn:hover {
-    color: #7c76f0; /* светло-синий при наведении */
+    color: var(--accent); /* светло-синий при наведении */
 }
 
 .spaces-add-btn:active {
@@ -191,7 +208,7 @@ body.dark-theme .nav-item:hover {
 }
 
 .priority-low { border-left: 4px solid #464747; }
-.priority-normal { border-left: 4px solid #514da4; }
+.priority-normal { border-left: 4px solid #8a8a8a; }
 .priority-high { border-left: 4px solid #b45353; }
 
 .limit-badge {
@@ -238,8 +255,8 @@ body.dark-theme .nav-item:hover {
 }
 
 .group-title.clickable.active {
-    background-color: #7c76f0; /* синий фон при выделении */
-    color: white;               /* белый текст */
+    background-color: var(--accent); /* синий фон при выделении */
+    color: var(--accent-contrast);               /* белый текст */
     font-weight: bold;
 }
 
@@ -408,7 +425,7 @@ body.dark-theme .nav-item:hover {
 }
 
 .avatar-dropdown .dropdown-item:hover {
-    background-color: #eef2ff;
+    background-color: #ededed;
 }
 
 .avatar-dropdown .icon {
@@ -618,12 +635,12 @@ body.dark-theme .view-switch button:hover {
 
 /* Кнопка Create */
 .modal-actions .btn-create {
-    background-color: #7c76f0; /* Зелёный цвет для Create */
-    color: white;
+    background-color: var(--accent); /* Зелёный цвет для Create */
+    color: var(--accent-contrast);
 }
 
 .modal-actions .btn-create:hover {
-    background-color: #6f6ad2; /* Тёмно-зелёный при наведении */
+    background-color: var(--accent-hover); /* Тёмно-зелёный при наведении */
 }
 
 .modal input,
@@ -662,8 +679,8 @@ body.dark-theme .view-switch button:hover {
 }
 
 .btn-primary {
-    background: #7c76f0;
-    color: white;
+    background: var(--accent);
+    color: var(--accent-contrast);
 }
 
 
@@ -722,12 +739,12 @@ body.dark-theme .view-switch button:hover {
 }
 
 .view-btn.active {
-    background: #eef2ff;
-    border-color: #7c76f0;
+    background: #ededed;
+    border-color: var(--accent);
 }
 
 .view-btn.active .view-icon {
-    fill: #746fc8;
+    fill: var(--accent);
 }
 
 
@@ -789,7 +806,7 @@ body.dark-theme .project-item:hover {
 
 
 .project-item.active {
-    background-color: #eef2ff;
+    background-color: #ededed;
     color: rgb(0, 0, 0);
     font-weight: bold;
 }
@@ -950,7 +967,7 @@ label input, label select {
 /* Добавляем эффект фокуса */
 label input:focus, label select:focus {
     outline: none; /* Убираем стандартную обводку */
-    border-color: #7c76f0; /* Зеленая обводка при фокусе */
+    border-color: var(--accent); /* Зеленая обводка при фокусе */
     background-color: #fff; /* Белый фон при фокусе */
 }
 
@@ -995,9 +1012,9 @@ h3 {
 #renameGroupInput:focus,
 #renameGroupInput:hover {
     outline: none;
-    border-color: #7c76f0;    /* синий контур при фокусе/hover */
+    border-color: var(--accent);    /* синий контур при фокусе/hover */
     background-color: #fff;    /* фон белый при фокусе */
-    box-shadow: 0 2px 8px rgba(124, 118, 240, 0.2); /* мягкая тень */
+    box-shadow: 0 2px 8px var(--accent-ring); /* мягкая тень */
     padding: 6px 12px;
 }
 
@@ -1276,13 +1293,13 @@ body.dark-theme .btn-cancel:hover {
 /* Primary (Create / Save / Rename / Change) */
 body.dark-theme .btn-primary,
 body.dark-theme .btn-create {
-    background-color: #6f6ad2;
-    color: #fff;
+    background-color: var(--accent);
+    color: var(--accent-contrast);
 }
 
 body.dark-theme .btn-primary:hover,
 body.dark-theme .btn-create:hover {
-    background-color: #7c76f0;
+    background-color: var(--accent-hover);
 }
 
 /* Danger (Delete) */
@@ -1311,7 +1328,7 @@ body.dark-theme input:-webkit-autofill:active {
     -webkit-text-fill-color: #e0e0e0 !important;
     box-shadow: 0 0 0 1000px #2a2a2a inset !important;
     caret-color: #e0e0e0;
-    border-color: #7c76f0;
+    border-color: var(--accent);
 }
 
 
@@ -1368,7 +1385,7 @@ body.dark-theme #renameGroupInput {
 
 body.dark-theme #renameGroupInput:focus {
     outline: none;
-    border-color: #7c76f0;
+    border-color: var(--accent);
     background-color: #2a2a2a; /* сохраняем темный фон */
     color: #e0e0e0;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -1379,8 +1396,8 @@ input:focus,
 select:focus,
 textarea:focus {
     outline: none;           /* убираем стандартную обводку */
-    border-color: #7c76f0;  /* синий контур при фокусе */
-    box-shadow: 0 2px 8px rgba(124, 118, 240, 0.2); /* мягкая тень */
+    border-color: var(--accent);  /* синий контур при фокусе */
+    box-shadow: 0 2px 8px var(--accent-ring); /* мягкая тень */
 }
 
 /* Все поля input, select и textarea в темной теме */
@@ -1388,8 +1405,8 @@ body.dark-theme input:focus,
 body.dark-theme select:focus,
 body.dark-theme textarea:focus {
     outline: none;
-    border-color: #7c76f0;  /* синий контур при фокусе */
-    box-shadow: 0 2px 8px rgba(124, 118, 240, 0.2);
+    border-color: var(--accent);  /* синий контур при фокусе */
+    box-shadow: 0 2px 8px var(--accent-ring);
     background-color: #2a2a2a; /* сохраняем темный фон */
     color: #e0e0e0;           /* текст серый */
 }
@@ -1861,14 +1878,14 @@ body.dark-theme .avatar-edit-option:hover {
 }
 
 .settings-field input:focus {
-    border-color: #7c76f0;
+    border-color: var(--accent);
 }
 
 .settings-save-btn {
     width: 100%;
     padding: 12px;
-    background: #7c76f0;
-    color: rgb(255, 255, 255);
+    background: var(--accent);
+    color: var(--accent-contrast);
     border: none;
     border-radius: 10px;
     font-size: 15px;
@@ -1877,7 +1894,7 @@ body.dark-theme .avatar-edit-option:hover {
 }
 
 .settings-save-btn:hover {
-    background: #6a64d8;
+    background: var(--accent-hover);
 }
 
 body.dark-theme .settings-modal-content {
@@ -2154,8 +2171,8 @@ body.dark-theme .card-task-item {
 }
 
 .group-page-add-card:hover {
-    background: rgba(124, 118, 240, 0.08);
-    border-color: #7c76f0;
+    background: var(--accent-soft);
+    border-color: var(--accent);
 }
 
 .group-page-add-plus {
@@ -2173,7 +2190,7 @@ body.dark-theme .card-task-item {
 
 .group-page-add-card:hover .group-page-add-plus,
 .group-page-add-card:hover .group-page-add-text {
-    color: #7c76f0;
+    color: var(--accent);
 }
 
 .group-page-project-menu-btn {
@@ -2464,7 +2481,7 @@ body.dark-theme .card-task-item::after {
 }
 
 .task-row.drag-over {
-    border-top: 2px solid #7c76f0;
+    border-top: 2px solid var(--accent);
 }
 
 .task-row[draggable="true"] {
@@ -2496,15 +2513,15 @@ body.dark-theme .card-task-item::after {
 
 .task-row.dragging {
     opacity: 0.4;
-    background: #f5f4ff;
+    background: #f2f2f2;
 }
 
 body.dark-theme .task-row.dragging {
-    background: #1a1a2e;
+    background: #2a2a2a;
 }
 
 .task-row.drag-over {
-    border-top: 2px solid #7c76f0;
+    border-top: 2px solid var(--accent);
 }
 
 
@@ -2547,7 +2564,7 @@ body.dark-theme .task-row.dragging {
 
 .home-widget-progress-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #7c76f0, #9b97e8);
+    background: var(--accent);
     border-radius: 8px;
     transition: width 0.8s ease;
 }
@@ -2575,8 +2592,8 @@ body.dark-theme .task-row.dragging {
 }
 
 .home-quick-task-btn {
-    background: #7c76f0;
-    color: #fff;
+    background: var(--accent);
+    color: var(--accent-contrast);
     border: none;
     border-radius: 8px;
     padding: 8px 16px;
@@ -2587,7 +2604,7 @@ body.dark-theme .task-row.dragging {
 }
 
 .home-quick-task-btn:hover {
-    background: #6a64d8;
+    background: var(--accent-hover);
 }
 
 .home-calendar-grid {
@@ -2616,8 +2633,8 @@ body.dark-theme .task-row.dragging {
 }
 
 .cal-day.cal-today span:first-child {
-    background: #7c76f0;
-    color: #fff;
+    background: var(--accent);
+    color: var(--accent-contrast);
     border-radius: 50%;
     width: 20px;
     height: 20px;
@@ -2788,4 +2805,9 @@ body.dark-theme .notification-item {
 
 body.dark-theme .notification-item:hover {
     background: #252525;
+}
+/*===NOTIFICATION ICON===*/
+.notification-icon {
+    display: flex;
+    opacity: 0.75;
 }

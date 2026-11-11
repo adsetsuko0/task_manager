@@ -1,3 +1,13 @@
+// Монохромная иконка пользователя (цвет берёт у текста вокруг)
+const USER_ICON = '<svg class="user-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+
+function setAssigneeCell(td, userId, username) {
+    td.textContent = '';
+    if (!userId) { td.textContent = '—'; return; }
+    td.insertAdjacentHTML('beforeend', USER_ICON + ' ');
+    td.appendChild(document.createTextNode(username));
+}
+
 let currentProjectTasks = [];
 let currentTaskId = null;
 
@@ -180,7 +190,7 @@ function bulkChangeAssignee(event) {
             picker.innerHTML = `
                 <div class="inline-picker-item" onclick="bulkSetAssignee('', '—')">— Unassigned</div>
                 ${users.map(u => `
-                    <div class="inline-picker-item" onclick="bulkSetAssignee('${u.id}', '${u.username}')">👤 ${u.username}</div>
+                    <div class="inline-picker-item" onclick="bulkSetAssignee('${u.id}', '${u.username}')">${USER_ICON} ${u.username}</div>
                 `).join('')}
             `;
             positionBulkPicker(picker, event);
@@ -316,7 +326,7 @@ function bulkSetAssignee(userId, username) {
             const row = document.querySelector(`.task-row[data-task-id="${id}"]`);
             if (row) {
                 const td = row.querySelectorAll('.task-td.task-muted')[0];
-                if (td) td.textContent = userId ? '👤 ' + username : '—';
+                if (td) setAssigneeCell(td, userId, username);
             }
         });
         document.getElementById('bulk-assignee-picker')?.remove();
@@ -605,7 +615,7 @@ function renderProjectPage(projectEl) {
                 <div class="groupby-custom-options" id="groupby-custom-options" style="display:none">
                     <div class="groupby-custom-opt" data-value="__all__" onclick="selectGroupByValue('__all__', '— All —', null)">— All —</div>
                     ${values.map(v => `
-                        <div class="groupby-custom-opt" data-value="${v}" onclick="selectGroupByValue('${v}', '${v}', this)">👤 ${v}</div>
+                        <div class="groupby-custom-opt" data-value="${v}" onclick="selectGroupByValue('${v}', '${v}', this)">${USER_ICON} ${v}</div>
                     `).join('')}
                 </div>
             `;
@@ -736,7 +746,7 @@ function renderProjectTasks(tasks, projectId) {
                         </td>
                         <td class="task-td task-title-td" ondblclick="inlineRenameTask(event, '${task.id}', this)">${task.title}</td>
                         <td class="task-td task-muted" style="cursor:pointer" onclick="openAssigneePicker(event, '${task.id}', this)">
-                            ${task.assignee ? '👤 ' + task.assignee : `
+                            ${task.assignee ? USER_ICON + ' ' + task.assignee : `
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="assignee-add-icon">
                                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                                     <circle cx="12" cy="7" r="4"/>
@@ -842,7 +852,7 @@ function openCreateTaskModal(projectId) {
             const assigneeSelect = document.getElementById('createTaskAssignee');
             assigneeSelect.innerHTML = '<option value="">Unassigned</option>';
             users.forEach(u => {
-            assigneeSelect.innerHTML += `<option value="${u.id}">👤 ${u.username}</option>`;
+            assigneeSelect.innerHTML += `<option value="${u.id}">${u.username}</option>`;
             });
         });
 
@@ -1269,7 +1279,7 @@ function openAssigneePicker(event, taskId, el) {
             picker.innerHTML = `
                 <div class="inline-picker-item" onclick="setTaskAssignee('${taskId}', '', '—', this.closest('#assignee-picker'))">— Unassigned</div>
                 ${users.map(u => `
-                    <div class="inline-picker-item" onclick="setTaskAssignee('${taskId}', '${u.id}', '${u.username}', this.closest('#assignee-picker'))">👤 ${u.username}</div>
+                    <div class="inline-picker-item" onclick="setTaskAssignee('${taskId}', '${u.id}', '${u.username}', this.closest('#assignee-picker'))">${USER_ICON} ${u.username}</div>
                 `).join('')}
             `;
             const rect = el.getBoundingClientRect();
@@ -1291,7 +1301,7 @@ function setTaskAssignee(taskId, userId, username, picker) {
             const row = document.querySelector(`.task-row[data-task-id="${taskId}"]`);
             if (row) {
                 const td = row.querySelectorAll('.task-td.task-muted')[0];
-                if (td) td.textContent = userId ? '👤 ' + username : '—';
+                if (td) setAssigneeCell(td, userId, username);
             }
             picker?.remove();
             showToast('Assignee updated');
@@ -1455,7 +1465,7 @@ function taskRowHTML(task, projectId) {
             </td>
            <td class="task-td task-title-td" ondblclick="inlineRenameTask(event, '${task.id}', this)">${task.title}</td>
             <td class="task-td task-muted" style="cursor:pointer" onclick="openAssigneePicker(event, '${task.id}', this)">
-                ${task.assignee ? '👤 ' + task.assignee : `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="assignee-add-icon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg>`}
+                ${task.assignee ? USER_ICON + ' ' + task.assignee : `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="assignee-add-icon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg>`}
             </td>
             <td class="task-td task-muted" style="cursor:pointer" onclick="openDatePicker(event, '${task.id}', this)" data-due="${task.due_date || ''}">
                 ${task.due_date ? task.due_date : `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="date-add-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="20"/><line x1="9" y1="17" x2="15" y2="17"/></svg>`}

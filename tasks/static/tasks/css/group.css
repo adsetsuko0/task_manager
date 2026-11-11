@@ -18,7 +18,7 @@
 }
 
 .priority-badge-low { color: #464747; font-weight: 600; }
-.priority-badge-normal { color: #514da4; font-weight: 600; }
+.priority-badge-normal { color: var(--accent); font-weight: 600; }
 .priority-badge-high { color: #b45353; font-weight: 600; }
 
 .group-page-projects {
@@ -115,9 +115,9 @@ body.dark-theme .group-page-limit {
 }
 
 .filter-btn.filter-active {
-    background: #eef2ff;
-    border-color: #7c76f0;
-    color: #7c76f0;
+    background: #ededed;
+    border-color: var(--accent);
+    color: var(--accent);
 }
 
 .filter-btn:hover {
@@ -176,8 +176,8 @@ body.dark-theme .group-page-limit {
 }
 
 .filter-option.active {
-    background: #eef2ff;
-    color: #7c76f0;
+    background: #ededed;
+    color: var(--accent);
     font-weight: 600;
 }
 
@@ -200,14 +200,14 @@ body.dark-theme .group-page-limit {
     border: 1px dashed #ccc;
     border-radius: 8px;
     background: none;
-    color: #7c76f0;
+    color: var(--accent);
     font-size: 13px;
     cursor: pointer;
     transition: background 0.15s;
 }
 
 .filter-add-btn:hover {
-    background: #eef2ff;
+    background: #ededed;
 }
 
 
@@ -224,8 +224,8 @@ body.dark-theme .filter-btn:hover {
 
 body.dark-theme .filter-btn.filter-active {
     background: #2a2a2a;
-    border-color: #7c76f0;
-    color: #7c76f0;
+    border-color: var(--accent);
+    color: var(--accent);
 }
 
 body.dark-theme .filter-dropdown {
@@ -254,7 +254,7 @@ body.dark-theme .filter-dropdown-footer {
 
 body.dark-theme .filter-add-btn {
     border-color: #444;
-    color: #7c76f0;
+    color: var(--accent);
 }
 
 body.dark-theme .filter-add-btn:hover {
@@ -315,11 +315,11 @@ body.dark-theme .filter-add-btn:hover {
     font-weight: 600;
     padding: 3px 10px;
     border-radius: 20px;
-    background: #eef2ff;
+    background: #ededed;
 }
 
 .priority-badge-low { color: #464747; background: #f0f0f0; }
-.priority-badge-normal { color: #514da4; background: #eef2ff; }
+.priority-badge-normal { color: var(--accent); background: #ededed; }
 .priority-badge-high { color: #b45353; background: #fdecea; }
 
 .group-info-right {
@@ -349,7 +349,7 @@ body.dark-theme .group-info-bottom {
 }
 
 body.dark-theme .priority-badge-normal {
-    background: #2a2a3a;
+    background: #2a2a2a;
 }
 
 body.dark-theme .priority-badge-high {

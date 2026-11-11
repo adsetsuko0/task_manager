@@ -499,7 +499,7 @@
     <div class="create-task-field">
         <label>Assignee</label>
         <select id="createTaskAssignee" class="create-task-select">
-            <option value="">👤 Unassigned</option>
+            <option value="">Unassigned</option>
         </select>
     </div>
     <div class="create-task-field">
@@ -711,7 +711,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </select>
         <div class="confirm-modal-buttons">
             <button class="confirm-cancel-btn" onclick="document.getElementById('moveTaskModal').style.display='none'">Cancel</button>
-            <button class="confirm-delete-btn" style="background:#7c76f0" onclick="confirmMoveTask()">Move</button>
+            <button class="confirm-delete-btn" style="background:var(--accent);color:var(--accent-contrast)" onclick="confirmMoveTask()">Move</button>
         </div>
     </div>
 </div>
@@ -723,7 +723,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
     <div class="bulk-bar-actions">
     <button class="bulk-bar-btn" onclick="bulkChangeStatus(event)">⊙ Status</button>
-    <button class="bulk-bar-btn" onclick="bulkChangeAssignee(event)">👤 Assignees</button>
+    <button class="bulk-bar-btn" onclick="bulkChangeAssignee(event)"><svg class="user-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Assignees</button>
     <button class="bulk-bar-btn" onclick="bulkChangeDates(event)">
     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
@@ -758,7 +758,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="confirm-modal-text">Are you sure you want to log out?</div>
         <div class="confirm-modal-buttons">
             <button class="confirm-cancel-btn" onclick="document.getElementById('logout-modal').style.display='none'">Cancel</button>
-            <button class="confirm-delete-btn" style="background:#7c76f0" onclick="confirmLogout()">Log out</button>
+            <button class="confirm-delete-btn" style="background:var(--accent);color:var(--accent-contrast)" onclick="confirmLogout()">Log out</button>
         </div>
     </div>
 </div>
@@ -766,4 +766,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
-0
