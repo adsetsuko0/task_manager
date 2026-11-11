@@ -262,16 +262,8 @@ function handleSpacesClick(event) {
 
 
 function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const btn = document.getElementById('sidebar-toggle');
-
-    sidebar.classList.toggle('collapsed');
-
-    btn.textContent = sidebar.classList.contains('collapsed') ? '▶' : '◀';
+    document.getElementById('sidebar').classList.toggle('collapsed');
 }
-
-
-
 
 /*===========================GROUP============================*/
 function addSpace(event) {
