@@ -14,8 +14,7 @@ from drf_yasg import openapi
 schema_view=get_schema_view(openapi.Info(
     title='Task Manager API',
     default_version='v1',
-    description='API для управления своими планами и задачами',
-    contact=openapi.Contact(email='r41969827@gmail.com'),
+    description='API for managing your plans and tasks',
     ),
     public=True,
     permission_classes=[permissions.AllowAny],
