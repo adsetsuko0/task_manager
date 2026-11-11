@@ -1,9 +1,8 @@
-from django.shortcuts import render
 from rest_framework import generics, permissions  # базовые дрф классы
-from .serializers import UserSerializer, LoginSerializer, RegisterSerializer
-from .models import User
-
 from rest_framework_simplejwt.views import TokenObtainPairView
+
+from .models import User
+from .serializers import LoginSerializer, RegisterSerializer, UserSerializer
 
 
 class UserProfileView(generics.RetrieveAPIView):

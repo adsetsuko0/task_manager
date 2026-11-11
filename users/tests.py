@@ -1,17 +1,15 @@
-from django.test import TestCase
 
 # Импортируем APITestCase вместо обычного TestCase.
 # APITestCase — это специальная версия для тестирования API,
 # у неё есть self.client, через который мы делаем запросы (GET, POST и т.д.)
 from rest_framework.test import APITestCase
 
+from tasks.models import UserProfile
+
 # status содержит константы HTTP-кодов: status.HTTP_200_OK = 200,
 # status.HTTP_401_UNAUTHORIZED = 401 и т.д.
 # Удобнее читать, чем магические числа.
-from rest_framework import status
-
 from users.models import User
-from tasks.models import UserProfile
 
 
 class RegistrationTest(APITestCase):

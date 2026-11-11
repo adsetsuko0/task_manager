@@ -1,7 +1,8 @@
 from rest_framework import serializers
-from .models import Task, Projects_Group, Project
-from users.serializers import UserSerializer
+
 from users.models import User
+
+from .models import Project, Projects_Group, Task
 
 
 class ProjectsGroupSerialier(serializers.ModelSerializer):

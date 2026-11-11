@@ -1,20 +1,20 @@
-from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
+
+from tasks import views
+
 from .views import (
-    TaskViewSet,
     ProjectsGroupViewSet,
     ProjectViewSet,
+    TaskViewSet,
     create_project,
     duplicate_project,
     main_page,
-    project_rename,
     project_delete,
-    create_group,
+    project_rename,
 )
-from tasks import views
-
-from django.conf import settings
-from django.conf.urls.static import static
 
 router = DefaultRouter()
 router.register(r"projects_group", ProjectsGroupViewSet, basename="projects_group")

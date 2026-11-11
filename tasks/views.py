@@ -1,32 +1,27 @@
-from asyncio import all_tasks
-from email.headerregistry import Group
-from tokenize import group
-from django.shortcuts import render, redirect, get_object_or_404
-from rest_framework import viewsets, permissions
-from django_filters.rest_framework import DjangoFilterBackend
-
-from .models import Task, Projects_Group, Project, UserProfile
-from .serializers import TaskSerializer, ProjectSerialier, ProjectsGroupSerialier
-from .permissions import IsAdminOrOwner, IsAssigneeOrOwner, IsOwnerOrReadOnly
-
-from django.contrib.auth.decorators import login_required
-from django.db.models import Q
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
 import json
 
-from django.contrib.auth import get_user_model, login, logout, authenticate
+from django.contrib.auth import authenticate, get_user_model, login, logout
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import permissions, viewsets
+
+from .models import Project, Projects_Group, Task, UserProfile
+from .permissions import IsAdminOrOwner, IsOwnerOrReadOnly
+from .serializers import ProjectSerialier, ProjectsGroupSerialier, TaskSerializer
 
 User = get_user_model()
 
+from datetime import timedelta
+
+from django.contrib.auth import update_session_auth_hash
+from django.db.models import Count
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.contrib.auth import update_session_auth_hash
-
 from django.utils import timezone
-from django.db.models import Count
-from datetime import timedelta
 
 
 @receiver(post_save, sender=User)

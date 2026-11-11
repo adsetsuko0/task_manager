@@ -1,12 +1,10 @@
-from django.test import TestCase
 
 import json  # Python-словари в JSON-строки для запросов
 
 from rest_framework.test import APITestCase
-from rest_framework import status
 
+from tasks.models import Project, Projects_Group, Task
 from users.models import User
-from tasks.models import Task, Project, Projects_Group, UserProfile
 
 
 class ProjectLimitTest(APITestCase):
