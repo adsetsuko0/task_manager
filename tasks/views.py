@@ -1,9 +1,20 @@
 import json
+from datetime import timedelta
 
-from django.contrib.auth import authenticate, get_user_model, login, logout
+from django.contrib.auth import (
+    authenticate,
+    get_user_model,
+    login,
+    logout,
+    update_session_auth_hash,
+)
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django_filters.rest_framework import DjangoFilterBackend
@@ -14,14 +25,6 @@ from .permissions import IsAdminOrOwner, IsOwnerOrReadOnly
 from .serializers import ProjectSerialier, ProjectsGroupSerialier, TaskSerializer
 
 User = get_user_model()
-
-from datetime import timedelta
-
-from django.contrib.auth import update_session_auth_hash
-from django.db.models import Count
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.utils import timezone
 
 
 @receiver(post_save, sender=User)
@@ -77,7 +80,7 @@ def update_user(request):
 def upload_avatar(request):
     if request.method == "POST" and request.FILES.get("avatar"):
         avatar = request.FILES["avatar"]
-        profile, created = UserProfile.objects.get_or_create(user=request.user)
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
         profile.avatar = avatar
         profile.save()
         return JsonResponse({"success": True, "avatar_url": profile.avatar.url})
@@ -503,7 +506,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
-    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
 
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["status", "assignee"]
@@ -669,7 +671,6 @@ def favourite_projects(request):
 
 def dashboard_stats(request):
     today = timezone.now()
-    week_ago = today - timedelta(days=6)
 
     all_tasks = Task.objects.all()
 

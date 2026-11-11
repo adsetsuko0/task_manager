@@ -1,4 +1,3 @@
-
 import json  # Python-словари в JSON-строки для запросов
 
 from rest_framework.test import APITestCase
