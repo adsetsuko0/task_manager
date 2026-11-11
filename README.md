@@ -25,7 +25,8 @@ Suggestions and feedback are welcome, feel free to open an issue. This is a prac
 
 ## Installation
 ### Run locally
-```git clone https://github.com/adsetsuko0/task_manager.git
+```
+git clone https://github.com/adsetsuko0/task_manager.git
 cd task_manager
 python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
@@ -44,7 +45,8 @@ python manage.py runserver
 Open http://127.0.0.1:8000/ and create an account on the /register/ page.
 
 ### Run with Docker
-``` docker build -t task-manager .
+```
+docker build -t task-manager .
 docker run --rm -p 8000:8000 --env-file .env task-manager
 ```
 
