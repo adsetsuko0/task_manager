@@ -351,14 +351,11 @@ body.dark-theme .nav-item:hover {
     width: 300px;
     max-width: 100%;
     padding: 8px 12px;
-    border-radius: 20px;
+    border-radius: 6px;
     border: 1px solid #ccc;
     margin-top: 10px;
+    font-family: inherit;
 }
-
-
-
-
 
 .avatar-dropdown-wrapper {
     position: relative;
@@ -2573,29 +2570,31 @@ body.dark-theme .task-row.dragging {
     width: 100%;
     padding: 8px 10px;
     border: 1px solid #e0e0e0;
-    border-radius: 8px;
+    border-radius: 6px;
     font-size: 13px;
     margin-bottom: 8px;
     box-sizing: border-box;
     outline: none;
+    font-family: inherit;
 }
 
 .home-quick-task-select {
     width: 100%;
     padding: 8px 10px;
     border: 1px solid #e0e0e0;
-    border-radius: 8px;
+    border-radius: 6px;
     font-size: 13px;
     margin-bottom: 10px;
     box-sizing: border-box;
     outline: none;
+    font-family: inherit
 }
 
 .home-quick-task-btn {
     background: var(--accent);
     color: var(--accent-contrast);
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     padding: 8px 16px;
     font-size: 13px;
     cursor: pointer;
@@ -2810,4 +2809,24 @@ body.dark-theme .notification-item:hover {
 .notification-icon {
     display: flex;
     opacity: 0.75;
+}
+
+
+/*===QUICK TASK SELECT ARROW===*/
+.home-quick-task-select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 36px;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 12px;
+}
+
+body.dark-theme .home-quick-task-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 12px;
 }
