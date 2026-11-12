@@ -17,7 +17,7 @@ from decouple import config
 
 AUTH_USER_MODEL = "users.User"
 
-LOGIN_URL = "/admin/login/"
+LOGIN_URL = "/login/"
 
 
 SIMPLE_JWT = {

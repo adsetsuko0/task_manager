@@ -15,7 +15,6 @@ from django.dispatch import receiver
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, viewsets
@@ -129,7 +128,6 @@ def main_page(request):
 # для проектов
 @require_POST
 @login_required
-@csrf_exempt
 def create_project(request):
     try:
         data = json.loads(request.body)
@@ -173,6 +171,7 @@ def create_project(request):
         return JsonResponse({"error": str(e)}, status=500)
 
 
+@login_required
 def project_get(request):
     projects = Project.objects.all().values(
         "id",
@@ -184,7 +183,7 @@ def project_get(request):
     return JsonResponse(list(projects), safe=False)
 
 
-@csrf_exempt
+@login_required
 def project_rename(request):
     if request.method != "POST":
         return JsonResponse({"success": False, "error": "Invalid request"})
@@ -210,6 +209,7 @@ def project_rename(request):
         return JsonResponse({"success": False, "error": str(e)})
 
 
+@login_required
 @require_POST
 def toggle_favourite_project(request):
     try:
@@ -226,7 +226,7 @@ def toggle_favourite_project(request):
         return JsonResponse({"success": False, "error": "Project not found"})
 
 
-@csrf_exempt
+@login_required
 def duplicate_project(request):
     if request.method != "POST":
         return JsonResponse({"success": False, "error": "Invalid request"})
@@ -282,7 +282,7 @@ def duplicate_project(request):
         return JsonResponse({"success": False, "error": str(e)})
 
 
-@csrf_exempt
+@login_required
 def project_delete(request):
     if request.method != "POST":
         return JsonResponse({"success": False, "error": "Invalid request"})
@@ -305,6 +305,7 @@ def project_delete(request):
 # для групп
 
 
+@login_required
 def create_group(request):
     if request.method != "POST":
         return JsonResponse({"error": "Only POST"}, status=405)
@@ -325,11 +326,13 @@ def create_group(request):
     )
 
 
+@login_required
 def get_groups(request):
     groups = Projects_Group.objects.all().values("id", "name", "priority", "limit")
     return JsonResponse(list(groups), safe=False)
 
 
+@login_required
 @require_POST
 def rename_group(request):
     group_id = request.POST.get("group_id")
@@ -361,7 +364,6 @@ def rename_group(request):
         return JsonResponse({"error": str(e)}, status=400)
 
 
-@csrf_exempt
 @login_required
 @require_POST
 def change_group_priority(request):
@@ -388,7 +390,6 @@ def change_group_priority(request):
         return JsonResponse({"error": str(e)}, status=500)
 
 
-@csrf_exempt
 @login_required
 @require_POST
 def duplicate_group(request):
@@ -441,7 +442,6 @@ def duplicate_group(request):
     )
 
 
-@csrf_exempt
 @login_required
 @require_POST
 def delete_group(request):
@@ -463,6 +463,7 @@ def delete_group(request):
         return JsonResponse({"error": str(e)}, status=500)
 
 
+@login_required
 def search_suggestions(request):
     q = request.GET.get("q", "").strip()
     if not q:
@@ -653,6 +654,7 @@ def update_task_priority(request):
     return JsonResponse({"success": True})
 
 
+@login_required
 def favourite_projects(request):
     projects = Project.objects.filter(is_favourite=True).select_related("group")
 
@@ -669,6 +671,7 @@ def favourite_projects(request):
     return JsonResponse(data, safe=False)
 
 
+@login_required
 def dashboard_stats(request):
     today = timezone.now()
 
@@ -768,6 +771,7 @@ def dashboard_stats(request):
     )
 
 
+@login_required
 def reorder_tasks(request):
     if request.method == "POST":
         return JsonResponse({"success": False})
@@ -778,6 +782,7 @@ def reorder_tasks(request):
     return JsonResponse({"success": True})
 
 
+@login_required
 def home_stats(request):
     today = timezone.now().date()
     user = request.user
@@ -810,6 +815,7 @@ def home_stats(request):
     )
 
 
+@login_required
 def notifications(request):
     from django.utils import timezone
 
@@ -836,6 +842,7 @@ def notifications(request):
     return JsonResponse({"notifications": result, "count": len(result)})
 
 
+@login_required
 def task_info(request, task_id):
     task = Task.objects.select_related("project").get(id=task_id)
     return JsonResponse({"project_id": task.project_id})
