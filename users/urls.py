@@ -5,9 +5,9 @@ from .views import LoginView, ProfileView, RegisterView
 
 urlpatterns = [
     path(
-        "auth/register/", RegisterView.as_view(), name="register"
+        "auth/register/", RegisterView.as_view(), name="api_register"
     ),  # регистрация пользователя
-    path("auth/login/", LoginView.as_view(), name="login"),  # логин через LoginView
+    path("auth/login/", LoginView.as_view(),name="api_login"),  # логин через LoginView
     path(
         "users/me/", ProfileView.as_view(), name="user_profile"
     ),  # профиль пользователя
