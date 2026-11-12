@@ -5,6 +5,7 @@ It is not meant for production use, so please set your expectations accordingly.
 A web app for planning work: organise projects into groups, track tasks and see what is overdue.
 
 ## Tech Stack
+[![CI](https://github.com/adsetsuko0/task_manager/actions/workflows/ci.yml/badge.svg)](https://github.com/adsetsuko0/task_manager/actions/workflows/ci.yml)
 **Python 3.12 - Django - Django REST Framework - SimpleJWT - drf-yasg - django-filter - WhiteNoise - Gunicorn - SQLite (local) - PostgreSQL - Docker Compose**
 
 ## What's Inside
