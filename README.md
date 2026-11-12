@@ -5,7 +5,7 @@ It is not meant for production use, so please set your expectations accordingly.
 A web app for planning work: organise projects into groups, track tasks and see what is overdue.
 
 ## Tech Stack
-**Python 3.12 - Django - Django REST Framework - SimpleJWT - drf-yasg - django-filter - WhiteNoise - Gunicorn - SQLite - Docker**
+**Python 3.12 - Django - Django REST Framework - SimpleJWT - drf-yasg - django-filter - WhiteNoise - Gunicorn - SQLite (local) - PostgreSQL - Docker Compose**
 
 ## What's Inside
 - Projects organised in groups, with favourites and limits
@@ -19,9 +19,10 @@ A web app for planning work: organise projects into groups, track tasks and see 
 ## Status and limitations
 Suggestions and feedback are welcome, feel free to open an issue. This is a practice project, so it has rough edges:
 
-- It uses SQLite and has no production deployment setup. In Docker the data is not kept between runs.
+- Local runs use SQLite; Docker Compose runs PostgreSQL with a persistent volume. There is no production deployment setup.
 - The REST API and its authentication are still a work in progress.
-- Test coverage is small, and the code quality is uneven in places.
+- Tests cover registration and login, data privacy (users only see their own groups, projects and tasks) and the REST API with JWT authentication, more than 50 tests in total. There are no automated frontend tests, and the code quality is uneven in places.
+
 
 ## Installation
 ### Run locally
@@ -49,6 +50,13 @@ Open http://127.0.0.1:8000/ and create an account on the /register/ page.
 
 ### Run with Docker
 ```bash
-docker build -t task-manager .
-docker run --rm -p 8000:8000 --env-file .env task-manager
+cp .env.example .env
 ```
+Open `.env` and set `SECRET_KEY` and `DB_PASSWORD` (any password; avoid the `$` character). Then:
+
+```bash
+docker compose up --build
+```
+Open http://127.0.0.1:8000/ and create an account on the /register/ page.
+
+Stop with `docker compose down`. Data is kept in a Docker volume; `docker compose down -v` deletes it.

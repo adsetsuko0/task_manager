@@ -8,3 +8,9 @@ __pycache__/
 db.sqlite3
 media/
 *.log
+.venv/
+venv/
+staticfiles/
+.ruff_cache/
+.vscode/
+*.bak
