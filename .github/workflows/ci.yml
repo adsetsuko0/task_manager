@@ -21,4 +21,4 @@ jobs:
       - run: ruff check .
       - run: ruff format --check .
       - run: python manage.py makemigrations --check --dry-run
-      - run: pytest
+      - run: pytest --cov=tasks --cov=users --cov-fail-under=85
