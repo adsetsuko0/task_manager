@@ -1527,28 +1527,33 @@ function saveSettings() {
 
 
 
-    fetch('/user/update/', {
+        fetch('/user/update/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCSRFToken()
         },
-        body: JSON.stringify({ username, email })
+        body: JSON.stringify({ username, email, password })
     })
     .then(res => res.json())
     .then(data => {
         if (data.success) {
+            document.getElementById('settings-password').value = '';
+            document.getElementById('settings-password-confirm').value = '';
             showToast('Settings saved!');
             closeSettingsModal();
         } else {
             showToast(data.error || 'Error saving settings', 'error');
         }
-    });
+    })
+    .catch(() => showToast('Network error, try again', 'error'));
 }
 
-
+let settingsModalReady = false;
 // открытие дропдауна аватара
 function initSettingsModal() {
+    if (settingsModalReady) return;
+    settingsModalReady = true;
     document.getElementById('avatar-edit-btn').addEventListener('click', (e) => {
     e.stopPropagation();
     const dd = document.getElementById('avatar-edit-dropdown');
@@ -1581,8 +1586,11 @@ function initSettingsModal() {
                 document.getElementById('user-avatar').innerHTML = imgHtml + `<span class="avatar-status online"></span>`;
                 document.querySelector('.small-avatar').innerHTML = imgHtml + `<span class="avatar-status online"></span>`;
                 showToast('Avatar updated!');
+                } else {
+                    showToast(data.error || 'Could not upload the avatar', 'error');
                 }
-            });
+            })
+            .catch(() => showToast('Network error, try again', 'error'));
     });
 
     document.getElementById('avatar-delete').addEventListener('click', () => {
