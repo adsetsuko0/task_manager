@@ -17,11 +17,21 @@ class Projects_Group(models.Model):
         ("normal", "Normal"),
         ("high", "High"),
     ]
-    name = models.CharField(max_length=100, unique=True)
+    owner = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="project_groups"
+    )
+    name = models.CharField(max_length=100)
     priority = models.CharField(
         max_length=10, choices=PRIORITY_CHOICES, default="normal"
     )
     limit = models.PositiveIntegerField(default=10)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["owner", "name"], name="unique_group_name_per_owner"
+            )
+        ]
 
     def __str__(self):
         return self.name

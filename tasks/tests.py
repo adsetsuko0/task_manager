@@ -22,7 +22,7 @@ class ProjectLimitTest(APITestCase):
         self.client.force_login(self.user)
 
         self.group = Projects_Group.objects.create(
-            name="SmallGroup", priority="normal", limit=2
+            owner=self.user, name="SmallGroup", priority="normal", limit=2
         )
 
     def test_can_create_project_within_limit(self):
@@ -85,7 +85,9 @@ class TaskPermissionTest(APITestCase):
         self.owner = User.objects.create_user(username="owner", password="pass")
         self.other_user = User.objects.create_user(username="other", password="pass")
 
-        self.group = Projects_Group.objects.create(name="G1", limit=10)
+        self.group = Projects_Group.objects.create(
+            owner=self.owner, name="G1", limit=10
+        )
         self.project = Project.objects.create(name="P1", group=self.group)
         self.task = Task.objects.create(
             title="Задача владельца",
@@ -169,7 +171,9 @@ class DuplicateProjectTest(APITestCase):
         self.user = User.objects.create_user(username="dupuser", password="pass")
         self.client.force_login(self.user)
 
-        self.group = Projects_Group.objects.create(name="DupGroup", limit=10)
+        self.group = Projects_Group.objects.create(
+            owner=self.user, name="DupGroup", limit=10
+        )
         self.project = Project.objects.create(name="Original", group=self.group)
 
         Task.objects.create(title="Task A", owner=self.user, project=self.project)
@@ -226,7 +230,7 @@ class CreateTaskTest(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="taskuser", password="pass")
         self.client.force_login(self.user)
-        self.group = Projects_Group.objects.create(name="G", limit=10)
+        self.group = Projects_Group.objects.create(owner=self.user, name="G", limit=10)
         self.project = Project.objects.create(name="P", group=self.group)
 
     def test_create_task_successfully(self):

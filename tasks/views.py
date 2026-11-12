@@ -19,11 +19,21 @@ from django.views.decorators.http import require_POST
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, viewsets
 
+from .access import (
+    assignee_allowed,
+    not_found,
+    user_groups,
+    user_projects,
+    user_tasks,
+)
 from .models import Project, Projects_Group, Task, UserProfile
-from .permissions import IsAdminOrOwner, IsOwnerOrReadOnly
-from .serializers import ProjectSerialier, ProjectsGroupSerialier, TaskSerializer
+from .serializers import ProjectSerializer, ProjectsGroupSerializer, TaskSerializer
 
 User = get_user_model()
+
+
+def _get_user_task(request, data):
+    return user_tasks(request.user).filter(id=data.get("task_id")).first()
 
 
 @receiver(post_save, sender=User)
@@ -101,8 +111,8 @@ def delete_avatar(request):
 
 @login_required
 def main_page(request):
-    projects = Project.objects.all()
-    groups = Projects_Group.objects.all()
+    projects = user_projects(request.user)
+    groups = user_groups(request.user)
 
     recent_projects = projects[:4]
     favourite_projects = projects.filter(is_favourite=True)[:4]
@@ -138,7 +148,7 @@ def create_project(request):
         if not name or not group_id:
             return JsonResponse({"error": "Missing parameters"}, status=400)
 
-        group = Projects_Group.objects.get(id=int(group_id))
+        group = user_groups(request.user).get(id=int(group_id))
 
         projects_count = Project.objects.filter(group=group).count()
 
@@ -173,7 +183,7 @@ def create_project(request):
 
 @login_required
 def project_get(request):
-    projects = Project.objects.all().values(
+    projects = user_projects(request.user).values(
         "id",
         "name",
         "task_limit",
@@ -196,8 +206,7 @@ def project_rename(request):
         if not new_name:
             return JsonResponse({"success": False, "error": "Name is empty"})
 
-        # Берем проект по ID без касания owner
-        project = Project.objects.get(id=project_id)
+        project = user_projects(request.user).get(id=project_id)
         project.name = new_name
         project.save(update_fields=["name"])  # 👈 обновляем только поле name
 
@@ -216,7 +225,7 @@ def toggle_favourite_project(request):
         data = json.loads(request.body)
         project_id = data.get("project_id")
 
-        project = Project.objects.get(id=project_id)
+        project = user_projects(request.user).get(id=project_id)
         project.is_favourite = not project.is_favourite
         project.save(update_fields=["is_favourite"])
 
@@ -234,7 +243,7 @@ def duplicate_project(request):
     try:
         data = json.loads(request.body)
         project_id = data.get("project_id")
-        project = Project.objects.get(id=project_id)
+        project = user_projects(request.user).get(id=project_id)
         group = project.group
 
         # Проверка лимита перед созданием дубликата
@@ -258,7 +267,7 @@ def duplicate_project(request):
                 description=task.description,
                 status=task.status,
                 priority=task.priority,
-                owner=task.owner,
+                owner=request.user,
                 assignee=task.assignee,
                 due_date=task.due_date,
                 project=new_project,
@@ -291,7 +300,7 @@ def project_delete(request):
         data = json.loads(request.body)
         project_id = data.get("project_id")
 
-        project = Project.objects.get(id=project_id)
+        project = user_projects(request.user).get(id=project_id)
         project.delete()
 
         return JsonResponse({"success": True})
@@ -312,8 +321,19 @@ def create_group(request):
 
     data = json.loads(request.body)
 
+    name = (data.get("name") or "").strip()
+    if not name:
+        return JsonResponse({"error": "Name is empty"}, status=400)
+    if user_groups(request.user).filter(name=name).exists():
+        return JsonResponse(
+            {"error": "Group with this name already exists"}, status=400
+        )
+
     group = Projects_Group.objects.create(
-        name=data["name"], priority=data["priority"], limit=int(data["limit"])
+        owner=request.user,
+        name=name,
+        priority=data["priority"],
+        limit=int(data["limit"]),
     )
 
     return JsonResponse(
@@ -328,7 +348,7 @@ def create_group(request):
 
 @login_required
 def get_groups(request):
-    groups = Projects_Group.objects.all().values("id", "name", "priority", "limit")
+    groups = user_groups(request.user).values("id", "name", "priority", "limit")
     return JsonResponse(list(groups), safe=False)
 
 
@@ -349,7 +369,16 @@ def rename_group(request):
         if not group_id or not new_name:
             return JsonResponse({"error": "Missing parameters"}, status=400)
 
-        group = Projects_Group.objects.get(id=group_id)
+        group = user_groups(request.user).get(id=group_id)
+        if (
+            user_groups(request.user)
+            .filter(name=new_name)
+            .exclude(id=group.id)
+            .exists()
+        ):
+            return JsonResponse(
+                {"error": "Group with this name already exists"}, status=400
+            )
         group.name = new_name
         group.save()
 
@@ -378,7 +407,7 @@ def change_group_priority(request):
         if new_priority not in ["low", "normal", "high"]:
             return JsonResponse({"error": "Invalid priority"}, status=400)
 
-        group = Projects_Group.objects.get(id=group_id)
+        group = user_groups(request.user).get(id=group_id)
         group.priority = new_priority
         group.save()
 
@@ -397,19 +426,25 @@ def duplicate_group(request):
     group_id = data.get("group_id")
 
     try:
-        original_group = Projects_Group.objects.get(id=group_id)
+        original_group = user_groups(request.user).get(id=group_id)
     except Projects_Group.DoesNotExist:
         return JsonResponse({"error": "Group not found"}, status=404)
 
     base_name = original_group.name
-    existing_copies = Projects_Group.objects.filter(
-        name__startswith=f"{base_name} copy"
-    ).count()
+    existing_copies = (
+        user_groups(request.user).filter(name__startswith=f"{base_name} copy").count()
+    )
     copy_number = existing_copies + 1
     new_name = f"{base_name} copy ({copy_number})"
+    while user_groups(request.user).filter(name=new_name).exists():
+        copy_number += 1
+        new_name = f"{base_name} copy ({copy_number})"
 
     new_group = Projects_Group.objects.create(
-        name=new_name, priority=original_group.priority, limit=original_group.limit
+        owner=request.user,
+        name=new_name,
+        priority=original_group.priority,
+        limit=original_group.limit,
     )
 
     projects_data = []
@@ -452,7 +487,7 @@ def delete_group(request):
         if not group_id:
             return JsonResponse({"error": "Missing group_id"}, status=400)
 
-        group = Projects_Group.objects.get(id=group_id)
+        group = user_groups(request.user).get(id=group_id)
         group.delete()  # CASCADE удалит проекты автоматически
 
         return JsonResponse({"success": True})
@@ -469,9 +504,9 @@ def search_suggestions(request):
     if not q:
         return JsonResponse([], safe=False)
 
-    projects = Project.objects.filter(name__istartswith=q)[:5]
-    groups = Projects_Group.objects.filter(name__istartswith=q)[:5]
-    tasks = Task.objects.filter(title__istartswith=q)[:5]
+    projects = user_projects(request.user).filter(name__istartswith=q)[:5]
+    groups = user_groups(request.user).filter(name__istartswith=q)[:5]
+    tasks = user_tasks(request.user).filter(title__istartswith=q)[:5]
 
     results = []
 
@@ -483,35 +518,35 @@ def search_suggestions(request):
 
 
 class ProjectsGroupViewSet(viewsets.ModelViewSet):
-    serializer_class = ProjectsGroupSerialier
-    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    serializer_class = ProjectsGroupSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Projects_Group.objects.all()
+        if getattr(self, "swagger_fake_view", False):
+            return Projects_Group.objects.none()
+        return user_groups(self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save()
+        serializer.save(owner=self.request.user)
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
-    serializer_class = ProjectSerialier
-    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    serializer_class = ProjectSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Project.objects.all()
-
-    def perform_create(self, serializer):
-        serializer.save()
+        if getattr(self, "swagger_fake_view", False):
+            return Project.objects.none()
+        return user_projects(self.request.user)
 
 
 class TaskViewSet(viewsets.ModelViewSet):
-    queryset = Task.objects.all()
     serializer_class = TaskSerializer
 
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["status", "assignee"]
 
-    permission_classes = [permissions.IsAuthenticated, IsAdminOrOwner]
+    permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -519,16 +554,19 @@ class TaskViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
             return Task.objects.none()
-
-        user = self.request.user
-        if user.role == "admin":
-            return Task.objects.all()
-        return Task.objects.filter(owner=user)
+        return user_tasks(self.request.user)
 
 
 @login_required
 def get_project_tasks(request, project_id):
-    tasks = Task.objects.filter(project_id=project_id)
+    if not user_projects(request.user).filter(id=project_id).exists():
+        return not_found("Project not found")
+    tasks = (
+        user_tasks(request.user)
+        .filter(project_id=project_id)
+        .select_related("assignee")
+        .order_by("order", "id")
+    )
     data = [
         {
             "id": t.id,
@@ -551,12 +589,19 @@ def get_project_tasks(request, project_id):
 def create_task(request):
     if request.method == "POST":
         data = json.loads(request.body)
+        project = user_projects(request.user).filter(id=data.get("project_id")).first()
+        if project is None:
+            return not_found("Project not found")
+        if not assignee_allowed(request.user, data.get("assignee_id")):
+            return JsonResponse(
+                {"success": False, "error": "Invalid assignee"}, status=400
+            )
         task = Task.objects.create(
             title=data["title"],
             description=data.get("description", ""),
             status=data.get("status", "todo"),
             priority=data.get("priority", "low"),
-            project_id=data["project_id"],
+            project=project,
             owner=request.user,
             due_date=data.get("due_date") or None,
             assignee_id=data.get("assignee_id") or None,
@@ -567,14 +612,17 @@ def create_task(request):
 
 @login_required
 def list_users(request):
-    users = User.objects.all().values("id", "username")
+    # Данные приватные: другие пользователи не видны, назначить можно только себя
+    users = User.objects.filter(id=request.user.id).values("id", "username")
     return JsonResponse(list(users), safe=False)
 
 
 @login_required
 def rename_task(request):
     data = json.loads(request.body)
-    task = Task.objects.get(id=data["task_id"])
+    task = _get_user_task(request, data)
+    if task is None:
+        return not_found("Task not found")
     task.title = data["new_name"]
     task.save()
     task.refresh_from_db()
@@ -584,7 +632,9 @@ def rename_task(request):
 @login_required
 def delete_task(request):
     data = json.loads(request.body)
-    task = Task.objects.get(id=data["task_id"])
+    task = _get_user_task(request, data)
+    if task is None:
+        return not_found("Task not found")
     task.delete()
     return JsonResponse({"success": True})
 
@@ -592,9 +642,12 @@ def delete_task(request):
 @login_required
 def duplicate_task(request):
     data = json.loads(request.body)
-    task = Task.objects.get(id=data["task_id"])
+    task = _get_user_task(request, data)
+    if task is None:
+        return not_found("Task not found")
     task.pk = None
     task.title = task.title + " (copy)"
+    task.owner = request.user
     task.save()
     return JsonResponse({"success": True})
 
@@ -602,7 +655,9 @@ def duplicate_task(request):
 @login_required
 def update_task_status(request):
     data = json.loads(request.body)
-    task = Task.objects.get(id=data["task_id"])
+    task = _get_user_task(request, data)
+    if task is None:
+        return not_found("Task not found")
     task.status = data["status"]
     task.save()
     return JsonResponse({"success": True})
@@ -611,7 +666,9 @@ def update_task_status(request):
 @login_required
 def update_task_description(request):
     data = json.loads(request.body)
-    task = Task.objects.get(id=data["task_id"])
+    task = _get_user_task(request, data)
+    if task is None:
+        return not_found("Task not found")
     task.description = data["description"]
     task.save()
     return JsonResponse({"success": True})
@@ -620,7 +677,9 @@ def update_task_description(request):
 @login_required
 def update_task_due_date(request):
     data = json.loads(request.body)
-    task = Task.objects.get(id=data["task_id"])
+    task = _get_user_task(request, data)
+    if task is None:
+        return not_found("Task not found")
     task.due_date = data["due_date"] or None
     task.save()
     return JsonResponse({"success": True})
@@ -629,8 +688,12 @@ def update_task_due_date(request):
 @login_required
 def update_task_assignee(request):
     data = json.loads(request.body)
-    task = Task.objects.get(id=data["task_id"])
-    task.assignee_id = data["assignee_id"]
+    task = _get_user_task(request, data)
+    if task is None:
+        return not_found("Task not found")
+    if not assignee_allowed(request.user, data.get("assignee_id")):
+        return JsonResponse({"success": False, "error": "Invalid assignee"}, status=400)
+    task.assignee_id = data["assignee_id"] or None
     task.save()
     return JsonResponse({"success": True})
 
@@ -638,8 +701,13 @@ def update_task_assignee(request):
 @login_required
 def move_task(request):
     data = json.loads(request.body)
-    task = Task.objects.get(id=data["task_id"])
-    task.project_id = data["project_id"]
+    task = _get_user_task(request, data)
+    if task is None:
+        return not_found("Task not found")
+    project = user_projects(request.user).filter(id=data.get("project_id")).first()
+    if project is None:
+        return not_found("Project not found")
+    task.project = project
     task.save()
     return JsonResponse({"success": True})
 
@@ -647,7 +715,9 @@ def move_task(request):
 @login_required
 def update_task_priority(request):
     data = json.loads(request.body)
-    task = Task.objects.get(id=data["task_id"])
+    task = _get_user_task(request, data)
+    if task is None:
+        return not_found("Task not found")
     task.priority = data["priority"]
     task.save()
     task.refresh_from_db()
@@ -656,7 +726,9 @@ def update_task_priority(request):
 
 @login_required
 def favourite_projects(request):
-    projects = Project.objects.filter(is_favourite=True).select_related("group")
+    projects = (
+        user_projects(request.user).filter(is_favourite=True).select_related("group")
+    )
 
     data = [
         {
@@ -675,7 +747,7 @@ def favourite_projects(request):
 def dashboard_stats(request):
     today = timezone.now()
 
-    all_tasks = Task.objects.all()
+    all_tasks = user_tasks(request.user)
 
     total = all_tasks.count()
     done = all_tasks.filter(status="done").count()
@@ -686,7 +758,8 @@ def dashboard_stats(request):
     ).count()
 
     by_project = list(
-        Project.objects.annotate(task_count=Count("tasks"))
+        user_projects(request.user)
+        .annotate(task_count=Count("tasks"))
         .values("name", "task_count")
         .order_by("-task_count")
     )
@@ -772,13 +845,13 @@ def dashboard_stats(request):
 
 
 @login_required
+@require_POST
 def reorder_tasks(request):
-    if request.method == "POST":
-        return JsonResponse({"success": False})
     data = json.loads(request.body)
     task_ids = data.get("task_ids", [])
+    own_tasks = user_tasks(request.user)
     for index, task_id in enumerate(task_ids):
-        Task.objects.filter(id=task_id).update(order=index)
+        own_tasks.filter(id=task_id).update(order=index)
     return JsonResponse({"success": True})
 
 
@@ -787,7 +860,7 @@ def home_stats(request):
     today = timezone.now().date()
     user = request.user
 
-    all_tasks = Task.objects.filter(owner=user)
+    all_tasks = user_tasks(user)
     today_tasks = all_tasks.filter(due_date__date=today)
     today_done = today_tasks.filter(status="done").count()
     today_total = today_tasks.count()
@@ -821,7 +894,8 @@ def notifications(request):
 
     today = timezone.now()
     overdue = (
-        Task.objects.filter(owner=request.user, due_date__lt=today)
+        user_tasks(request.user)
+        .filter(due_date__lt=today)
         .exclude(status="done")
         .select_related("project")
         .values("id", "title", "due_date", "project__name")
@@ -844,7 +918,9 @@ def notifications(request):
 
 @login_required
 def task_info(request, task_id):
-    task = Task.objects.select_related("project").get(id=task_id)
+    task = user_tasks(request.user).filter(id=task_id).first()
+    if task is None:
+        return not_found("Task not found")
     return JsonResponse({"project_id": task.project_id})
 
 
