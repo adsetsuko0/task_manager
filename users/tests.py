@@ -1,13 +1,7 @@
-# Импортируем APITestCase вместо обычного TestCase.
-# APITestCase — это специальная версия для тестирования API,
-# у неё есть self.client, через который мы делаем запросы (GET, POST и т.д.)
+from django.test import TestCase
 from rest_framework.test import APITestCase
 
 from tasks.models import UserProfile
-
-# status содержит константы HTTP-кодов: status.HTTP_200_OK = 200,
-# status.HTTP_401_UNAUTHORIZED = 401 и т.д.
-# Удобнее читать, чем магические числа.
 from users.models import User
 
 
@@ -110,3 +104,24 @@ class UserProfileSignalTest(APITestCase):
 
         # profile.user должен быть нашим пользователем
         self.assertEqual(profile.user, user)
+
+
+class ApiAuthTest(TestCase):
+    def test_register_cannot_set_admin_role(self):
+        response = self.client.post(
+            "/api/auth/register/",
+            {"username": "newuser", "password": "StrongPass123", "role": "admin"},
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(User.objects.get(username="newuser").role, "user")
+
+    def test_login_returns_tokens(self):
+        User.objects.create_user(username="u1", password="StrongPass123")
+        response = self.client.post(
+            "/api/auth/login/", {"username": "u1", "password": "StrongPass123"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("access", response.json())
+
+    def test_me_requires_token(self):
+        self.assertEqual(self.client.get("/api/users/me/").status_code, 401)
