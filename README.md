@@ -89,8 +89,10 @@ Interactive docs while the server is running: [Swagger UI](http://127.0.0.1:8000
 
 ### Tests
 ```bash
-python manage.py test
+pip install -r requirements-dev.txt
+pytest
 ```
+Coverage report: `pytest --cov=tasks --cov=users --cov-report=term-missing`. On every push, CI runs ruff, a migration check and the tests.
 
 ### License
 MIT, see LICENSE.
