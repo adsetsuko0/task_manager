@@ -1,14 +1,17 @@
 import json
 from datetime import timedelta
 
+from django import forms
 from django.contrib.auth import (
     authenticate,
     get_user_model,
     login,
     logout,
+    password_validation,
     update_session_auth_hash,
 )
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.db.models import Count
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -65,11 +68,15 @@ def update_user(request):
         user.email = email
 
         if password:
+            try:
+                password_validation.validate_password(password, user)
+            except ValidationError as error:
+                return JsonResponse(
+                    {"success": False, "error": " ".join(error.messages)}, status=400
+                )
             user.set_password(password)
             user.save()
-            update_session_auth_hash(
-                request, user
-            )  # сохраняем сессию после смены пароля
+            update_session_auth_hash(request, user)  # keep the session after the change
         else:
             user.save()
 
@@ -85,14 +92,46 @@ def update_user(request):
     return JsonResponse({"success": False, "error": "Invalid request"}, status=400)
 
 
+ALLOWED_AVATAR_TYPES = {
+    "image/png": "png",
+    "image/jpeg": "jpg",
+    "image/gif": "gif",
+    "image/webp": "webp",
+}
+MAX_AVATAR_SIZE = 2 * 1024 * 1024  # 2 MB
+
+
 @login_required
+@require_POST
 def upload_avatar(request):
-    if request.method == "POST" and request.FILES.get("avatar"):
-        avatar = request.FILES["avatar"]
-        profile, _ = UserProfile.objects.get_or_create(user=request.user)
-        profile.avatar = avatar
-        profile.save()
-        return JsonResponse({"success": True, "avatar_url": profile.avatar.url})
+    avatar = request.FILES.get("avatar")
+    if avatar is None:
+        return JsonResponse({"success": False, "error": "No file uploaded"}, status=400)
+    if avatar.size > MAX_AVATAR_SIZE:
+        return JsonResponse(
+            {"success": False, "error": "Image is too large (max 2 MB)"}, status=400
+        )
+    try:
+        # Pillow checks the real content and sets the real content type
+        forms.ImageField().clean(avatar)
+    except ValidationError:
+        return JsonResponse(
+            {"success": False, "error": "File is not a valid image"}, status=400
+        )
+    extension = ALLOWED_AVATAR_TYPES.get(avatar.content_type)
+    if extension is None:
+        return JsonResponse(
+            {"success": False, "error": "Use a PNG, JPEG, GIF or WebP image"},
+            status=400,
+        )
+
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    if profile.avatar:
+        profile.avatar.delete(save=False)  # do not leave the old file on disk
+    avatar.name = f"avatar.{extension}"  # never trust the client's file name
+    profile.avatar = avatar
+    profile.save()
+    return JsonResponse({"success": True, "avatar_url": profile.avatar.url})
 
 
 @login_required
