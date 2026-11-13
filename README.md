@@ -23,7 +23,7 @@ Suggestions and feedback are welcome, feel free to open an issue. This is a prac
 
 - Local runs use SQLite; Docker Compose runs PostgreSQL with a persistent volume. There is no production deployment setup.
 - The REST API and its authentication realized.
-- Tests cover registration and login, data privacy (users only see their own groups, projects and tasks) and the REST API with JWT authentication, more than 50 tests in total. There are no automated frontend tests, and the code quality is uneven in places.
+- Tests cover registration and login, data privacy (users only see their own groups, projects and tasks), the REST API with JWT authentication, profile and avatar uploads, and group and project actions: more than 80 tests and about 89% coverage. There are no automated frontend tests, and the code quality is uneven in places.
 
 
 ## Installation
@@ -36,10 +36,10 @@ source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env
 ```
-Open `.env` and set `SECRET_KEY`. You can generate one with:
+Open `.env` and set `SECRET_KEY`. The app will not start with an empty `SECRET_KEY`. You can generate one with:
 
 ```bash
-python -c "from django.core.management.utils import get_random_secret_key as g; print(g())"
+python -c "import secrets; print(secrets.token_urlsafe(50))"
 ```
 
 Then apply migrations and start the server:
@@ -54,7 +54,7 @@ Open http://127.0.0.1:8000/ and create an account on the /register/ page.
 ```bash
 cp .env.example .env
 ```
-Open `.env` and set `SECRET_KEY` and `DB_PASSWORD` (any password; avoid the `$` character). Then:
+Open `.env` and set `SECRET_KEY` and `DB_PASSWORD`. Generate the key with the command above and avoid the `$` character in both values: Docker Compose treats it as a variable.
 
 ```bash
 docker compose up --build
