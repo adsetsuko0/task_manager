@@ -22,7 +22,7 @@ A web app for planning work: organise projects into groups, track tasks and see 
 Suggestions and feedback are welcome, feel free to open an issue. This is a practice project, so it has rough edges:
 
 - Local runs use SQLite; Docker Compose runs PostgreSQL with a persistent volume. There is no production deployment setup.
-- The REST API and its authentication realized.
+- The REST API uses JWT authentication and returns only the caller's own data. It is documented with Swagger and ReDoc.
 - Tests cover registration and login, data privacy (users only see their own groups, projects and tasks), the REST API with JWT authentication, profile and avatar uploads, and group and project actions: more than 80 tests and about 89% coverage. There are no automated frontend tests, and the code quality is uneven in places.
 
 
@@ -80,7 +80,7 @@ Endpoints: `/api/auth/register/`, `/api/auth/login/`, `/api/token/refresh/`, `/a
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `SECRET_KEY` | yes | Django secret key |
-| `DEBUG` | no | `True` for local development |
+| `DEBUG` | no | `True` for local development only. Keep it `False` (the default) for any public deployment |
 | `ALLOWED_HOSTS` | no | Comma-separated hosts, defaults to `localhost` |
 | `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT` | no | PostgreSQL settings. If `DB_NAME` is empty, SQLite is used. `DB_PASSWORD` is required for Docker Compose |
 
