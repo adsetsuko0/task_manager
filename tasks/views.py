@@ -13,8 +13,6 @@ from django.contrib.auth import (
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.db.models import Count
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
@@ -37,12 +35,6 @@ User = get_user_model()
 
 def _get_user_task(request, data):
     return user_tasks(request.user).filter(id=data.get("task_id")).first()
-
-
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.get_or_create(user=instance)
 
 
 @login_required
