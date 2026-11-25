@@ -33,3 +33,5 @@ staticfiles/
 
 .coverage
 htmlcov/
+# Node.js dependencies
+node_modules/

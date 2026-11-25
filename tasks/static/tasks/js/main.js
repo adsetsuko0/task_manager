@@ -417,19 +417,27 @@ function renderGroup(group) {
     const spacesBody = document.getElementById('spaces-body');
     const groupEl = document.createElement('div');
 
+    const allowedPriorities = ['low', 'normal', 'high'];
+    const priority = allowedPriorities.includes(group.priority)
+        ? group.priority
+        : 'normal';
+
     groupEl.className = 'spaces-group';
     groupEl.dataset.groupId = group.id;
 
     groupEl.innerHTML = `
-        <div class="group-title clickable priority-${group.priority}">
-            <span class="group-name">${group.name}</span>
+        <div class="group-title clickable priority-${priority}">
+            <span class="group-name"></span>
             <div class="group-actions">
-                <span class="limit-badge">${group.limit}</span>
+                <span class="limit-badge"></span>
                 <button class="group-menu-btn">⋯</button>
             </div>
         </div>
         <div class="projects" style="display:none"></div>
     `;
+
+    groupEl.querySelector('.group-name').textContent = group.name ?? '';
+    groupEl.querySelector('.limit-badge').textContent = String(group.limit ?? '');
 
     spacesBody.appendChild(groupEl);
 
@@ -439,10 +447,9 @@ function renderGroup(group) {
     title.addEventListener('click', () => activateGroup(title));
 
     menuBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); 
+        e.stopPropagation();
         openGroupMenu(e, group.id);
     });
-
 }
 
 function renderProject(project) {
@@ -463,13 +470,21 @@ function renderProject(project) {
     const el = document.createElement('div');
     el.className = 'project-item';
     el.dataset.projectId = project.id;
-    el.innerHTML = `
-        <span class="project-name">${project.name}</span>
+        el.innerHTML = `
+        <span class="project-name"></span>
         <div class="project-actions">
             <span class="project-fav">${project.is_favourite ? '♥︎' : '♡︎'}</span>
-            <button class="project-menu-btn" onclick="openProjectMenu(event, ${project.id}, '${project.name}')">⋯</button>
+            <button class="project-menu-btn">⋯</button>
         </div>
     `;
+
+    el.querySelector('.project-name').textContent = project.name ?? '';
+
+    const menuBtn = el.querySelector('.project-menu-btn');
+    menuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openProjectMenu(e, project.id, project.name);
+    });
 
 
     projectContainer.appendChild(el);
@@ -660,13 +675,14 @@ window.closeChangePriorityModal = closeChangePriorityModal;
 window.submitChangePriority = submitChangePriority;
 
 
+
 function duplicateGroup() {
     if (!currentGroupId) {
         alert('No group selected');
         return;
     }
 
-    fetch(`/groups/duplicate/`, {
+    fetch('/groups/duplicate/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -681,35 +697,47 @@ function duplicateGroup() {
             return;
         }
 
-        // Находим все дубликаты с таким же именем
-        const originalGroupEl = document.querySelector(`.spaces-group[data-group-id="${currentGroupId}"]`);
-        const spacesBody = document.getElementById('spaces-body');
+        const originalGroupEl = document.querySelector(
+            `.spaces-group[data-group-id="${currentGroupId}"]`
+        );
 
-        let baseName = group.name || 'Duplicated Group';
-        const existingNames = Array.from(document.querySelectorAll('.spaces-group .group-name'))
+        if (!originalGroupEl) return;
+
+        const baseName = group.name || 'Duplicated Group';
+        const existingNames = Array.from(
+            document.querySelectorAll('.spaces-group .group-name')
+        )
             .map(el => el.textContent)
             .filter(name => name.startsWith(baseName));
 
-        let copyNumber = existingNames.length; // сколько уже дубликатов
-        let groupName = copyNumber > 0 ? `${baseName} (${copyNumber})` : baseName;
+        const copyNumber = existingNames.length;
+        const groupName = copyNumber > 0
+            ? `${baseName} (${copyNumber})`
+            : baseName;
 
-        // Создаём новый элемент группы
         const groupEl = document.createElement('div');
         groupEl.className = 'spaces-group';
         groupEl.dataset.groupId = group.id;
 
+        const allowedPriorities = ['low', 'normal', 'high'];
+        const priority = allowedPriorities.includes(group.priority)
+            ? group.priority
+            : 'normal';
+
         groupEl.innerHTML = `
-            <div class="group-title clickable priority-${group.priority || 'normal'}">
-                <span class="group-name">${groupName}</span>
+            <div class="group-title clickable priority-${priority}">
+                <span class="group-name"></span>
                 <div class="group-actions">
-                    <span class="limit-badge">${group.limit || 0}</span>
+                    <span class="limit-badge"></span>
                     <button class="group-menu-btn">⋯</button>
                 </div>
             </div>
             <div class="projects"></div>
         `;
 
-        // Вставка после оригинала
+        groupEl.querySelector('.group-name').textContent = groupName;
+        groupEl.querySelector('.limit-badge').textContent = String(group.limit ?? 0);
+
         originalGroupEl.after(groupEl);
 
         const title = groupEl.querySelector('.group-title');
@@ -723,7 +751,6 @@ function duplicateGroup() {
             openGroupMenu(e, group.id);
         });
 
-        // Добавляем проекты оригинальной группы
         const originalProjects = originalGroupEl.querySelectorAll('.project-item');
         const projectsContainer = groupEl.querySelector('.projects');
 
@@ -731,18 +758,21 @@ function duplicateGroup() {
             const clone = project.cloneNode(true);
             projectsContainer.appendChild(clone);
 
-            // Навешиваем обработчики на клонированные проекты
-            const menuBtn = clone.querySelector('.project-menu-btn');
-            menuBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                openProjectMenu(e, project.dataset.projectId);
-            });
+            const clonedMenuBtn = clone.querySelector('.project-menu-btn');
+
+            if (clonedMenuBtn) {
+                clonedMenuBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openProjectMenu(e, project.dataset.projectId);
+                });
+            }
 
             clone.addEventListener('click', () => activateProject(clone));
         });
     })
     .catch(err => console.error('Error duplicating group', err));
 }
+
 
 
 function deleteGroup() {
@@ -850,12 +880,14 @@ function addProjectToGroupSidebar(project) {
     el.className = 'project-item';
     el.dataset.projectId = project.id;
     el.innerHTML = `
-    <span class="project-name">${project.name}</span>
+    <span class="project-name"></span>
     <div class="project-actions">
         <span class="project-fav">♡</span>
         <button class="project-menu-btn">⋯</button>
     </div>
 `;
+
+    el.querySelector('.project-name').textContent = project.name ?? '';
 
     projectContainer.appendChild(el);
 
@@ -930,18 +962,25 @@ function submitCreateProject() {
             const groupName = groupEl ? groupEl.querySelector('.group-name').textContent : '';
 
             cardEl.innerHTML = `
-                <button class="card-menu-btn" onclick="openProjectMenu(event, '${project.id}', '${project.name}')"></button>
+                <button class="card-menu-btn"></button>
                 <div class="card-content">
                     <div class="card-img">
                         <img src="/static/tasks/icons/doc_light.png" alt="icon" class="card-icon"/>
                         <span class="card-subtitle">example</span>
                     </div>
                     <div class="card-title">
-                        ${project.name}
-                        <span class="project-group-dot">• ${groupName}</span>
+                        <span class="card-project-name"></span>
+                        <span class="project-group-dot"></span>
                     </div>
                 </div>
             `;
+
+            cardEl.querySelector('.card-project-name').textContent = project.name ?? '';
+            cardEl.querySelector('.project-group-dot').textContent = `• ${groupName}`;
+
+            cardEl.querySelector('.card-menu-btn').addEventListener('click', (event) => {
+                openProjectMenu(event, project.id, project.name ?? '');
+            });
 
             cardsContainer.prepend(cardEl);
             updateCards('recent', 3);
@@ -1075,9 +1114,10 @@ function submitRenameProject() {
             if (recentCard) {
                 const icon = recentCard.querySelector('.title-icon');
                 const dot = recentCard.querySelector('.project-group-dot');
-                const iconHtml = icon ? icon.outerHTML : '';
-                const dotHtml = dot ? dot.outerHTML : '';
-                recentCard.innerHTML = `${iconHtml} ${newName} ${dotHtml}`;
+                recentCard.replaceChildren();
+                if (icon) recentCard.appendChild(icon.cloneNode(true));
+                recentCard.appendChild(document.createTextNode(` ${newName} `));
+                if (dot) recentCard.appendChild(dot.cloneNode(true));
             }
 
             // карточки #fav
@@ -1085,9 +1125,10 @@ function submitRenameProject() {
             if (favCard) {
                 const icon = favCard.querySelector('.title-icon');
                 const dot = favCard.querySelector('.project-group-dot');
-                const iconHtml = icon ? icon.outerHTML : '';
-                const dotHtml = dot ? dot.outerHTML : '';
-                favCard.innerHTML = `${iconHtml} ${newName} ${dotHtml}`;
+                favCard.replaceChildren();
+                if (icon) favCard.appendChild(icon.cloneNode(true));
+                favCard.appendChild(document.createTextNode(` ${newName} `));
+                if (dot) favCard.appendChild(dot.cloneNode(true));
             }
 
             // страница проекта если открыта
@@ -1186,13 +1227,16 @@ function toggleFavourite(button, projectId) {
 
 
 
+
 function duplicateProject() {
     if (!currentProjectId) {
         showToast("No project selected");
         return;
     }
 
-    const originalEl = document.querySelector(`.project-item[data-project-id="${currentProjectId}"]`);
+    const originalEl = document.querySelector(
+        `.project-item[data-project-id="${currentProjectId}"]`
+    );
     if (!originalEl) return;
 
     const groupEl = originalEl.closest(".spaces-group");
@@ -1224,7 +1268,6 @@ function duplicateProject() {
 
         const project = data.project;
 
-        // добавляем в сайдбар
         let container = groupEl.querySelector(".projects");
         if (!container) {
             container = document.createElement("div");
@@ -1236,23 +1279,32 @@ function duplicateProject() {
         const el = document.createElement("div");
         el.className = "project-item";
         el.dataset.projectId = project.id;
+
         el.innerHTML = `
-            <span class="project-name">${project.name}</span>
+            <span class="project-name"></span>
             <div class="project-actions">
-                <span class="project-fav">${project.is_favourite ? '♥' : '♡'}</span>
-                <button class="project-menu-btn" onclick="openProjectMenu(event, '${project.id}', '${project.name}')">⋯</button>
+                <span class="project-fav"></span>
+                <button class="project-menu-btn">⋯</button>
             </div>
         `;
+
+        el.querySelector(".project-name").textContent = project.name ?? '';
+        el.querySelector(".project-fav").textContent =
+            project.is_favourite ? '★' : '♡';
+
+        el.querySelector(".project-menu-btn").addEventListener("click", (event) => {
+            event.stopPropagation();
+            openProjectMenu(event, project.id, project.name ?? '');
+        });
+
         originalEl.after(el);
+
         el.addEventListener("click", (e) => {
             e.stopPropagation();
             activateProject(el);
         });
 
-        // обновляем group page если открыта
         refreshGroupPageIfOpen();
-
-        // обновляем favourites если открыта
         refreshFavPageIfOpen();
 
         showToast('Project duplicated');
@@ -1354,26 +1406,48 @@ function renderSearchSuggestions(results) {
         const div = document.createElement('div');
         div.className = 'search-suggestion-item';
 
-        const typeIcon = item.type === 'project' 
+        const typeIcon = item.type === 'project'
             ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`
             : item.type === 'group'
             ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5"><path d="M3 7h18M3 12h18M3 17h18"/></svg>`
             : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
 
-        const namePart = `<span class="suggestion-name">${item.name}</span>`;
-        const groupPart = item.group ? `<span class="suggestion-dot">•</span><span class="suggestion-group">${item.group}</span>` : '';
+        const iconEl = document.createElement('span');
+        iconEl.className = 'suggestion-icon';
+        iconEl.innerHTML = typeIcon;
 
-        div.innerHTML = `
-            <span class="suggestion-icon">${typeIcon}</span>
-            <span class="suggestion-text">${namePart}${groupPart}</span>
-            <span class="suggestion-type">${item.type}</span>
-        `;
+        const textEl = document.createElement('span');
+        textEl.className = 'suggestion-text';
+
+        const nameEl = document.createElement('span');
+        nameEl.className = 'suggestion-name';
+        nameEl.textContent = item.name ?? '';
+        textEl.appendChild(nameEl);
+
+        if (item.group) {
+            const dotEl = document.createElement('span');
+            dotEl.className = 'suggestion-dot';
+            dotEl.textContent = '•';
+
+            const groupEl = document.createElement('span');
+            groupEl.className = 'suggestion-group';
+            groupEl.textContent = item.group;
+
+            textEl.append(dotEl, groupEl);
+        }
+
+        const typeEl = document.createElement('span');
+        typeEl.className = 'suggestion-type';
+        typeEl.textContent = item.type ?? '';
+
+        div.append(iconEl, textEl, typeEl);
 
         div.addEventListener('click', () => {
-            searchInput.value = item.name;
+            searchInput.value = item.name ?? '';
             suggestionsBox.style.display = 'none';
             highlightItem(item);
         });
+
         suggestionsBox.appendChild(div);
     });
 
@@ -1554,10 +1628,11 @@ let settingsModalReady = false;
 function initSettingsModal() {
     if (settingsModalReady) return;
     settingsModalReady = true;
+
     document.getElementById('avatar-edit-btn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    const dd = document.getElementById('avatar-edit-dropdown');
-    dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+        e.stopPropagation();
+        const dd = document.getElementById('avatar-edit-dropdown');
+        dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
     });
 
     document.getElementById('settings-avatar-circle').addEventListener('click', (e) => {
@@ -1573,19 +1648,41 @@ function initSettingsModal() {
     document.getElementById('avatar-file-input').addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
+
         const formData = new FormData();
         formData.append('avatar', file);
         formData.append('csrfmiddlewaretoken', getCSRFToken());
+
         fetch('/user/avatar/upload/', { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    const imgHtml = `<img src="${data.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
-                // обновляем все аватары
-                document.getElementById('settings-avatar-circle').innerHTML = imgHtml;
-                document.getElementById('user-avatar').innerHTML = imgHtml + `<span class="avatar-status online"></span>`;
-                document.querySelector('.small-avatar').innerHTML = imgHtml + `<span class="avatar-status online"></span>`;
-                showToast('Avatar updated!');
+                    const createAvatarImage = () => {
+                        const img = document.createElement('img');
+                        img.src = data.avatar_url;
+                        img.alt = 'Avatar';
+                        img.style.cssText = 'width:100%;height:100%;border-radius:50%;object-fit:cover';
+                        return img;
+                    };
+
+                    document.getElementById('settings-avatar-circle')
+                        .replaceChildren(createAvatarImage());
+
+                    document.getElementById('user-avatar').replaceChildren(
+                        createAvatarImage(),
+                        Object.assign(document.createElement('span'), {
+                            className: 'avatar-status online'
+                        })
+                    );
+
+                    document.querySelector('.small-avatar').replaceChildren(
+                        createAvatarImage(),
+                        Object.assign(document.createElement('span'), {
+                            className: 'avatar-status online'
+                        })
+                    );
+
+                    showToast('Avatar updated!');
                 } else {
                     showToast(data.error || 'Could not upload the avatar', 'error');
                 }
@@ -1594,28 +1691,49 @@ function initSettingsModal() {
     });
 
     document.getElementById('avatar-delete').addEventListener('click', () => {
-    document.getElementById('avatar-edit-dropdown').style.display = 'none';
-    document.getElementById('confirm-delete-avatar-modal').style.display = 'flex';
-});
-
-document.getElementById('confirm-avatar-delete-btn').addEventListener('click', () => {
-    fetch('/user/avatar/delete/', {
-        method: 'POST',
-        headers: { 'X-CSRFToken': getCSRFToken() }
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            const firstLetter = document.getElementById('settings-username').value.slice(0, 1).toUpperCase();
-            // обновляем все аватары
-            document.getElementById('settings-avatar-circle').innerHTML = firstLetter;
-            document.getElementById('user-avatar').innerHTML = firstLetter + `<span class="avatar-status online"></span>`;
-            document.querySelector('.small-avatar').innerHTML = firstLetter + `<span class="avatar-status online"></span>`;
-            document.getElementById('confirm-delete-avatar-modal').style.display = 'none';
-            showToast('Avatar deleted');
-        }
+        document.getElementById('avatar-edit-dropdown').style.display = 'none';
+        document.getElementById('confirm-delete-avatar-modal').style.display = 'flex';
     });
-});
+
+    document.getElementById('confirm-avatar-delete-btn').addEventListener('click', () => {
+        fetch('/user/avatar/delete/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCSRFToken() }
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const firstLetter = document.getElementById('settings-username').value
+                        .slice(0, 1).toUpperCase();
+
+                    const createAvatarLetter = () => {
+                        const span = document.createElement('span');
+                        span.textContent = firstLetter;
+                        return span;
+                    };
+
+                    document.getElementById('settings-avatar-circle')
+                        .replaceChildren(createAvatarLetter());
+
+                    document.getElementById('user-avatar').replaceChildren(
+                        createAvatarLetter(),
+                        Object.assign(document.createElement('span'), {
+                            className: 'avatar-status online'
+                        })
+                    );
+
+                    document.querySelector('.small-avatar').replaceChildren(
+                        createAvatarLetter(),
+                        Object.assign(document.createElement('span'), {
+                            className: 'avatar-status online'
+                        })
+                    );
+
+                    document.getElementById('confirm-delete-avatar-modal').style.display = 'none';
+                    showToast('Avatar deleted');
+                }
+            });
+    });
 
     document.getElementById('avatar-show').addEventListener('click', () => {
         const img = document.querySelector('#settings-avatar-circle img');
@@ -1728,7 +1846,7 @@ function loadHomeWidgets() {
                 <select class="home-quick-task-select" id="home-quick-task-project">
                     <option value="">Select project...</option>
                 </select>
-                <button class="home-quick-task-btn" onclick="submitQuickTask()">+ Add task</button>
+                <button class="home-quick-task-btn">+ Add task</button>
             </div>
 
             <!-- Мини-календарь -->
@@ -1741,6 +1859,8 @@ function loadHomeWidgets() {
     `;
 
     recentSection.insertAdjacentHTML('beforebegin', widgetsHTML);
+    document.querySelector('.home-quick-task-btn')
+    .addEventListener('click', submitQuickTask);
 
     // заполняем проекты в quick task
     document.querySelectorAll('.project-item').forEach(el => {
@@ -1815,7 +1935,9 @@ function renderMiniCalendar(calendarDates) {
 
         if (isToday) el.classList.add('cal-today');
         
-        el.innerHTML = `<span>${day}</span>`;
+        const dayEl = document.createElement('span');
+        dayEl.textContent = String(day);
+        el.appendChild(dayEl);
         
         if (hasTask) {
             const allDone = hasTask.done === hasTask.total;
@@ -1873,12 +1995,16 @@ function toggleNotifications() {
     div.innerHTML = `
         <div class="notifications-header">
             <span>Notifications</span>
-            <button class="notifications-close" onclick="document.getElementById('notifications-panel').remove()">✕</button>
+            <button class="notifications-close">×</button>
         </div>
         <div class="notifications-body" id="notifications-body">
             <div class="notifications-loading">Loading...</div>
         </div>
     `;
+
+    div.querySelector('.notifications-close').addEventListener('click', () => {
+    div.remove();
+    });
     
     div.style.top = (rect.bottom + 8) + 'px';
     div.style.right = (window.innerWidth - rect.right) + 'px';
@@ -1895,15 +2021,31 @@ function toggleNotifications() {
                 return;
             }
             
-            body.innerHTML = data.notifications.map(n => `
-                <div class="notification-item" onclick="openTaskProject('${n.id}')">
-                    <div class="notification-icon">${ALERT_ICON}</div>
-                    <div class="notification-content">
-                        <div class="notification-title">${n.title}</div>
-                        <div class="notification-meta">${n.project} · overdue ${n.due_date}</div>
-                    </div>
-                </div>
-            `).join('');
+            body.replaceChildren();
+            data.notifications.forEach(n => {
+                const item = document.createElement('div');
+                item.className = 'notification-item';
+                item.addEventListener('click', () => openTaskProject(n.id));
+
+                const icon = document.createElement('div');
+                icon.className = 'notification-icon';
+                icon.innerHTML = ALERT_ICON;
+
+                const content = document.createElement('div');
+                content.className = 'notification-content';
+
+                const title = document.createElement('div');
+                title.className = 'notification-title';
+                title.textContent = n.title ?? '';
+
+                const meta = document.createElement('div');
+                meta.className = 'notification-meta';
+                meta.textContent = `${n.project ?? ''} ? overdue ${n.due_date ?? ''}`;
+
+                content.append(title, meta);
+                item.append(icon, content);
+                body.appendChild(item);
+            });
         });
 }
 

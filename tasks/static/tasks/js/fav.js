@@ -196,32 +196,62 @@ function loadFavouriteProjects() {
             wrapper.style.transition = 'max-height 0.35s ease';
             container.appendChild(wrapper);
 
-            wrapper.innerHTML = projects.map(project => `
-                <div class="project-info-card" data-project-id="${project.id}">
+            wrapper.replaceChildren();
+
+            projects.forEach(project => {
+                const card = document.createElement('div');
+                card.className = 'project-info-card';
+                card.dataset.projectId = project.id;
+
+                card.innerHTML = `
                     <div class="project-info-top">
                         <div class="project-info-left">
-                            <span class="project-info-arrow" id="fav-arrow-${project.id}">▼</span>
-                            <span class="project-info-name">${project.name}</span>
-                            <span class="project-info-group">• ${project.group_name}</span>
-                            <button class="project-info-menu-btn" onclick="openProjectMenu(event, '${project.id}', '${project.name}')">⋯</button>
+                            <span class="project-info-arrow">&#9660;</span>
+                            <span class="project-info-name"></span>
+                            <span class="project-info-group"></span>
+                            <button class="project-info-menu-btn">&#8942;</button>
                         </div>
                         <div class="project-info-right">
-                            <span class="project-info-fav" data-project-id="${project.id}" onclick="toggleFavourite(this, '${project.id}')">♥︎</span>
-                            <button class="project-add-task-btn" onclick="openCreateTaskModal('${project.id}')">+ Add task</button>
+                            <span class="project-info-fav">&#9829;</span>
+                            <button class="project-add-task-btn">+ Add task</button>
                         </div>
                     </div>
                     <div class="project-info-subtitle">
                         <span class="project-info-groupby-label">Group by: <span>None</span></span>
                     </div>
-                    <div class="project-info-body" id="fav-body-${project.id}">
-                        <div class="project-tasks-container" id="fav-tasks-${project.id}">
+                    <div class="project-info-body">
+                        <div class="project-tasks-container">
                             <div class="project-tasks-loading">Loading tasks...</div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `;
 
-            // применяем текущий вид СРАЗУ после рендера карточек
+                card.querySelector('.project-info-name').textContent = project.name ?? '';
+                card.querySelector('.project-info-group').textContent =
+                    project.group_name ? `\u2022 ${project.group_name}` : '';
+
+                card.querySelector('.project-info-arrow').id = `fav-arrow-${project.id}`;
+                card.querySelector('.project-info-body').id = `fav-body-${project.id}`;
+                card.querySelector('.project-tasks-container').id = `fav-tasks-${project.id}`;
+
+                const favourite = card.querySelector('.project-info-fav');
+                favourite.dataset.projectId = project.id;
+
+                card.querySelector('.project-info-menu-btn').addEventListener('click', event => {
+                    openProjectMenu(event, project.id, project.name ?? '');
+                });
+
+                favourite.addEventListener('click', () => {
+                    toggleFavourite(favourite, project.id);
+                });
+
+                card.querySelector('.project-add-task-btn').addEventListener('click', () => {
+                    openCreateTaskModal(project.id);
+                });
+
+                wrapper.appendChild(card);
+            });
+
             const currentView = document.querySelector('.view-btn.active')?.dataset.view || 'board';
             renderFavProjectsInView(currentView);
 
@@ -277,7 +307,10 @@ function loadFavouriteProjects() {
                         if (!taskContainer) return;
 
                         if (tasks.length === 0) {
-                            taskContainer.innerHTML = `<button class="tasks-add-btn" onclick="openCreateTaskModal('${project.id}')">+ Add task</button>`;
+                            taskContainer.innerHTML = '<button class="tasks-add-btn">+ Add task</button>';
+                            taskContainer.querySelector('.tasks-add-btn').addEventListener('click', () => {
+                                openCreateTaskModal(project.id);
+                            });
                             return;
                         }
 
@@ -286,7 +319,7 @@ function loadFavouriteProjects() {
                                 <thead>
                                     <tr>
                                         <th class="tasks-th" style="width:32px">
-                                            <span class="task-select-all" onclick="toggleSelectAll(this)"></span>
+                                            <span class="task-select-all"></span>
                                         </th>
                                         <th class="tasks-th">Status</th>
                                         <th class="tasks-th">Name</th>
@@ -300,8 +333,17 @@ function loadFavouriteProjects() {
                                     ${tasks.map(task => taskRowHTML(task, project.id)).join('')}
                                 </tbody>
                             </table>
-                            <button class="tasks-add-btn" onclick="openCreateTaskModal('${project.id}')">+ Add task</button>
+                            <button class="tasks-add-btn">+ Add task</button>
                         `;
+
+                        taskContainer.querySelector('.task-select-all').addEventListener('click', event => {
+                            toggleSelectAll(event.currentTarget);
+                        });
+
+                        taskContainer.querySelector('.tasks-add-btn').addEventListener('click', () => {
+                            openCreateTaskModal(project.id);
+                        });
+
                     });
             });
 

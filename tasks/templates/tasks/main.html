@@ -1,4 +1,4 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,7 +25,7 @@
     <div id="sidebar-container">
     <aside class="sidebar" id="sidebar">
 
-    <div id="sidebar-toggle" onclick="toggleSidebar()" class="triangle">◀</div>
+    <div id="sidebar-toggle" onclick="toggleSidebar()" class="triangle">в—Ђ</div>
     <div class="sidebar-title">{{ page_title }}</div>
 
     <div class="sidebar-nav">
@@ -35,7 +35,7 @@
     <div class="spaces-section">
         <div class="spaces-header" onclick="handleSpacesClick(event)">
             <div class="spaces-left">
-                <span id='spaces-arrow'>▶</span>Spaces
+                <span id='spaces-arrow'>в–¶</span>Spaces
             </div>
 
 
@@ -59,11 +59,11 @@
                 <span class="project-name">{{ project.name }}</span>
 
                 <div class="project-actions">
-                    <span class="project-fav">{% if project.is_favourite %}♥{% else %}♡{% endif %}</span>
+                    <span class="project-fav">{% if project.is_favourite %}в™Ґ{% else %}в™Ў{% endif %}</span>
 
                     <button class="project-menu-btn" 
                             onclick="openProjectMenu(event, '{{ project.id }}', '{{ project.name }}')">
-                        ⋯
+                        в‹Ї
                     </button>
                 </div>
             </div>
@@ -110,7 +110,7 @@
         </div>
         <div class="avatar-dropdown-wrapper">
 
-            <!-- Аватар -->
+            <!-- РђРІР°С‚Р°СЂ -->
             <div class="avatar" id="user-avatar">
                 {% if request.user.profile.avatar %}
             <img src="{{ request.user.profile.avatar.url }}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">
@@ -141,12 +141,12 @@
                 <div class="dropdown-divider"></div>
 
                 <div class="dropdown-item" id="settings-btn">
-                    <span class="icon">⛭</span>
+                    <span class="icon">в›­</span>
                     <span class="text">Settings</span>
                 </div>
 
                 <div class="dropdown-item" id="logout-btn">
-                    <span class="icon">⏼</span>
+                    <span class="icon">вЏј</span>
                     <span class="text">Log out</span>
                 </div>
 
@@ -189,7 +189,7 @@
   <!--RECENT PROJECTS-->
 <section class="section" id="recent">
     <div class="section-header" onclick="toggleSection('recent')">
-        <span>▼</span> Recent projects
+        <span>в–ј</span> Recent projects
     </div>
 
     <div class="cards board-view">
@@ -213,11 +213,11 @@
             <div class="card-title">
                 <img src="{% static 'tasks/icons/list_night.png' %}" class="title-icon" alt="icon">
                 {{ p.name }}
-                <span class="project-group-dot">• {{ p.group.name }}</span>
+                <span class="project-group-dot">вЂў {{ p.group.name }}</span>
             </div>
             <div class="card-bottom-actions">
-                <button class="card-menu-btn-bottom" onclick="openProjectMenu(event, '{{ p.id }}', '{{ p.name }}')">⋯</button>
-                <span class="card-fav" data-project-id="{{ p.id }}" onclick="toggleFavourite(this, '{{ p.id }}')" style="cursor:pointer;pointer-events:auto;">{% if p.is_favourite %}♥︎{% else %}♡︎{% endif %}</span>
+                <button class="card-menu-btn-bottom" onclick="openProjectMenu(event, '{{ p.id }}', '{{ p.name }}')">в‹Ї</button>
+                <span class="card-fav" data-project-id="{{ p.id }}" onclick="toggleFavourite(this, '{{ p.id }}')" style="cursor:pointer;pointer-events:auto;">{% if p.is_favourite %}в™ҐпёЋ{% else %}в™ЎпёЋ{% endif %}</span>
             </div>
         </div>
         {% endfor %}
@@ -228,7 +228,7 @@
 <!--FAVOURITE PROJECTS-->
 <section class="section" id="fav">
     <div class="section-header" onclick="toggleSection('fav')">
-        <span>▼</span> Favourites
+        <span>в–ј</span> Favourites
     </div>
 
     <div class="cards board-view">
@@ -252,11 +252,11 @@
             <div class="card-title">
                 <img src="{% static 'tasks/icons/list_night.png' %}" class="title-icon" alt="icon">
                 {{ p.name }}
-                <span class="project-group-dot">• {{ p.group.name }}</span>
+                <span class="project-group-dot">вЂў {{ p.group.name }}</span>
             </div>
             <div class="card-bottom-actions">
-                <button class="card-menu-btn-bottom" onclick="openProjectMenu(event, '{{ p.id }}', '{{ p.name }}')">⋯</button>
-                <span class="card-fav" data-project-id="{{ p.id }}" onclick="toggleFavourite(this, '{{ p.id }}')" style="cursor:pointer;pointer-events:auto;">{% if p.is_favourite %}♥︎{% else %}♡︎{% endif %}</span>
+                <button class="card-menu-btn-bottom" onclick="openProjectMenu(event, '{{ p.id }}', '{{ p.name }}')">в‹Ї</button>
+                <span class="card-fav" data-project-id="{{ p.id }}" onclick="toggleFavourite(this, '{{ p.id }}')" style="cursor:pointer;pointer-events:auto;">{% if p.is_favourite %}в™ҐпёЋ{% else %}в™ЎпёЋ{% endif %}</span>
             </div>
         </div>
         {% endfor %}
@@ -434,7 +434,7 @@
     <div class="create-task-modal-content">
         <div class="create-task-modal-header">
             <span>New Task</span>
-            <button class="modal-close-btn" onclick="closeCreateTaskModal()">✕</button>
+            <button class="modal-close-btn" onclick="closeCreateTaskModal()">вњ•</button>
         </div>
 
         <div class="create-task-modal-body">
@@ -462,7 +462,7 @@
             </svg>
             <span>TO DO</span>
         </div>
-        <span style="color:#888;font-size:11px">▾</span>
+        <span style="color:#888;font-size:11px">в–ѕ</span>
         <div class="status-select-options" id="statusSelectOptions" style="display:none">
             <div class="status-select-opt" onclick="pickStatus('todo')">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -489,8 +489,8 @@
     <div class="create-task-field">
         <label>Priority</label>
         <select id="createTaskPriority" class="create-task-select">
-            <option value="low">⚐ Low</option>
-            <option value="high">⚑ High</option>
+            <option value="low">вљђ Low</option>
+            <option value="high">вљ‘ High</option>
         </select>
     </div>
 </div>
@@ -511,11 +511,11 @@
 <div class="create-task-fields-row">
     <div class="create-task-field">
         <label>Created at</label>
-        <span class="create-task-readonly">—</span>
+        <span class="create-task-readonly">вЂ”</span>
     </div>
     <div class="create-task-field">
         <label>Updated at</label>
-        <span class="create-task-readonly">—</span>
+        <span class="create-task-readonly">вЂ”</span>
     </div>
 </div>
         </div>
@@ -528,16 +528,17 @@
 </div>
 
 <div id="task-dropdown" class="task-dropdown" style="display:none">
-    <div class="task-dropdown-item" onclick="renameTask()">✎ Rename</div>
-    <div class="task-dropdown-item" onclick="duplicateTask()">⧉ Duplicate</div>
-    <div class="task-dropdown-item" onclick="changeTaskDescription()">☰ Change description</div>
-    <div class="task-dropdown-item" onclick="moveTaskTo()">➜ Move to</div>
+    <div class="task-dropdown-item" onclick="renameTask()">вњЋ Rename</div>
+    <div class="task-dropdown-item" onclick="duplicateTask()">в§‰ Duplicate</div>
+    <div class="task-dropdown-item" onclick="changeTaskDescription()">в° Change description</div>
+    <div class="task-dropdown-item" onclick="moveTaskTo()">вћњ Move to</div>
     <div class="task-dropdown-divider"></div>
-    <div class="task-dropdown-item task-dropdown-delete" onclick="deleteTask()">🗑 Delete</div>
+    <div class="task-dropdown-item task-dropdown-delete" onclick="deleteTask()">рџ—‘ Delete</div>
 </div>
 
 
 <!--JS-->
+<script src="{% static 'tasks/js/safe.js' %}"></script>
 <script src="{% static 'tasks/js/main.js' %}"></script>
 <script src="{% static 'tasks/js/group.js' %}"></script>
 <script src="{% static 'tasks/js/project.js' %}"></script>
@@ -556,7 +557,7 @@
             dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
         });
 
-        // Закрыть при клике вне дропдауна
+        // Р—Р°РєСЂС‹С‚СЊ РїСЂРё РєР»РёРєРµ РІРЅРµ РґСЂРѕРїРґР°СѓРЅР°
         document.addEventListener("click", (e) => {
             if (!dropdown.contains(e.target) && !avatar.contains(e.target)) {
                 dropdown.style.display = "none";
@@ -570,16 +571,16 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const themeToggle = document.getElementById('theme-icon'); // твоя иконка
+    const themeToggle = document.getElementById('theme-icon'); // С‚РІРѕСЏ РёРєРѕРЅРєР°
     const body = document.body;
 
-    // Проверка сохраненной темы при загрузке страницы
+    // РџСЂРѕРІРµСЂРєР° СЃРѕС…СЂР°РЅРµРЅРЅРѕР№ С‚РµРјС‹ РїСЂРё Р·Р°РіСЂСѓР·РєРµ СЃС‚СЂР°РЅРёС†С‹
     if(localStorage.getItem('theme') === 'dark') {
         body.classList.add('dark-theme');
-        // При темной теме показываем светлое солнце
+        // РџСЂРё С‚РµРјРЅРѕР№ С‚РµРјРµ РїРѕРєР°Р·С‹РІР°РµРј СЃРІРµС‚Р»РѕРµ СЃРѕР»РЅС†Рµ
         themeToggle.src = "{% static 'tasks/icons/light_mode.png' %}";
     } else {
-        // При светлой теме показываем луну
+        // РџСЂРё СЃРІРµС‚Р»РѕР№ С‚РµРјРµ РїРѕРєР°Р·С‹РІР°РµРј Р»СѓРЅСѓ
         themeToggle.src = "{% static 'tasks/icons/night_mode.png' %}";
     }
 
@@ -587,11 +588,11 @@ document.addEventListener('DOMContentLoaded', function() {
         body.classList.toggle('dark-theme');
 
         if(body.classList.contains('dark-theme')) {
-            // Темная тема включена → иконка солнца
+            // РўРµРјРЅР°СЏ С‚РµРјР° РІРєР»СЋС‡РµРЅР° в†’ РёРєРѕРЅРєР° СЃРѕР»РЅС†Р°
             themeToggle.src = "{% static 'tasks/icons/light_mode.png' %}";
             localStorage.setItem('theme', 'dark');
         } else {
-            // Светлая тема → иконка луны
+            // РЎРІРµС‚Р»Р°СЏ С‚РµРјР° в†’ РёРєРѕРЅРєР° Р»СѓРЅС‹
             themeToggle.src = "{% static 'tasks/icons/night_mode.png' %}";
             localStorage.setItem('theme', 'light');
         }
@@ -610,7 +611,7 @@ document.addEventListener('DOMContentLoaded', function() {
     viewButtons.forEach(btn => {
         btn.addEventListener('click', function() {
 
-            // переключаем активную кнопку
+            // РїРµСЂРµРєР»СЋС‡Р°РµРј Р°РєС‚РёРІРЅСѓСЋ РєРЅРѕРїРєСѓ
             viewButtons.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
 
@@ -621,7 +622,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 section.classList.add(view + '-view');
             });
 
-            console.log("View changed to:", view); // для проверки
+            console.log("View changed to:", view); // РґР»СЏ РїСЂРѕРІРµСЂРєРё
         });
     });
 
@@ -632,7 +633,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="settings-modal-content">
         <div class="settings-modal-header">
             <span>Profile settings</span>
-            <button class="modal-close-btn" onclick="closeSettingsModal()">✕</button>
+            <button class="modal-close-btn" onclick="closeSettingsModal()">вњ•</button>
         </div>
 
         <div class="settings-avatar-section">
@@ -644,12 +645,12 @@ document.addEventListener('DOMContentLoaded', function() {
         {{ request.user.username|slice:":1" }}
     {% endif %}
 </div>
-        <div class="settings-avatar-edit" id="avatar-edit-btn">✎</div>
+        <div class="settings-avatar-edit" id="avatar-edit-btn">вњЋ</div>
 
         <div class="avatar-edit-dropdown" id="avatar-edit-dropdown" style="display:none">
-            <div class="avatar-edit-option" id="avatar-choose">🖼 Choose from gallery</div>
-            <div class="avatar-edit-option" id="avatar-show">👁 Show profile picture</div>
-            <div class="avatar-edit-option" id="avatar-delete">🗑 Delete profile picture</div>
+            <div class="avatar-edit-option" id="avatar-choose">рџ–ј Choose from gallery</div>
+            <div class="avatar-edit-option" id="avatar-show">рџ‘Ѓ Show profile picture</div>
+            <div class="avatar-edit-option" id="avatar-delete">рџ—‘ Delete profile picture</div>
         </div>
     </div>
     <input type="file" id="avatar-file-input" accept="image/*" style="display:none">
@@ -719,10 +720,10 @@ document.addEventListener('DOMContentLoaded', function() {
 <div id="task-bulk-bar" class="task-bulk-bar" style="display:none">
     <div class="bulk-bar-left">
         <span id="bulk-bar-count">0 Tasks selected</span>
-        <button class="bulk-bar-clear" onclick="clearSelection()">✕</button>
+        <button class="bulk-bar-clear" onclick="clearSelection()">вњ•</button>
     </div>
     <div class="bulk-bar-actions">
-    <button class="bulk-bar-btn" onclick="bulkChangeStatus(event)">⊙ Status</button>
+    <button class="bulk-bar-btn" onclick="bulkChangeStatus(event)">вЉ™ Status</button>
     <button class="bulk-bar-btn" onclick="bulkChangeAssignee(event)"><svg class="user-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Assignees</button>
     <button class="bulk-bar-btn" onclick="bulkChangeDates(event)">
     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -735,9 +736,9 @@ document.addEventListener('DOMContentLoaded', function() {
     </svg>
     Dates
 </button>
-    <button class="bulk-bar-btn" onclick="bulkMoveTo(event)">➜ Move/Add</button>
+    <button class="bulk-bar-btn" onclick="bulkMoveTo(event)">вћњ Move/Add</button>
     <div class="bulk-bar-divider"></div>
-    <button class="bulk-bar-btn bulk-bar-delete" onclick="bulkDelete()">🗑</button>
+    <button class="bulk-bar-btn bulk-bar-delete" onclick="bulkDelete()">рџ—‘</button>
 </div>
 </div>
 
