@@ -1003,6 +1003,7 @@ def register_view(request):
     return render(request, "tasks/register.html", {"error": error})
 
 
+@require_POST
 def logout_view(request):
     logout(request)
     return redirect("/login/")

@@ -764,6 +764,10 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
+<form id="logout-form" method="post" action="{% url 'logout' %}" style="display:none">
+    {% csrf_token %}
+</form>
+
 
 </body>
 </html>

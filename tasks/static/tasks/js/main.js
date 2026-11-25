@@ -2099,7 +2099,7 @@ document.getElementById('logout-btn').addEventListener('click', () => {
 
 
 function confirmLogout() {
-    window.location.href = '/logout/';
+    document.getElementById('logout-form').submit();
 }
 
 
