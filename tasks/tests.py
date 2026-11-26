@@ -288,3 +288,92 @@ class CreateTaskTest(APITestCase):
 
         self.assertNotEqual(response.status_code, 200)
         self.assertFalse(Task.objects.filter(title="Задача без логина").exists())
+
+
+
+    def test_create_task_rejects_empty_title(self):
+        response = self.client.post(
+            "/tasks/create/",
+            data=json.dumps({
+                "title": "   ",
+                "project_id": self.project.id,
+            }),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(Task.objects.count(), 0)
+
+    def test_create_task_rejects_overlong_title(self):
+        response = self.client.post(
+            "/tasks/create/",
+            data=json.dumps({
+                "title": "a" * 101,
+                "project_id": self.project.id,
+            }),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(Task.objects.count(), 0)
+
+    def test_create_task_rejects_missing_title(self):
+        response = self.client.post(
+            "/tasks/create/",
+            data=json.dumps({
+                "project_id": self.project.id,
+            }),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(Task.objects.count(), 0)
+
+    def test_create_task_rejects_invalid_status(self):
+        response = self.client.post(
+            "/tasks/create/",
+            data=json.dumps({
+                "title": "Valid title",
+                "status": "unknown",
+                "project_id": self.project.id,
+            }),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(Task.objects.count(), 0)
+
+    def test_create_task_rejects_invalid_priority(self):
+        response = self.client.post(
+            "/tasks/create/",
+            data=json.dumps({
+                "title": "Valid title",
+                "priority": "urgent",
+                "project_id": self.project.id,
+            }),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(Task.objects.count(), 0)
+
+    def test_create_task_rejects_invalid_json(self):
+        response = self.client.post(
+            "/tasks/create/",
+            data="{invalid json",
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(Task.objects.count(), 0)
+
+    def test_create_task_rejects_json_array(self):
+        response = self.client.post(
+            "/tasks/create/",
+            data=json.dumps(["not", "an", "object"]),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(Task.objects.count(), 0)
+

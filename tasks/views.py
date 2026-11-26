@@ -1,5 +1,6 @@
 import json
-from datetime import timedelta
+from datetime import datetime, time, timedelta
+from datetime import datetime, time
 
 from django import forms
 from django.contrib.auth import (
@@ -30,11 +31,78 @@ from .access import (
 from .models import Project, Projects_Group, Task, UserProfile
 from .serializers import ProjectSerializer, ProjectsGroupSerializer, TaskSerializer
 
+
 User = get_user_model()
 
 
+def _parse_json_body(request):
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return None, JsonResponse(
+            {"success": False, "error": "Invalid JSON"},
+            status=400,
+        )
+
+    if not isinstance(data, dict):
+        return None, JsonResponse(
+            {"success": False, "error": "JSON body must be an object"},
+            status=400,
+        )
+
+    return data, None
+
+
+
+def _parse_due_date(value):
+    if value in (None, ""):
+        return None
+
+    if not isinstance(value, str):
+        raise ValueError("Invalid due date")
+
+    try:
+        parsed_date = datetime.strptime(value, "%Y-%m-%d").date()
+    except ValueError:
+        raise ValueError("Due date must use YYYY-MM-DD format")
+
+    return datetime.combine(parsed_date, time.min)
+
+
+def _validate_task_data(data, require_title=True):
+    title = data.get("title")
+
+    if require_title:
+        if not isinstance(title, str) or not title.strip():
+            return "Title is required"
+        if len(title.strip()) > 100:
+            return "Title must be at most 100 characters"
+
+    if "status" in data and (
+        not isinstance(data["status"], str)
+        or data["status"] not in {"todo", "in_progress", "done"}
+    ):
+        return "Invalid task status"
+
+    if "priority" in data and (
+        not isinstance(data["priority"], str)
+        or data["priority"] not in {"low", "high"}
+    ):
+        return "Invalid task priority"
+
+    if "description" in data and not isinstance(data["description"], str):
+        return "Description must be a string"
+
+    return None
+
+
 def _get_user_task(request, data):
-    return user_tasks(request.user).filter(id=data.get("task_id")).first()
+    task_id = _parse_positive_id(data.get("task_id"))
+
+    if task_id is None:
+        return None
+
+    return user_tasks(request.user).filter(id=task_id).first()
 
 
 @login_required
@@ -619,26 +687,60 @@ def get_project_tasks(request, project_id):
 @login_required
 def create_task(request):
     if request.method == "POST":
-        data = json.loads(request.body)
-        project = user_projects(request.user).filter(id=data.get("project_id")).first()
+        data, error_response = _parse_json_body(request)
+        if error_response:
+            return error_response
+
+        validation_error = _validate_task_data(data)
+        if validation_error:
+            return JsonResponse(
+                {"success": False, "error": validation_error},
+                status=400,
+            )
+
+        project_id = _parse_positive_id(data.get("project_id"))
+
+        if project_id is None:
+            return JsonResponse(
+                {"success": False, "error": "Invalid project"},
+                status=400,
+            )
+
+        project = user_projects(request.user).filter(id=project_id).first()
+
         if project is None:
             return not_found("Project not found")
+
         if not assignee_allowed(request.user, data.get("assignee_id")):
             return JsonResponse(
-                {"success": False, "error": "Invalid assignee"}, status=400
+                {"success": False, "error": "Invalid assignee"},
+                status=400,
             )
+
+
+        try:
+            due_date = _parse_due_date(data.get("due_date"))
+        except ValueError as error:
+            return JsonResponse(
+                {"success": False, "error": str(error)},
+                status=400,
+            )
+
         task = Task.objects.create(
-            title=data["title"],
+            title=data["title"].strip(),
             description=data.get("description", ""),
             status=data.get("status", "todo"),
             priority=data.get("priority", "low"),
             project=project,
             owner=request.user,
-            due_date=data.get("due_date") or None,
+            due_date=due_date,
             assignee_id=data.get("assignee_id") or None,
         )
+
         return JsonResponse({"success": True, "task_id": task.id})
+
     return JsonResponse({"success": False})
+
 
 
 @login_required
@@ -647,112 +749,304 @@ def list_users(request):
     users = User.objects.filter(id=request.user.id).values("id", "username")
     return JsonResponse(list(users), safe=False)
 
-
 @login_required
 def rename_task(request):
-    data = json.loads(request.body)
+    if request.method != "POST":
+        return JsonResponse({"success": False}, status=405)
+
+    data, error_response = _parse_json_body(request)
+    if error_response:
+        return error_response
+
+    new_name = data.get("new_name")
+
+    if not isinstance(new_name, str) or not new_name.strip():
+        return JsonResponse(
+            {"success": False, "error": "Task title is required"},
+            status=400,
+        )
+
+    new_name = new_name.strip()
+
+    if len(new_name) > 100:
+        return JsonResponse(
+            {"success": False, "error": "Title must be at most 100 characters"},
+            status=400,
+        )
+
     task = _get_user_task(request, data)
     if task is None:
         return not_found("Task not found")
-    task.title = data["new_name"]
-    task.save()
-    task.refresh_from_db()
+
+    task.title = new_name
+    task.save(update_fields=["title", "updated_at"])
+
     return JsonResponse({"success": True})
+
+
 
 
 @login_required
 def delete_task(request):
-    data = json.loads(request.body)
+    if request.method != "POST":
+        return JsonResponse({"success": False}, status=405)
+
+    data, error_response = _parse_json_body(request)
+    if error_response:
+        return error_response
+
     task = _get_user_task(request, data)
     if task is None:
         return not_found("Task not found")
+
     task.delete()
+
     return JsonResponse({"success": True})
+
+
 
 
 @login_required
 def duplicate_task(request):
-    data = json.loads(request.body)
+    if request.method != "POST":
+        return JsonResponse({"success": False}, status=405)
+
+    data, error_response = _parse_json_body(request)
+    if error_response:
+        return error_response
+
     task = _get_user_task(request, data)
     if task is None:
         return not_found("Task not found")
+
+    new_title = f"{task.title} (copy)"
+
+    if len(new_title) > 100:
+        return JsonResponse(
+            {
+                "success": False,
+                "error": "Cannot duplicate task: resulting title is too long",
+            },
+            status=400,
+        )
+
     task.pk = None
-    task.title = task.title + " (copy)"
+    task.title = new_title
     task.owner = request.user
     task.save()
+
     return JsonResponse({"success": True})
+
+
+
 
 
 @login_required
 def update_task_status(request):
-    data = json.loads(request.body)
+    if request.method != "POST":
+        return JsonResponse({"success": False}, status=405)
+
+    data, error_response = _parse_json_body(request)
+    if error_response:
+        return error_response
+
+    status = data.get("status")
+
+    if not isinstance(status, str) or status not in {
+        "todo",
+        "in_progress",
+        "done",
+    }:
+        return JsonResponse(
+            {"success": False, "error": "Invalid task status"},
+            status=400,
+        )
+
     task = _get_user_task(request, data)
     if task is None:
         return not_found("Task not found")
-    task.status = data["status"]
-    task.save()
+
+    task.status = status
+    task.save(update_fields=["status", "updated_at"])
+
     return JsonResponse({"success": True})
+
+
 
 
 @login_required
 def update_task_description(request):
-    data = json.loads(request.body)
+    if request.method != "POST":
+        return JsonResponse({"success": False}, status=405)
+
+    data, error_response = _parse_json_body(request)
+    if error_response:
+        return error_response
+
+    description = data.get("description")
+
+    if not isinstance(description, str):
+        return JsonResponse(
+            {"success": False, "error": "Description must be a string"},
+            status=400,
+        )
+
     task = _get_user_task(request, data)
     if task is None:
         return not_found("Task not found")
-    task.description = data["description"]
-    task.save()
+
+    task.description = description
+    task.save(update_fields=["description", "updated_at"])
+
     return JsonResponse({"success": True})
+
+
+
+
+
+def _parse_positive_id(value):
+    if isinstance(value, bool):
+        return None
+
+    if isinstance(value, int):
+        return value if value > 0 else None
+
+    if isinstance(value, str) and value.isdecimal():
+        parsed = int(value)
+        return parsed if parsed > 0 else None
+
+    return None
 
 
 @login_required
 def update_task_due_date(request):
-    data = json.loads(request.body)
+    if request.method != "POST":
+        return JsonResponse({"success": False}, status=405)
+
+    data, error_response = _parse_json_body(request)
+    if error_response:
+        return error_response
+
+    try:
+        due_date = _parse_due_date(data.get("due_date"))
+    except ValueError as error:
+        return JsonResponse(
+            {"success": False, "error": str(error)},
+            status=400,
+        )
+
     task = _get_user_task(request, data)
     if task is None:
         return not_found("Task not found")
-    task.due_date = data["due_date"] or None
+
+    task.due_date = due_date
     task.save()
+
     return JsonResponse({"success": True})
 
 
 @login_required
 def update_task_assignee(request):
-    data = json.loads(request.body)
+    if request.method != "POST":
+        return JsonResponse({"success": False}, status=405)
+
+    data, error_response = _parse_json_body(request)
+    if error_response:
+        return error_response
+
+    raw_assignee_id = data.get("assignee_id")
+
+    if raw_assignee_id in (None, ""):
+        assignee_id = None
+    else:
+        assignee_id = _parse_positive_id(raw_assignee_id)
+
+        if assignee_id is None:
+            return JsonResponse(
+                {"success": False, "error": "Invalid assignee"},
+                status=400,
+            )
+
+        if not assignee_allowed(request.user, assignee_id):
+            return JsonResponse(
+                {"success": False, "error": "Invalid assignee"},
+                status=400,
+            )
+
     task = _get_user_task(request, data)
     if task is None:
         return not_found("Task not found")
-    if not assignee_allowed(request.user, data.get("assignee_id")):
-        return JsonResponse({"success": False, "error": "Invalid assignee"}, status=400)
-    task.assignee_id = data["assignee_id"] or None
-    task.save()
+
+    task.assignee_id = assignee_id
+    task.save(update_fields=["assignee", "updated_at"])
+
     return JsonResponse({"success": True})
+
 
 
 @login_required
 def move_task(request):
-    data = json.loads(request.body)
+    if request.method != "POST":
+        return JsonResponse({"success": False}, status=405)
+
+    data, error_response = _parse_json_body(request)
+    if error_response:
+        return error_response
+
+    project_id = _parse_positive_id(data.get("project_id"))
+
+    if project_id is None:
+        return JsonResponse(
+            {"success": False, "error": "Invalid project"},
+            status=400,
+        )
+
     task = _get_user_task(request, data)
     if task is None:
         return not_found("Task not found")
-    project = user_projects(request.user).filter(id=data.get("project_id")).first()
+
+    project = user_projects(request.user).filter(id=project_id).first()
+
     if project is None:
         return not_found("Project not found")
+
     task.project = project
-    task.save()
+    task.save(update_fields=["project", "updated_at"])
+
     return JsonResponse({"success": True})
+
+
+
 
 
 @login_required
 def update_task_priority(request):
-    data = json.loads(request.body)
+    if request.method != "POST":
+        return JsonResponse({"success": False}, status=405)
+
+    data, error_response = _parse_json_body(request)
+    if error_response:
+        return error_response
+
+    priority = data.get("priority")
+
+    if not isinstance(priority, str) or priority not in {"low", "high"}:
+        return JsonResponse(
+            {"success": False, "error": "Invalid task priority"},
+            status=400,
+        )
+
     task = _get_user_task(request, data)
     if task is None:
         return not_found("Task not found")
-    task.priority = data["priority"]
-    task.save()
-    task.refresh_from_db()
+
+    task.priority = priority
+    task.save(update_fields=["priority", "updated_at"])
+
     return JsonResponse({"success": True})
+
+
+
 
 
 @login_required
@@ -876,14 +1170,59 @@ def dashboard_stats(request):
 
 
 @login_required
-@require_POST
 def reorder_tasks(request):
-    data = json.loads(request.body)
-    task_ids = data.get("task_ids", [])
+    if request.method != "POST":
+        return JsonResponse({"success": False}, status=405)
+
+    data, error_response = _parse_json_body(request)
+    if error_response:
+        return error_response
+
+    raw_task_ids = data.get("task_ids")
+
+    if not isinstance(raw_task_ids, list):
+        return JsonResponse(
+            {"success": False, "error": "task_ids must be a list"},
+            status=400,
+        )
+
+    task_ids = []
+
+    for raw_id in raw_task_ids:
+        task_id = _parse_positive_id(raw_id)
+
+        if task_id is None:
+            return JsonResponse(
+                {"success": False, "error": "Invalid task ID"},
+                status=400,
+            )
+
+        task_ids.append(task_id)
+
+    if len(task_ids) != len(set(task_ids)):
+        return JsonResponse(
+            {"success": False, "error": "Duplicate task IDs"},
+            status=400,
+        )
+
     own_tasks = user_tasks(request.user)
+
+    existing_ids = set(
+        own_tasks.filter(id__in=task_ids).values_list("id", flat=True)
+    )
+
+    if existing_ids != set(task_ids):
+        return JsonResponse(
+            {"success": False, "error": "One or more tasks not found"},
+            status=400,
+        )
+
     for index, task_id in enumerate(task_ids):
         own_tasks.filter(id=task_id).update(order=index)
+
     return JsonResponse({"success": True})
+
+
 
 
 @login_required
