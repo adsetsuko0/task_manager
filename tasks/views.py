@@ -1,6 +1,5 @@
 import json
 from datetime import datetime, time, timedelta
-from datetime import datetime, time
 
 from django import forms
 from django.contrib.auth import (
@@ -31,7 +30,6 @@ from .access import (
 from .models import Project, Projects_Group, Task, UserProfile
 from .serializers import ProjectSerializer, ProjectsGroupSerializer, TaskSerializer
 
-
 User = get_user_model()
 
 
@@ -51,7 +49,6 @@ def _parse_json_body(request):
         )
 
     return data, None
-
 
 
 def _parse_due_date(value):
@@ -85,8 +82,7 @@ def _validate_task_data(data, require_title=True):
         return "Invalid task status"
 
     if "priority" in data and (
-        not isinstance(data["priority"], str)
-        or data["priority"] not in {"low", "high"}
+        not isinstance(data["priority"], str) or data["priority"] not in {"low", "high"}
     ):
         return "Invalid task priority"
 
@@ -717,7 +713,6 @@ def create_task(request):
                 status=400,
             )
 
-
         try:
             due_date = _parse_due_date(data.get("due_date"))
         except ValueError as error:
@@ -742,12 +737,12 @@ def create_task(request):
     return JsonResponse({"success": False})
 
 
-
 @login_required
 def list_users(request):
     # Данные приватные: другие пользователи не видны, назначить можно только себя
     users = User.objects.filter(id=request.user.id).values("id", "username")
     return JsonResponse(list(users), safe=False)
+
 
 @login_required
 def rename_task(request):
@@ -784,8 +779,6 @@ def rename_task(request):
     return JsonResponse({"success": True})
 
 
-
-
 @login_required
 def delete_task(request):
     if request.method != "POST":
@@ -802,8 +795,6 @@ def delete_task(request):
     task.delete()
 
     return JsonResponse({"success": True})
-
-
 
 
 @login_required
@@ -838,9 +829,6 @@ def duplicate_task(request):
     return JsonResponse({"success": True})
 
 
-
-
-
 @login_required
 def update_task_status(request):
     if request.method != "POST":
@@ -872,8 +860,6 @@ def update_task_status(request):
     return JsonResponse({"success": True})
 
 
-
-
 @login_required
 def update_task_description(request):
     if request.method != "POST":
@@ -899,9 +885,6 @@ def update_task_description(request):
     task.save(update_fields=["description", "updated_at"])
 
     return JsonResponse({"success": True})
-
-
-
 
 
 def _parse_positive_id(value):
@@ -983,7 +966,6 @@ def update_task_assignee(request):
     return JsonResponse({"success": True})
 
 
-
 @login_required
 def move_task(request):
     if request.method != "POST":
@@ -1016,9 +998,6 @@ def move_task(request):
     return JsonResponse({"success": True})
 
 
-
-
-
 @login_required
 def update_task_priority(request):
     if request.method != "POST":
@@ -1044,9 +1023,6 @@ def update_task_priority(request):
     task.save(update_fields=["priority", "updated_at"])
 
     return JsonResponse({"success": True})
-
-
-
 
 
 @login_required
@@ -1207,9 +1183,7 @@ def reorder_tasks(request):
 
     own_tasks = user_tasks(request.user)
 
-    existing_ids = set(
-        own_tasks.filter(id__in=task_ids).values_list("id", flat=True)
-    )
+    existing_ids = set(own_tasks.filter(id__in=task_ids).values_list("id", flat=True))
 
     if existing_ids != set(task_ids):
         return JsonResponse(
@@ -1221,8 +1195,6 @@ def reorder_tasks(request):
         own_tasks.filter(id=task_id).update(order=index)
 
     return JsonResponse({"success": True})
-
-
 
 
 @login_required
