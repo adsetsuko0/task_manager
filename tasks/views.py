@@ -980,17 +980,22 @@ def register_view(request):
     error = None
     if request.method == "POST":
         username = request.POST.get("username")
-        password = request.POST.get("password")
-        password2 = request.POST.get("password2")
+        password = request.POST.get("password", "")
+        password2 = request.POST.get("password2", "")
 
         if password != password2:
             error = "Passwords do not match"
         elif User.objects.filter(username=username).exists():
             error = "Username already taken"
         else:
-            user = User.objects.create_user(username=username, password=password)
-            login(request, user)
-            return redirect("/")
+            try:
+                password_validation.validate_password(password, User(username=username))
+            except ValidationError as validation_error:
+                error = " ".join(validation_error.messages)
+            else:
+                user = User.objects.create_user(username=username, password=password)
+                login(request, user)
+                return redirect("/")
 
     return render(request, "tasks/register.html", {"error": error})
 
