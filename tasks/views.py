@@ -12,6 +12,7 @@ from django.contrib.auth import (
 )
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.db.models import Count
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
@@ -348,25 +349,25 @@ def duplicate_project(request):
                 {"success": False, "error": "Project limit reached for this group"}
             )
 
-        # Создаем копию проекта
-        new_project = Project.objects.create(
-            name=f"{project.name} (copy)",
-            group=project.group,
-            task_limit=project.task_limit,
-            is_favourite=project.is_favourite,
-        )
-
-        for task in project.tasks.all():
-            Task.objects.create(
-                title=task.title,
-                description=task.description,
-                status=task.status,
-                priority=task.priority,
-                owner=request.user,
-                assignee=task.assignee,
-                due_date=task.due_date,
-                project=new_project,
+        with transaction.atomic():
+            new_project = Project.objects.create(
+                name=f"{project.name} (copy)",
+                group=project.group,
+                task_limit=project.task_limit,
+                is_favourite=project.is_favourite,
             )
+
+            for task in project.tasks.all():
+                Task.objects.create(
+                    title=task.title,
+                    description=task.description,
+                    status=task.status,
+                    priority=task.priority,
+                    owner=request.user,
+                    assignee=task.assignee,
+                    due_date=task.due_date,
+                    project=new_project,
+                )
 
         return JsonResponse(
             {

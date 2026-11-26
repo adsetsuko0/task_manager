@@ -1,5 +1,6 @@
 import json  # Python-словари в JSON-строки для запросов
 from datetime import datetime
+from unittest.mock import patch
 
 from rest_framework.test import APITestCase
 
@@ -211,6 +212,39 @@ class DuplicateProjectTest(APITestCase):
         new_titles = set(new_tasks.values_list("title", flat=True))
         self.assertIn("Task A", new_titles)
         self.assertIn("Task B", new_titles)
+
+    def test_duplicate_project_rolls_back_on_task_creation_error(self):
+        original_create = Task.objects.create
+        calls = 0
+
+        def create_task_with_error(*args, **kwargs):
+            nonlocal calls
+            calls += 1
+
+            if calls == 2:
+                raise Exception("Simulated task creation error")
+
+            return original_create(*args, **kwargs)
+
+        with patch(
+            "tasks.views.Task.objects.create",
+            side_effect=create_task_with_error,
+        ):
+            response = self.client.post(
+                "/projects/duplicate/",
+                data=json.dumps({"project_id": self.project.id}),
+                content_type="application/json",
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.json().get("success"))
+
+        # Исходный проект должен остаться единственным
+        self.assertEqual(Project.objects.filter(group=self.group).count(), 1)
+
+        # Исходные задачи должны остаться, копии — отсутствовать
+        self.assertEqual(Task.objects.filter(project=self.project).count(), 2)
+        self.assertEqual(Task.objects.count(), 2)
 
     def test_duplicate_respects_group_limit(self):
 
