@@ -1,0 +1,24 @@
+{
+  "name": "task_manager-clean",
+  "version": "1.0.0",
+  "description": "[![CI](https://github.com/adsetsuko0/task_manager/actions/workflows/ci.yml/badge.svg)](https://github.com/adsetsuko0/task_manager/actions/workflows/ci.yml)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adsetsuko0/task_manager.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/adsetsuko0/task_manager/issues"
+  },
+  "homepage": "https://github.com/adsetsuko0/task_manager#readme",
+  "devDependencies": {
+    "jsdom": "^31.0.1"
+  }
+}

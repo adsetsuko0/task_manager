@@ -20,6 +20,28 @@ class RegistrationTest(APITestCase):
 
         self.assertTrue(User.objects.filter(username="newuser").exists())
 
+    def test_registration_rejects_weak_passwords(self):
+        weak_passwords = [
+            ("shortuser", "abc"),
+            ("commonuser", "password"),
+            ("numericuser", "12345678"),
+            ("similaruser", "similaruser123"),
+        ]
+
+        for username, password in weak_passwords:
+            with self.subTest(password=password):
+                response = self.client.post(
+                    "/register/",
+                    {
+                        "username": username,
+                        "password": password,
+                        "password2": password,
+                    },
+                )
+
+                self.assertEqual(response.status_code, 200)
+                self.assertFalse(User.objects.filter(username=username).exists())
+
     def test_registration_fails_if_passwords_dont_match(self):
         response = self.client.post(
             "/register/",

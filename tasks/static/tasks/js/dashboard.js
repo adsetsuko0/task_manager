@@ -148,7 +148,7 @@ function loadDashboardData() {
                     panel.dataset.source = cardId;
                     panel.innerHTML = `
                         <div class="dash-panel-header">
-                            <span class="dash-panel-title">${title}</span>
+                            <span class="dash-panel-title">${esc(title)}</span>
                             <span class="dash-panel-count">${tasks.length} tasks</span>
                             <button class="dash-panel-close" onclick="document.getElementById('dash-tasks-panel').remove(); document.querySelectorAll('.dash-stat-card').forEach(c=>c.classList.remove('dash-stat-active'))">✕</button>
                         </div>
@@ -164,11 +164,11 @@ function loadDashboardData() {
                                 ${tasks.length === 0
                                     ? `<tr><td class="task-td task-muted" colspan="5">No tasks</td></tr>`
                                     : tasks.map(t => `
-                                        <tr class="task-row dash-clickable-row" data-project-name="${t.project__name}">
-                                            <td class="task-td task-title-td">${t.title}</td>
-                                            <td class="task-td task-muted">${t.project__name || '—'}</td>
-                                            <td class="task-td task-muted">${t.due_date || '—'}</td>
-                                            <td class="task-td"><span class="task-status-badge status-${t.status || ''}">${(t.status || '').replace('_', ' ')}</span></td>                                            
+                                        <tr class="task-row dash-clickable-row" data-project-name="${esc(t.project__name ?? '')}">
+                                            <td class="task-td task-title-td">${esc(t.title)}</td>
+                                            <td class="task-td task-muted">${esc(t.project__name) || '—'}</td>
+                                            <td class="task-td task-muted">${esc(t.due_date) || '—'}</td>
+                                            <td class="task-td"><span class="task-status-badge status-${['todo', 'in_progress', 'done'].includes(t.status) ? t.status : 'todo'}">${esc((t.status || '').replace('_', ' '))}</span></td>
                                             <td class="task-td"><span class="task-priority-inline" style="color:${t.priority === 'high' ? '#e03131' : '#aaa'}">⚑</span></td>
                                         </tr>
                                     `).join('')}
@@ -263,10 +263,10 @@ function loadDashboardData() {
                 overdueList.innerHTML = `<tr><td class="task-td task-muted" colspan="4">No overdue tasks 🎉</td></tr>`;
             } else {
                 overdueList.innerHTML = data.overdue_tasks.map(t => `
-                    <tr class="task-row dash-clickable-row" data-project-name="${t.project__name}">
-                        <td class="task-td task-title-td">${t.title}</td>
-                        <td class="task-td task-muted">${t.project__name || '—'}</td>
-                        <td class="task-td task-muted" style="color:#e03131">${t.due_date}</td>
+                    <tr class="task-row dash-clickable-row" data-project-name="${esc(t.project__name ?? '')}">
+                        <td class="task-td task-title-td">${esc(t.title)}</td>
+                        <td class="task-td task-muted">${esc(t.project__name) || '—'}</td>
+                        <td class="task-td task-muted" style="color:#e03131">${esc(t.due_date)}</td>
                         <td class="task-td"><span class="task-priority-inline" style="color:${t.priority === 'high' ? '#e03131' : '#aaa'}">⚑</span></td>
                     </tr>
                 `).join('');
@@ -278,11 +278,11 @@ function loadDashboardData() {
                 upcomingList.innerHTML = `<tr><td class="task-td task-muted" colspan="4">No upcoming tasks</td></tr>`;
             } else {
                 upcomingList.innerHTML = data.upcoming_tasks.map(t => `
-                    <tr class="task-row dash-clickable-row" data-project-name="${t.project__name}">
-                        <td class="task-td task-title-td">${t.title}</td>
-                        <td class="task-td task-muted">${t.project__name || '—'}</td>
-                        <td class="task-td task-muted">${t.due_date}</td>
-                        <td class="task-td"><span class="task-status-badge status-${t.status}">${t.status.replace('_', ' ')}</span></td>
+                    <tr class="task-row dash-clickable-row" data-project-name="${esc(t.project__name ?? '')}">
+                        <td class="task-td task-title-td">${esc(t.title)}</td>
+                        <td class="task-td task-muted">${esc(t.project__name) || '—'}</td>
+                        <td class="task-td task-muted">${esc(t.due_date)}</td>
+                        <td class="task-td"><span class="task-status-badge status-${['todo', 'in_progress', 'done'].includes(t.status) ? t.status : 'todo'}">${esc((t.status || '').replace('_', ' '))}</span></td>
                     </tr>
                 `).join('');
             }

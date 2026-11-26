@@ -145,8 +145,8 @@ function renderGroupPage(groupEl) {
                     imgEl.innerHTML = `
                         <div class="card-tasks-preview">
                             ${tasks.slice(0, 3).map(task => `
-                                <div class="card-task-item status-${task.status}">
-                                    <span class="card-task-name">${task.title}</span>
+                                <div class="card-task-item status-${['todo', 'in_progress', 'done'].includes(task.status) ? task.status : 'todo'}">
+                                    <span class="card-task-name">${esc(task.title)}</span>
                                 </div>
                             `).join('')}
                         </div>
@@ -237,8 +237,8 @@ function renderGroupPage(groupEl) {
                 imgEl.innerHTML = `
                     <div class="card-tasks-preview">
                         ${tasks.slice(0, 3).map(task => `
-                            <div class="card-task-item status-${task.status}">
-                                <span class="card-task-name">${task.title}</span>
+                            <div class="card-task-item status-${['todo', 'in_progress', 'done'].includes(task.status) ? task.status : 'todo'}">
+                                <span class="card-task-name">${esc(task.title)}</span>
                             </div>
                         `).join('')}
                     </div>
