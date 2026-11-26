@@ -1,8 +1,10 @@
 import json  # Python-словари в JSON-строки для запросов
+from datetime import datetime
 
 from rest_framework.test import APITestCase
 
 from tasks.models import Project, Projects_Group, Task
+from tasks.views import _parse_due_date, _validate_task_data
 from users.models import User
 
 
@@ -384,3 +386,49 @@ class CreateTaskTest(APITestCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(Task.objects.count(), 0)
+
+
+class TaskValidationHelpersTest(APITestCase):
+    def test_parse_due_date_with_none(self):
+        self.assertIsNone(_parse_due_date(None))
+
+    def test_parse_due_date_with_empty_string(self):
+        self.assertIsNone(_parse_due_date(""))
+
+    def test_parse_due_date_with_valid_date(self):
+        result = _parse_due_date("2026-12-31")
+        self.assertEqual(
+            result,
+            datetime(2026, 12, 31, 0, 0),
+        )
+
+    def test_parse_due_date_with_non_string(self):
+        with self.assertRaises(ValueError):
+            _parse_due_date(123)
+
+    def test_parse_due_date_with_invalid_format(self):
+        with self.assertRaises(ValueError):
+            _parse_due_date("31-12-2026")
+
+    def test_validate_task_data_without_required_title(self):
+        self.assertIsNone(_validate_task_data({}, require_title=False))
+
+    def test_validate_task_data_with_non_string_description(self):
+        result = _validate_task_data(
+            {
+                "title": "Valid title",
+                "description": 123,
+            }
+        )
+        self.assertEqual(result, "Description must be a string")
+
+    def test_validate_task_data_with_valid_data(self):
+        result = _validate_task_data(
+            {
+                "title": "Valid title",
+                "status": "todo",
+                "priority": "low",
+                "description": "Description",
+            }
+        )
+        self.assertIsNone(result)
